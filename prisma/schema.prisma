@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  ORGANIZER
+  VIEWER
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String?
+  hashedPassword String?
+  role          Role     @default(VIEWER)
+  events        Event[]  @relation("UserEvents")
+  images        Image[]  @relation("UserImages")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Event {
+  id            String       @id @default(cuid())
+  slug          String       @unique
+  title         String
+  description   String?
+  ticketUrl     String?
+  locationName  String?
+  address       String?
+  city          String?
+  state         String?
+  latitude      Float?
+  longitude     Float?
+  startAt       DateTime
+  endAt         DateTime?
+  timezone      String       @default("America/Los_Angeles")
+  status        EventStatus  @default(DRAFT)
+
+  heroImageId   String?
+  heroImage     Image?       @relation("EventHeroImage", fields: [heroImageId], references: [id])
+
+  ownerId       String
+  owner         User         @relation("UserEvents", fields: [ownerId], references: [id])
+
+  images        Image[]       @relation("EventImages")
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([status, startAt])
+  @@index([ownerId])
+}
+
+model Image {
+  id            String   @id @default(cuid())
+  eventId       String?
+  event         Event?   @relation("EventImages", fields: [eventId], references: [id])
+  uploaderId    String
+  uploader      User     @relation("UserImages", fields: [uploaderId], references: [id])
+
+  originalKey   String
+  format        String    // "jpeg" | "png" | "webp" | "avif"
+  width         Int
+  height        Int
+
+  // variants JSON: { "thumb":{"w":300,"h":auto,"key":"..."}, "card":{"w":600,"key":"..."} ... }
+  variants      Json
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Hero image relation
+  heroForEvents Event[]  @relation("EventHeroImage")
+
+  @@index([eventId])
+}
