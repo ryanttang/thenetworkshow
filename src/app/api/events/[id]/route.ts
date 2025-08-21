@@ -9,26 +9,17 @@ export async function GET(
   { params }: { params: { id: string }}
 ) {
   try {
-    // Check if it's a UUID (ID) or slug
-    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.id);
+    const { id } = params;
     
-    let event;
-    if (isUUID) {
-      // Look up by ID (for authenticated users)
-      event = await prisma.event.findUnique({
-        where: { id: params.id },
-        include: { heroImage: true, images: true, owner: true }
-      });
-    } else {
-      // Look up by slug (for public access, published events only)
-      event = await prisma.event.findUnique({
-        where: { 
-          slug: params.id,
-          status: "PUBLISHED"
-        },
-        include: { heroImage: true }
-      });
+    if (!id) {
+      return NextResponse.json({ error: "Event ID is required" }, { status: 400 });
     }
+
+    // Look up by ID (for authenticated users)
+    const event = await prisma.event.findUnique({
+      where: { id: id },
+      include: { heroImage: true, images: true, owner: true }
+    });
     
     if (!event) {
       return NextResponse.json({ error: "Event not found" }, { status: 404 });

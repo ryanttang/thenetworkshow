@@ -27,7 +27,7 @@ export default function EventDetail({ params }: { params: { id: string }}) {
           setEvent(eventData);
         } else {
           // Look up by slug (for public access, published events only)
-          const res = await fetch(`/api/events/${params.id}`);
+          const res = await fetch(`/api/events/slug/${params.id}`);
           if (!res.ok) {
             throw new Error('Event not found');
           }
