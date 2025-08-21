@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerAuthSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import EventGrid from "@/components/events/EventGrid";
-import { Button, HStack, Heading, Box, Text, VStack, SimpleGrid, Card, CardBody, CardHeader } from "@chakra-ui/react";
+import { Button, HStack, Heading, Box, Text, VStack, SimpleGrid, Card, CardBody, CardHeader, Container, Badge } from "@chakra-ui/react";
 import Link from "next/link";
 
 export default async function DashboardPage() {
@@ -19,97 +19,268 @@ export default async function DashboardPage() {
   });
 
   const galleries = await prisma.gallery.findMany({
-    where: { event: { ownerId: me.id } },
+    where: {
+      OR: [
+        { event: { ownerId: me.id } }, // Galleries from user's events
+        { eventId: null } // Standalone galleries (accessible to all users)
+      ]
+    },
     include: { _count: { select: { images: true } } },
     orderBy: { createdAt: "desc" }
   });
 
+
+
   return (
-    <VStack align="stretch" spacing={8}>
-      {/* Welcome Section */}
-      <Box>
-        <Heading size="xl" mb={2}>Welcome back, {me.name || 'Event Organizer'}!</Heading>
-        <Text color="gray.600">Manage your events and galleries from your dashboard</Text>
-      </Box>
+    <Container maxW="full" px={0}>
+      <VStack align="stretch" spacing={16} py={8}>
+        {/* Welcome Section */}
+        <Box textAlign="center" px={{ base: 4, md: 0 }}>
+          <Heading 
+            size="2xl" 
+            mb={6} 
+            color="gray.800"
+            fontWeight="700"
+            lineHeight="1.2"
+          >
+            Welcome back, {me.name || 'Event Organizer'}!
+          </Heading>
+          <Text 
+            color="gray.600" 
+            fontSize="xl" 
+            fontWeight="500"
+            maxW="2xl"
+            lineHeight="1.6"
+            mx="auto"
+          >
+            Manage your events and galleries from your dashboard
+          </Text>
+        </Box>
 
-      {/* Quick Actions */}
-      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-        {/* Events Card */}
-        <Card>
-          <CardHeader>
-            <HStack>
-              <Text fontSize="2xl" color="blue.500">📅</Text>
-              <Heading size="md">Events</Heading>
+        {/* Quick Actions */}
+        <Box px={{ base: 4, md: 0 }}>
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10} w="full">
+            {/* Events Card */}
+            <Card 
+              shadow="lg" 
+              borderRadius="2xl" 
+              overflow="hidden"
+              border="1px solid"
+              borderColor="gray.100"
+              _hover={{
+                shadow: "xl",
+                transform: "translateY(-2px)",
+                transition: "all 0.3s ease"
+              }}
+              transition="all 0.3s ease"
+            >
+              <CardHeader pb={6} px={8} pt={8}>
+                <VStack align="flex-start" spacing={4}>
+                  <HStack spacing={4}>
+                    <Box 
+                      p={3} 
+                      bg="blue.50" 
+                      borderRadius="xl"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <Text fontSize="2xl">📅</Text>
+                    </Box>
+                    <VStack align="flex-start" spacing={1}>
+                      <Heading size="lg" color="gray.800">Events</Heading>
+                      <Badge colorScheme="blue" variant="subtle" px={3} py={1} borderRadius="full">
+                        {items.length} {items.length === 1 ? 'Event' : 'Events'}
+                      </Badge>
+                    </VStack>
+                  </HStack>
+                </VStack>
+              </CardHeader>
+              <CardBody pt={0} px={8} pb={8}>
+                <VStack align="stretch" spacing={8}>
+                  <Text color="gray.600" fontSize="md" lineHeight="1.6">
+                    You have {items.length} event{items.length !== 1 ? 's' : ''} in your portfolio
+                  </Text>
+                  <VStack spacing={4} w="full">
+                    <Button 
+                      as={Link} 
+                      href="/dashboard/events" 
+                      variant="outline" 
+                      size="lg" 
+                      w="full"
+                      colorScheme="blue"
+                      _hover={{
+                        bg: "blue.50",
+                        borderColor: "blue.300"
+                      }}
+                    >
+                      View All Events
+                    </Button>
+                    <Button 
+                      as={Link} 
+                      href="/dashboard/events/new" 
+                      colorScheme="blue" 
+                      size="lg" 
+                      w="full"
+                      _hover={{
+                        transform: "translateY(-1px)",
+                        shadow: "lg"
+                      }}
+                      transition="all 0.2s"
+                    >
+                      Create Event
+                    </Button>
+                  </VStack>
+                </VStack>
+              </CardBody>
+            </Card>
+
+            {/* Gallery Card */}
+            <Card 
+              shadow="lg" 
+              borderRadius="2xl" 
+              overflow="hidden"
+              border="1px solid"
+              borderColor="gray.100"
+              _hover={{
+                shadow: "xl",
+                transform: "translateY(-2px)",
+                transition: "all 0.3s ease"
+              }}
+              transition="all 0.3s ease"
+            >
+              <CardHeader pb={6} px={8} pt={8}>
+                <VStack align="flex-start" spacing={4}>
+                  <HStack spacing={4}>
+                    <Box 
+                      p={3} 
+                      bg="green.50" 
+                      borderRadius="xl"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <Text fontSize="2xl">🖼️</Text>
+                    </Box>
+                    <VStack align="flex-start" spacing={1}>
+                      <Heading size="lg" color="gray.800">Gallery</Heading>
+                      <Badge colorScheme="green" variant="subtle" px={3} py={1} borderRadius="full">
+                        {galleries.length} {galleries.length === 1 ? 'Gallery' : 'Galleries'}
+                      </Badge>
+                    </VStack>
+                  </HStack>
+                </VStack>
+              </CardHeader>
+              <CardBody pt={0} px={8} pb={8}>
+                <VStack align="stretch" spacing={8}>
+                  <Text color="gray.600" fontSize="md" lineHeight="1.6">
+                    You have {galleries.length} gallery{galleries.length !== 1 ? 'ies' : ''} with photos
+                  </Text>
+                  <VStack spacing={4} w="full">
+                    <Button 
+                      as={Link} 
+                      href="/dashboard/gallery" 
+                      variant="outline" 
+                      size="lg" 
+                      w="full"
+                      colorScheme="green"
+                      _hover={{
+                        bg: "green.50",
+                        borderColor: "green.300"
+                      }}
+                    >
+                      Manage Galleries
+                    </Button>
+                    <Button 
+                      as={Link} 
+                      href="/dashboard/gallery" 
+                      colorScheme="green" 
+                      size="lg" 
+                      w="full"
+                      _hover={{
+                        transform: "translateY(-1px)",
+                        shadow: "lg"
+                      }}
+                      transition="all 0.2s"
+                    >
+                      Create Gallery
+                    </Button>
+                  </VStack>
+                </VStack>
+              </CardBody>
+            </Card>
+          </SimpleGrid>
+        </Box>
+
+        {/* Recent Events */}
+        <Box w="full" px={{ base: 4, md: 0 }}>
+          <Box 
+            bg="white" 
+            p={8} 
+            borderRadius="2xl" 
+            shadow="lg"
+            border="1px solid"
+            borderColor="gray.100"
+          >
+            <HStack 
+              justify="space-between" 
+              align="center" 
+              mb={10} 
+              flexWrap="wrap" 
+              gap={6}
+              pb={6}
+              borderBottom="1px solid"
+              borderColor="gray.100"
+            >
+              <Box>
+                <Heading size="lg" mb={3} color="gray.800">Recent Events</Heading>
+                <Text color="gray.600" fontSize="md">Your latest event creations</Text>
+              </Box>
+              <Button 
+                as={Link} 
+                href="/dashboard/events/new" 
+                colorScheme="teal" 
+                size="lg" 
+                px={8}
+                _hover={{
+                  transform: "translateY(-1px)",
+                  shadow: "lg"
+                }}
+                transition="all 0.2s"
+              >
+                Create New Event
+              </Button>
             </HStack>
-          </CardHeader>
-          <CardBody>
-            <VStack align="stretch" spacing={4}>
-              <Text color="gray.600">
-                You have {items.length} event{items.length !== 1 ? 's' : ''} in your portfolio
-              </Text>
-              <HStack justify="space-between">
-                <Button as={Link} href="/dashboard/events" variant="outline" size="sm">
-                  View All Events
-                </Button>
-                <Button as={Link} href="/dashboard/events/new" colorScheme="blue" size="sm">
-                  Create Event
-                </Button>
-              </HStack>
-            </VStack>
-          </CardBody>
-        </Card>
 
-        {/* Gallery Card */}
-        <Card>
-          <CardHeader>
-            <HStack>
-              <Text fontSize="2xl" color="green.500">🖼️</Text>
-              <Heading size="md">Gallery</Heading>
-            </HStack>
-          </CardHeader>
-          <CardBody>
-            <VStack align="stretch" spacing={4}>
-              <Text color="gray.600">
-                You have {galleries.length} gallery{galleries.length !== 1 ? 'ies' : ''} with photos
-              </Text>
-              <HStack justify="space-between">
-                <Button as={Link} href="/dashboard/gallery" variant="outline" size="sm">
-                  Manage Galleries
+            {items.length === 0 ? (
+              <Box textAlign="center" py={20} px={8}>
+                <Text fontSize="xl" color="gray.500" mb={8} fontWeight="500">
+                  You haven't created any events yet
+                </Text>
+                <Button 
+                  as={Link} 
+                  href="/dashboard/events/new" 
+                  colorScheme="teal" 
+                  size="lg" 
+                  px={10}
+                  py={6}
+                  _hover={{
+                    transform: "translateY(-1px)",
+                    shadow: "lg"
+                  }}
+                  transition="all 0.2s"
+                >
+                  Create Your First Event
                 </Button>
-                <Button as={Link} href="/dashboard/gallery" colorScheme="green" size="sm">
-                  Create Gallery
-                </Button>
-              </HStack>
-            </VStack>
-          </CardBody>
-        </Card>
-      </SimpleGrid>
-
-      {/* Recent Events */}
-      <Box>
-        <HStack justify="space-between" align="center" mb={6}>
-          <Box>
-            <Heading size="lg">Recent Events</Heading>
-            <Text color="gray.600">Your latest event creations</Text>
+              </Box>
+            ) : (
+              <Box>
+                <EventGrid items={items.slice(0, 6)} />
+              </Box>
+            )}
           </Box>
-          <Button as={Link} href="/dashboard/events/new" colorScheme="teal" size="lg">
-            Create New Event
-          </Button>
-        </HStack>
-
-        {items.length === 0 ? (
-          <Box textAlign="center" py={12}>
-            <Text fontSize="lg" color="gray.500" mb={4}>
-              You haven't created any events yet
-            </Text>
-            <Button as={Link} href="/dashboard/events/new" colorScheme="teal">
-              Create Your First Event
-            </Button>
-          </Box>
-        ) : (
-          <EventGrid items={items.slice(0, 6)} />
-        )}
-      </Box>
-    </VStack>
+        </Box>
+      </VStack>
+    </Container>
   );
 }

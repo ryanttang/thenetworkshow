@@ -20,15 +20,15 @@ export default async function DashboardEventsPage() {
 
   return (
     <VStack align="stretch" spacing={6}>
-      <HStack justify="space-between" align="center">
-        <Box>
-          <Heading size="xl">My Events</Heading>
+      <VStack spacing={6} align="center" mb={8}>
+        <Box textAlign="center">
+          <Heading size="xl" mb={3}>My Events</Heading>
           <Text color="gray.600">Manage your events and create new ones</Text>
         </Box>
         <Button as={Link} href="/dashboard/events/new" colorScheme="teal" size="lg">
           Create New Event
         </Button>
-      </HStack>
+      </VStack>
 
       {items.length === 0 ? (
         <Box textAlign="center" py={12}>

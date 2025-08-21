@@ -5,8 +5,9 @@ import {
   HStack,
   Link,
   Text,
-  VStack,
-  Divider,
+  Button,
+  useBreakpointValue,
+  Container,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
@@ -25,60 +26,65 @@ const navItems: NavItem[] = [
 
 export default function DashboardNav() {
   const pathname = usePathname();
+  const buttonSize = useBreakpointValue({ base: "sm", md: "md" });
 
   return (
     <Box
       bg="white"
-      borderRight="1px"
+      borderBottom="1px"
       borderColor="gray.200"
-      w="250px"
-      minH="100vh"
-      py={6}
-      position="fixed"
-      left={0}
+      w="100%"
+      py={8}
+      position="sticky"
       top={0}
+      zIndex={10}
+      shadow="md"
     >
-      <VStack spacing={6} align="stretch">
-        {/* Logo/Title */}
-        <Box px={6}>
-          <Text fontSize="xl" fontWeight="bold" color="blue.600">
+      <Container maxW="7xl" px={{ base: 6, md: 8 }}>
+        <HStack justify="space-between" align="center" spacing={8}>
+          {/* Logo/Title */}
+          <Text 
+            fontSize="2xl" 
+            fontWeight="800" 
+            color="blue.600"
+            letterSpacing="tight"
+          >
             Admin Panel
           </Text>
-        </Box>
 
-        <Divider />
-
-        {/* Navigation Items */}
-        <VStack spacing={2} align="stretch" px={4}>
-          {navItems.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
-            
-            return (
-              <Link
-                key={item.href}
-                as={NextLink}
-                href={item.href}
-                display="flex"
-                alignItems="center"
-                px={4}
-                py={3}
-                borderRadius="md"
-                bg={isActive ? "blue.50" : "transparent"}
-                color={isActive ? "blue.700" : "gray.700"}
-                fontWeight={isActive ? "semibold" : "medium"}
-                _hover={{
-                  bg: isActive ? "blue.50" : "gray.50",
-                  textDecoration: "none",
-                }}
-                transition="all 0.2s"
-              >
-                <Text fontSize="lg" mr={3}>{item.icon}</Text>
-                {item.label}
-              </Link>
-            );
-          })}
-        </VStack>
-      </VStack>
+          {/* Navigation Buttons */}
+          <HStack spacing={4}>
+            {navItems.map((item) => {
+              const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+              
+              return (
+                <Button
+                  key={item.href}
+                  as={NextLink}
+                  href={item.href}
+                  size={buttonSize}
+                  variant={isActive ? "solid" : "outline"}
+                  colorScheme={isActive ? "blue" : "gray"}
+                  leftIcon={<Text fontSize="sm">{item.icon}</Text>}
+                  px={8}
+                  py={3}
+                  fontWeight="600"
+                  _hover={{
+                    transform: "translateY(-1px)",
+                    shadow: "lg",
+                  }}
+                  _active={{
+                    transform: "translateY(0px)",
+                  }}
+                  transition="all 0.2s ease"
+                >
+                  {item.label}
+                </Button>
+              );
+            })}
+          </HStack>
+        </HStack>
+      </Container>
     </Box>
   );
 }

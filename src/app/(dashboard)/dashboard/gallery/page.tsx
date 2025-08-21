@@ -67,11 +67,14 @@ export default function GalleryManagementPage() {
 
       if (eventsRes.ok) {
         const eventsData = await eventsRes.json();
+        console.log("Events data:", eventsData);
         setEvents(eventsData.events || []);
       }
 
       if (galleriesRes.ok) {
         const galleriesData = await galleriesRes.json();
+        console.log("Galleries data:", galleriesData);
+        console.log("Galleries count:", galleriesData.galleries?.length || 0);
         setGalleries(galleriesData.galleries || []);
       }
     } catch (error) {

@@ -19,25 +19,74 @@ export default function EventCard({ slug, title, startAt, locationName, city, st
   const img = v?.webpUrl ?? v?.jpgUrl;
   
   return (
-    <Box bg="white" borderRadius="xl" overflow="hidden" boxShadow="sm" _hover={{ boxShadow: "md" }} transition="all 0.2s">
+    <Box 
+      bg="white" 
+      borderRadius="2xl" 
+      overflow="hidden" 
+      boxShadow="lg" 
+      border="1px solid"
+      borderColor="gray.100"
+      _hover={{ 
+        boxShadow: "xl", 
+        transform: "translateY(-2px)",
+        transition: "all 0.3s ease"
+      }} 
+      transition="all 0.3s ease"
+      h="full"
+      display="flex"
+      flexDirection="column"
+    >
       {img && (
         <CImage
           src={img}
           alt={title}
           w="100%"
-          h="200px"
+          h="220px"
           objectFit="cover"
           loading="lazy"
         />
       )}
-      <Stack p={4} spacing={2}>
-        <Heading size="md" noOfLines={2}>{title}</Heading>
-        <Text color="gray.600">{format(new Date(startAt), "EEE, MMM d • p")}</Text>
-        <Text color="gray.600" noOfLines={1}>
-          {locationName ?? `${city ?? ""}${state ? `, ${state}` : ""}`}
-        </Text>
-        <HStack pt={2} justify="space-between">
-          <Button as={NextLink} href={`/events/${slug}`} colorScheme="teal" variant="solid" size="sm">
+      <Stack p={6} spacing={4} flex={1} display="flex" flexDirection="column">
+        <Box flex={1}>
+          <Heading 
+            size="md" 
+            noOfLines={2} 
+            mb={3}
+            color="gray.800"
+            lineHeight="1.3"
+          >
+            {title}
+          </Heading>
+          <Text 
+            color="gray.600" 
+            fontSize="sm" 
+            fontWeight="500"
+            mb={2}
+          >
+            {format(new Date(startAt), "EEE, MMM d • p")}
+          </Text>
+          <Text 
+            color="gray.600" 
+            noOfLines={1}
+            fontSize="sm"
+          >
+            {locationName ?? `${city ?? ""}${state ? `, ${state}` : ""}`}
+          </Text>
+        </Box>
+        <HStack pt={2} justify="flex-end">
+          <Button 
+            as={NextLink} 
+            href={`/events/${slug}`} 
+            colorScheme="teal" 
+            variant="solid" 
+            size="md"
+            px={6}
+            _hover={{
+              transform: "translateY(-1px)",
+              shadow: "md"
+            }}
+            transition="all 0.2s"
+          >
             View Details
           </Button>
         </HStack>

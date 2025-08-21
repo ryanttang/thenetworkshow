@@ -10,8 +10,8 @@ export default async function NewEventPage() {
   // Role check can be stricter (ADMIN/ORGANIZER)
   return (
     <VStack align="stretch" spacing={6}>
-      <Box>
-        <Heading size="xl">Create New Event</Heading>
+      <Box textAlign="center">
+        <Heading size="xl" mb={3}>Create New Event</Heading>
         <Text color="gray.600">Fill out the details below to create your event</Text>
       </Box>
       <EventForm />

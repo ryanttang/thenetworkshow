@@ -293,8 +293,8 @@ export default function GalleryManagement({ events, galleries, onRefresh }: Gall
         {/* Header */}
         <HStack justify="space-between" align="center">
           <Box>
-            <Heading size="xl">Gallery Management</Heading>
-            <Text color="gray.600">Create and manage photo galleries for your events</Text>
+                    <Heading size="xl" textAlign="center">Gallery Management</Heading>
+        <Text color="gray.600" textAlign="center">Create and manage photo galleries for your events</Text>
           </Box>
           <Button
             leftIcon={<span>➕</span>}
