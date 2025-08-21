@@ -16,6 +16,7 @@ export default function Navbar() {
           </Link>
         </HStack>
         <HStack spacing={6}>
+          <Link as={NextLink} href="/gallery">Gallery</Link>
           {session ? (
             <>
               <Link as={NextLink} href="/dashboard">Dashboard</Link>

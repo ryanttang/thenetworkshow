@@ -55,6 +55,7 @@ model Event {
   owner         User         @relation("UserEvents", fields: [ownerId], references: [id])
 
   images        Image[]       @relation("EventImages")
+  galleries     Gallery[]     @relation("EventGallery")
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
@@ -82,6 +83,47 @@ model Image {
 
   // Hero image relation
   heroForEvents Event[]  @relation("EventHeroImage")
+  
+  // Gallery images relation
+  galleryImages GalleryImage[] @relation("ImageGalleries")
 
   @@index([eventId])
+}
+
+model Gallery {
+  id          String         @id @default(cuid())
+  name        String
+  description String?
+  eventId     String?
+  event       Event?         @relation("EventGallery", fields: [eventId], references: [id])
+  
+  images      GalleryImage[] @relation("GalleryImages")
+  tags        String[]       // Array of tags for filtering
+  
+  isPublic    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  
+  @@index([eventId])
+  @@index([tags])
+}
+
+model GalleryImage {
+  id         String   @id @default(cuid())
+  galleryId  String
+  gallery    Gallery  @relation("GalleryImages", fields: [galleryId], references: [id], onDelete: Cascade)
+  
+  imageId    String
+  image      Image    @relation("ImageGalleries", fields: [imageId], references: [id], onDelete: Cascade)
+  
+  title      String?
+  caption    String?
+  tags       String[] // Individual image tags
+  
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  
+  @@unique([galleryId, imageId])
+  @@index([galleryId, sortOrder])
+  @@index([tags])
 }

@@ -52,9 +52,17 @@ export async function POST(req: NextRequest) {
     ...parsed.data,
     slug,
     ownerId: owner.id,
-    startAt: parsed.data.startAt ? new Date(parsed.data.startAt) : undefined,
-    endAt: parsed.data.endAt ? new Date(parsed.data.endAt) : undefined
+    startAt: parsed.data.startAt ? new Date(parsed.data.startAt) : new Date(),
+    endAt: parsed.data.endAt ? new Date(parsed.data.endAt) : null,
+    status: parsed.data.status || "DRAFT"
   };
+
+  // Remove undefined values
+  Object.keys(eventData).forEach(key => {
+    if (eventData[key as keyof typeof eventData] === undefined) {
+      delete eventData[key as keyof typeof eventData];
+    }
+  });
 
   const event = await prisma.event.create({
     data: eventData
