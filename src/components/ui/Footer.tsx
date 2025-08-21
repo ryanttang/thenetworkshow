@@ -6,7 +6,7 @@ export default function Footer() {
       <Container maxW="7xl">
         <VStack spacing={4}>
           <Text color="gray.600" textAlign="center">
-            © 2024 Events Platform. All rights reserved.
+            © 2025 THC Members Only Club. All Rights Reserved.
           </Text>
         </VStack>
       </Container>
