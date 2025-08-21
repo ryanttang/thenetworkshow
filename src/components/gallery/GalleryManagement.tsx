@@ -264,6 +264,8 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
     return "/placeholder-image.svg";
   };
 
+  const isFormEditable = isEditing || !selectedGallery; // Enable form when creating new gallery or editing
+
   return (
     <Container maxW="7xl" py={8}>
       <VStack spacing={8} align="stretch">
@@ -432,7 +434,7 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="Enter gallery name"
-                    isDisabled={!isEditing}
+                    isDisabled={!isFormEditable}
                   />
                 </FormControl>
 
@@ -442,7 +444,7 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
                     value={formData.eventId}
                     onChange={(e) => setFormData({ ...formData, eventId: e.target.value })}
                     placeholder="Select event (optional)"
-                    isDisabled={!isEditing}
+                    isDisabled={!isFormEditable}
                   >
                     {events.map((event) => (
                       <option key={event.id} value={event.id}>
@@ -460,7 +462,7 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Enter gallery description"
                   rows={3}
-                  isDisabled={!isEditing}
+                  isDisabled={!isFormEditable}
                 />
               </FormControl>
 
@@ -473,9 +475,9 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
                     onChange={(e) => setNewTag(e.target.value)}
                     placeholder="Add a tag"
                     onKeyPress={(e) => e.key === "Enter" && addTag()}
-                    isDisabled={!isEditing}
+                    isDisabled={!isFormEditable}
                   />
-                  <Button onClick={addTag} isDisabled={!isEditing}>
+                  <Button onClick={addTag} isDisabled={!isFormEditable}>
                     Add
                   </Button>
                 </HStack>
@@ -485,7 +487,7 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
                       <WrapItem key={tag}>
                         <Tag size="md" colorScheme="blue">
                           <TagLabel>{tag}</TagLabel>
-                          {isEditing && (
+                          {isFormEditable && (
                             <TagCloseButton onClick={() => removeTag(tag)} />
                           )}
                         </Tag>
@@ -501,7 +503,7 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
                 <Select
                   value={formData.isPublic ? "public" : "private"}
                   onChange={(e) => setFormData({ ...formData, isPublic: e.target.value === "public" })}
-                  isDisabled={!isEditing}
+                  isDisabled={!isFormEditable}
                 >
                   <option value="public">Public</option>
                   <option value="private">Private</option>
@@ -509,16 +511,16 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
               </FormControl>
 
               {/* Image Upload */}
-              {isEditing && (
+              {isFormEditable && (
                 <>
                   <Divider />
-                                      <Box>
-                      <FormLabel>Upload Images</FormLabel>
-                      <ImageUploader
-                        onUploaded={handleImageUpload}
-                        showUploadedImages={true}
-                      />
-                    </Box>
+                  <Box>
+                    <FormLabel>Upload Images</FormLabel>
+                    <ImageUploader
+                      onUploaded={handleImageUpload}
+                      showUploadedImages={true}
+                    />
+                  </Box>
                 </>
               )}
 
@@ -538,7 +540,7 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
                           h="20"
                           fallbackSrc="/placeholder-image.svg"
                         />
-                        {isEditing && (
+                        {isFormEditable && (
                           <IconButton
                             aria-label="Remove image"
                             icon={<span>✕</span>}
@@ -561,14 +563,14 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
           <ModalFooter>
             <HStack spacing={3}>
               <Button onClick={onClose}>Cancel</Button>
-              {isEditing && (
+              {isFormEditable && (
                 <Button 
                   colorScheme="teal" 
                   onClick={handleSubmit}
                   isLoading={isSubmitting}
                   loadingText="Saving..."
                 >
-                  Save Changes
+                  {isEditing ? "Save Changes" : "Create Gallery"}
                 </Button>
               )}
             </HStack>

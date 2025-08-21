@@ -1,6 +1,5 @@
 import { getServerAuthSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { Box, Container } from "@chakra-ui/react";
 import DashboardNav from "@/components/dashboard/DashboardNav";
 
 export default async function DashboardLayout({
@@ -15,13 +14,13 @@ export default async function DashboardLayout({
   }
 
   return (
-    <Box minH="100vh" bg="gray.50">
+    <div className="min-h-screen bg-gray-50">
       <DashboardNav />
-      <Box ml="250px">
-        <Container maxW="7xl" py={8}>
+      <div className="ml-64">
+        <div className="max-w-7xl mx-auto py-8 px-4">
           {children}
-        </Container>
-      </Box>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
 }
