@@ -79,9 +79,10 @@ interface Gallery {
 interface GalleryManagementProps {
   events: Event[];
   galleries: Gallery[];
+  onRefresh: () => void;
 }
 
-export default function GalleryManagement({ events, galleries }: GalleryManagementProps) {
+export default function GalleryManagement({ events, galleries, onRefresh }: GalleryManagementProps) {
   const [selectedGallery, setSelectedGallery] = useState<Gallery | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -196,7 +197,7 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
           duration: 3000,
         });
         onClose();
-        router.refresh();
+        onRefresh(); // Use the passed refresh function instead of router.refresh()
       } else {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to save gallery");
@@ -206,7 +207,7 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to save gallery",
         status: "error",
-        duration: 3000,
+        duration: 5000,
       });
     } finally {
       setIsSubmitting(false);
@@ -228,7 +229,7 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
           status: "success",
           duration: 3000,
         });
-        router.refresh();
+        onRefresh(); // Use the passed refresh function instead of router.refresh()
       } else {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to delete gallery");
@@ -238,7 +239,7 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to delete gallery",
         status: "error",
-        duration: 3000,
+        duration: 5000,
       });
     }
   };

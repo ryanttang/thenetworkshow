@@ -1,58 +1,110 @@
-import { prisma } from "@/lib/prisma";
-import { getServerAuthSession } from "@/lib/auth";
-import { redirect } from "next/navigation";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import GalleryManagement from "@/components/gallery/GalleryManagement";
 
-export default async function GalleryManagementPage() {
-  const session = await getServerAuthSession();
-  if (!session?.user?.email) redirect("/signin");
-  
-  const me = await prisma.user.findUnique({ where: { email: session.user.email }});
-  if (!me) redirect("/signin");
-  
-  // Get user's events for gallery creation
-  const events = await prisma.event.findMany({ 
-    where: { ownerId: me.id }, 
-    select: { id: true, title: true, slug: true },
-    orderBy: { startAt: 'desc' }
-  });
+interface Event {
+  id: string;
+  title: string;
+  slug: string;
+}
 
-  // Get all galleries the user can access (owned events + standalone galleries)
-  const galleries = await prisma.gallery.findMany({
-    where: {
-      OR: [
-        { event: { ownerId: me.id } }, // Galleries from user's events
-        { eventId: null } // Standalone galleries
-      ]
-    },
-    include: {
-      event: {
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-        }
-      },
-      images: {
-        include: {
-          image: true
-        },
-        orderBy: { sortOrder: 'asc' }
+interface GalleryImage {
+  id: string;
+  title?: string | null;
+  caption?: string | null;
+  tags: string[];
+  sortOrder: number;
+  image: {
+    id: string;
+    variants: any;
+    width: number;
+    height: number;
+  };
+  createdAt: string;
+}
+
+interface Gallery {
+  id: string;
+  name: string;
+  description?: string | null;
+  tags: string[];
+  event?: Event | null;
+  images: GalleryImage[];
+  isPublic: boolean;
+  createdAt: string;
+}
+
+export default function GalleryManagementPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [events, setEvents] = useState<Event[]>([]);
+  const [galleries, setGalleries] = useState<Gallery[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (status === "loading") return;
+    
+    if (!session?.user?.email) {
+      router.push("/signin");
+      return;
+    }
+
+    fetchData();
+  }, [session, status, router]);
+
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Fetch events and galleries in parallel
+      const [eventsRes, galleriesRes] = await Promise.all([
+        fetch("/api/events?owner=me"),
+        fetch("/api/galleries")
+      ]);
+
+      if (eventsRes.ok) {
+        const eventsData = await eventsRes.json();
+        setEvents(eventsData.events || []);
       }
-    },
-    orderBy: { createdAt: 'desc' }
-  });
 
-  // Transform galleries to match the expected interface
-  const transformedGalleries = galleries.map(gallery => ({
-    ...gallery,
-    description: gallery.description || undefined,
-    createdAt: gallery.createdAt.toISOString(),
-    images: gallery.images.map(img => ({
-      ...img,
-      createdAt: img.createdAt.toISOString()
-    }))
-  }));
+      if (galleriesRes.ok) {
+        const galleriesData = await galleriesRes.json();
+        setGalleries(galleriesData.galleries || []);
+      }
+    } catch (error) {
+      console.error("Failed to fetch data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  return <GalleryManagement events={events} galleries={transformedGalleries} />;
+  const refreshData = () => {
+    fetchData();
+  };
+
+  if (status === "loading" || isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading galleries...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!session?.user?.email) {
+    return null; // Will redirect in useEffect
+  }
+
+  return (
+    <GalleryManagement 
+      events={events} 
+      galleries={galleries} 
+      onRefresh={refreshData}
+    />
+  );
 }

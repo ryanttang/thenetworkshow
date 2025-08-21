@@ -7,6 +7,7 @@ import { createSlug } from "@/lib/utils";
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const status = searchParams.get("status") ?? "PUBLISHED";
+  const owner = searchParams.get("owner");
   const take = Math.min(parseInt(searchParams.get("limit") ?? "24"), 60);
   const page = Math.max(parseInt(searchParams.get("page") ?? "1"), 1);
   const skip = (page - 1) * take;
@@ -15,6 +16,20 @@ export async function GET(req: NextRequest) {
   const q = searchParams.get("q");
 
   const where: any = { status };
+  
+  // If owner=me, filter by current user's events
+  if (owner === "me") {
+    const session = await getServerAuthSession();
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const user = await prisma.user.findUnique({ where: { email: session.user.email } });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 401 });
+    }
+    where.ownerId = user.id;
+  }
+  
   if (from || to) where.startAt = { ...(from ? { gte: new Date(from) } : {}), ...(to ? { lte: new Date(to) } : {}) };
   if (q) where.title = { contains: q, mode: "insensitive" };
 

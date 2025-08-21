@@ -2,6 +2,67 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getServerAuthSession();
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email }
+    });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Get all galleries the user can access (owned events + standalone galleries)
+    const galleries = await prisma.gallery.findMany({
+      where: {
+        OR: [
+          { event: { ownerId: user.id } }, // Galleries from user's events
+          { eventId: null } // Standalone galleries
+        ]
+      },
+      include: {
+        event: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+          }
+        },
+        images: {
+          include: {
+            image: true
+          },
+          orderBy: { sortOrder: 'asc' }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    // Transform galleries to match the expected interface
+    const transformedGalleries = galleries.map(gallery => ({
+      ...gallery,
+      description: gallery.description || undefined,
+      createdAt: gallery.createdAt.toISOString(),
+      images: gallery.images.map(img => ({
+        ...img,
+        createdAt: img.createdAt.toISOString()
+      }))
+    }));
+
+    return NextResponse.json({ galleries: transformedGalleries });
+  } catch (error) {
+    console.error("Error fetching galleries:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerAuthSession();
