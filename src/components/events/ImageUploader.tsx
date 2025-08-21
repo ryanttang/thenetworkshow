@@ -127,18 +127,31 @@ export default function ImageUploader({
   };
 
   const getImageUrl = (image: any) => {
-    // Fix: Use the correct key properties from the variants
+    // Use direct S3 URLs instead of going through our API
+    if (image.variants?.thumb?.webpUrl) {
+      return image.variants.thumb.webpUrl;
+    }
+    if (image.variants?.thumb?.jpgUrl) {
+      return image.variants.thumb.jpgUrl;
+    }
+    if (image.variants?.card?.webpUrl) {
+      return image.variants.card.webpUrl;
+    }
+    if (image.variants?.card?.jpgUrl) {
+      return image.variants.card.jpgUrl;
+    }
+    if (image.variants?.hero?.webpUrl) {
+      return image.variants.hero.webpUrl;
+    }
+    if (image.variants?.hero?.jpgUrl) {
+      return image.variants.hero.jpgUrl;
+    }
+    // Fallback to our API route if no direct URLs
     if (image.variants?.thumb?.webpKey) {
       return `/api/images/${image.variants.thumb.webpKey}`;
     }
     if (image.variants?.thumb?.jpgKey) {
       return `/api/images/${image.variants.thumb.jpgKey}`;
-    }
-    if (image.variants?.card?.webpKey) {
-      return `/api/images/${image.variants.card.webpKey}`;
-    }
-    if (image.variants?.card?.jpgKey) {
-      return `/api/images/${image.variants.card.jpgKey}`;
     }
     return "/placeholder-image.svg";
   };
