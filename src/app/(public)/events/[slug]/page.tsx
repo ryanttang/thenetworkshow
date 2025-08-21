@@ -1,16 +1,56 @@
-import { prisma } from "@/lib/prisma";
-import { Box, Button, Heading, Image as CImage, Stack, Text, Container, Badge, HStack, VStack } from "@chakra-ui/react";
-import { notFound } from "next/navigation";
-import { format } from "date-fns";
+"use client";
 
-export default async function EventDetail({ params }: { params: { slug: string }}) {
-  const event = await prisma.event.findUnique({ 
-    where: { slug: params.slug }, 
-    include: { heroImage: true } 
-  });
-  
-  if (!event || event.status !== "PUBLISHED") {
-    notFound();
+import { useState, useEffect } from "react";
+import { Box, Button, Heading, Image as CImage, Stack, Text, Container, Badge, HStack, VStack } from "@chakra-ui/react";
+import { format } from "date-fns";
+import Link from "next/link";
+import { Event } from "@/types";
+
+export default function EventDetail({ params }: { params: { slug: string }}) {
+  const [event, setEvent] = useState<Event | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        const res = await fetch(`/api/events/${params.slug}`);
+        if (!res.ok) {
+          throw new Error('Event not found');
+        }
+        const eventData = await res.json();
+        setEvent(eventData);
+      } catch (err) {
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvent();
+  }, [params.slug]);
+
+  if (loading) {
+    return (
+      <Container maxW="4xl" py={8}>
+        <Box textAlign="center" py={20}>
+          <Text fontSize="xl" color="gray.500">Loading event...</Text>
+        </Box>
+      </Container>
+    );
+  }
+
+  if (error || !event) {
+    return (
+      <Container maxW="4xl" py={8}>
+        <Box textAlign="center" py={20}>
+          <Text fontSize="xl" color="red.500" mb={4}>Event not found</Text>
+          <Button as={Link} href="/" colorScheme="blue" variant="outline">
+            Back to Home
+          </Button>
+        </Box>
+      </Container>
+    );
   }
 
   const variants = event.heroImage?.variants as any;
@@ -19,6 +59,25 @@ export default async function EventDetail({ params }: { params: { slug: string }
 
   return (
     <Container maxW="4xl" py={8}>
+      {/* Back to Home Button */}
+      <Box mb={6}>
+        <Button 
+          as={Link} 
+          href="/" 
+          colorScheme="gray" 
+          variant="outline" 
+          size="md"
+          leftIcon={<Text fontSize="sm">←</Text>}
+          _hover={{
+            transform: "translateY(-1px)",
+            shadow: "md"
+          }}
+          transition="all 0.2s"
+        >
+          Back to Home
+        </Button>
+      </Box>
+
       <Box bg="white" borderRadius="xl" overflow="hidden" boxShadow="lg">
         {img && (
           <CImage 
@@ -35,9 +94,6 @@ export default async function EventDetail({ params }: { params: { slug: string }
             <Box>
               <HStack justify="space-between" align="start" mb={2}>
                 <Heading size="xl">{event.title}</Heading>
-                <Badge colorScheme="teal" size="lg">
-                  {event.status}
-                </Badge>
               </HStack>
               
               <Text color="gray.600" fontSize="lg">
@@ -71,18 +127,44 @@ export default async function EventDetail({ params }: { params: { slug: string }
               </Box>
             )}
 
-            {event.ticketUrl && (
+            {/* Action Button - Buy Tickets or RSVP */}
+            {event.buttonType === 'BUY_TICKETS' && event.ticketUrl ? (
               <Button 
                 as="a" 
                 href={event.ticketUrl} 
                 target="_blank" 
-                colorScheme="teal" 
+                rel="noopener noreferrer"
+                colorScheme="blue" 
+                variant="solid" 
                 size="lg"
                 w="fit-content"
+                _hover={{
+                  transform: "translateY(-1px)",
+                  shadow: "md"
+                }}
+                transition="all 0.2s"
               >
                 Buy Tickets
               </Button>
-            )}
+            ) : event.buttonType === 'RSVP' ? (
+              <Button 
+                colorScheme="green" 
+                variant="solid" 
+                size="lg"
+                w="fit-content"
+                _hover={{
+                  transform: "translateY(-1px)",
+                  shadow: "md"
+                }}
+                transition="all 0.2s"
+                onClick={() => {
+                  // TODO: Implement RSVP functionality
+                  alert('RSVP functionality coming soon!');
+                }}
+              >
+                RSVP
+              </Button>
+            ) : null}
           </VStack>
         </Box>
       </Box>

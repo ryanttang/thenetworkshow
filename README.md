@@ -1,4 +1,4 @@
-# Events Platform
+# THC Members Only Club
 
 A modern, production-ready events management platform built with Next.js 14, Prisma, NextAuth, Chakra UI, and AWS S3.
 

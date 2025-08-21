@@ -8,7 +8,11 @@ import { useState } from "react";
 
 type FormVals = any;
 
-export default function EventForm({ initial }: { initial?: Partial<FormVals> }) {
+export default function EventForm({ initial, mode = "create", eventId }: { 
+  initial?: Partial<FormVals>; 
+  mode?: "create" | "edit";
+  eventId?: string;
+}) {
   const [heroImageId, setHeroImageId] = useState<string | undefined>(initial?.heroImageId);
   const toast = useToast();
   
@@ -18,6 +22,7 @@ export default function EventForm({ initial }: { initial?: Partial<FormVals> }) 
       title: "",
       description: "",
       ticketUrl: "",
+      buttonType: "RSVP",
       locationName: "",
       city: "",
       state: "",
@@ -54,8 +59,11 @@ export default function EventForm({ initial }: { initial?: Partial<FormVals> }) 
     }
     
     try {
-      const res = await fetch("/api/events", {
-        method: "POST",
+      const url = mode === "edit" ? `/api/events/${eventId}` : "/api/events";
+      const method = mode === "edit" ? "PATCH" : "POST";
+      
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...vals, heroImageId })
       });
@@ -63,20 +71,20 @@ export default function EventForm({ initial }: { initial?: Partial<FormVals> }) 
       const json = await res.json();
       
       if (!res.ok) {
-        throw new Error(json.error ? JSON.stringify(json.error) : "Failed to create event");
+        throw new Error(json.error ? JSON.stringify(json.error) : `Failed to ${mode} event`);
       }
       
       toast({
-        title: "Event created successfully",
+        title: `Event ${mode === "edit" ? "updated" : "created"} successfully`,
         status: "success",
         duration: 3000,
       });
       
       // Redirect to dashboard
-      window.location.href = "/dashboard";
+      window.location.href = "/dashboard/events";
     } catch (error) {
       toast({
-        title: "Error creating event",
+        title: `Error ${mode === "edit" ? "updating" : "creating"} event`,
         description: error instanceof Error ? error.message : "Unknown error",
         status: "error",
         duration: 5000,
@@ -100,6 +108,28 @@ export default function EventForm({ initial }: { initial?: Partial<FormVals> }) 
         <FormControl>
           <FormLabel>Ticket URL</FormLabel>
           <Input type="url" {...register("ticketUrl")} placeholder="https://..." />
+        </FormControl>
+        
+        <FormControl>
+          <FormLabel>Button Type</FormLabel>
+          <HStack spacing={4}>
+            <Button
+              type="button"
+              variant={watch("buttonType") === "RSVP" ? "solid" : "outline"}
+              colorScheme="teal"
+              onClick={() => setValue("buttonType", "RSVP")}
+            >
+              RSVP
+            </Button>
+            <Button
+              type="button"
+              variant={watch("buttonType") === "BUY_TICKETS" ? "solid" : "outline"}
+              colorScheme="teal"
+              onClick={() => setValue("buttonType", "BUY_TICKETS")}
+            >
+              Buy Tickets
+            </Button>
+          </HStack>
         </FormControl>
         
         <HStack spacing={4}>
@@ -131,18 +161,21 @@ export default function EventForm({ initial }: { initial?: Partial<FormVals> }) 
         <FormControl display="flex" alignItems="center">
           <FormLabel mb="0">Publish immediately</FormLabel>
           <Switch 
-            defaultChecked={false}
+            defaultChecked={initial?.status === "PUBLISHED"}
             onChange={(e) => setValue("status", e.target.checked ? "PUBLISHED" : "DRAFT")}
           />
         </FormControl>
 
         <Box>
           <FormLabel>Hero Image</FormLabel>
-          <ImageUploader onUploaded={(id) => setHeroImageId(id)} />
+          <ImageUploader 
+            onUploaded={(id) => setHeroImageId(id)} 
+            initialImageId={initial?.heroImageId}
+          />
         </Box>
         
         <Button type="submit" colorScheme="teal" isLoading={isSubmitting} size="lg">
-          Save Event
+          {mode === "edit" ? "Update Event" : "Save Event"}
         </Button>
         
         {/* Debug button */}

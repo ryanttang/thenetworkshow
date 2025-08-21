@@ -13,6 +13,7 @@ export interface Event {
   title: string;
   description?: string | null;
   ticketUrl?: string | null;
+  buttonType: 'RSVP' | 'BUY_TICKETS';
   locationName?: string | null;
   address?: string | null;
   city?: string | null;

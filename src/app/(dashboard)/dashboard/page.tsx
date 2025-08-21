@@ -275,7 +275,7 @@ export default async function DashboardPage() {
               </Box>
             ) : (
               <Box>
-                <EventGrid items={items.slice(0, 6)} />
+                <EventGrid items={items.slice(0, 6)} isAdminView={true} />
               </Box>
             )}
           </Box>

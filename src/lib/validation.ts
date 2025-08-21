@@ -4,6 +4,7 @@ export const createEventSchema = z.object({
   title: z.string().min(3).max(140),
   description: z.string().max(4000).optional(),
   ticketUrl: z.string().url().optional(),
+  buttonType: z.enum(["RSVP", "BUY_TICKETS"]).default("RSVP"),
   locationName: z.string().max(200).optional(),
   address: z.string().max(300).optional(),
   city: z.string().max(100).optional(),

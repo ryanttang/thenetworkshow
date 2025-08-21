@@ -8,7 +8,10 @@ import {
   Button,
   useBreakpointValue,
   Container,
+  IconButton,
+  Tooltip,
 } from "@chakra-ui/react";
+import { ViewIcon } from "@chakra-ui/icons";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -21,6 +24,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: "🏠" },
   { label: "Events", href: "/dashboard/events", icon: "📅" },
+  { label: "Archive", href: "/dashboard/events/archive", icon: "📦" },
   { label: "Gallery", href: "/dashboard/gallery", icon: "🖼️" },
 ];
 
@@ -82,6 +86,28 @@ export default function DashboardNav() {
                 </Button>
               );
             })}
+            
+            {/* Preview Homepage Button */}
+            <Tooltip label="Preview Homepage" placement="bottom">
+              <IconButton
+                as={NextLink}
+                href="/"
+                aria-label="Preview homepage from user view"
+                icon={<ViewIcon />}
+                size={buttonSize}
+                variant="ghost"
+                colorScheme="blue"
+                _hover={{
+                  transform: "translateY(-1px)",
+                  shadow: "lg",
+                  bg: "blue.50",
+                }}
+                _active={{
+                  transform: "translateY(0px)",
+                }}
+                transition="all 0.2s ease"
+              />
+            </Tooltip>
           </HStack>
         </HStack>
       </Container>

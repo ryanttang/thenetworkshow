@@ -12,7 +12,7 @@ export default function Navbar() {
       <Flex maxW="7xl" mx="auto" px={4} py={3} align="center" justify="space-between">
         <HStack spacing={3}>
           <Link as={NextLink} href="/" fontWeight="bold" fontSize="xl">
-            Events Platform
+            THC Members Only Club
           </Link>
         </HStack>
         <HStack spacing={6}>

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { 
   Box, 
   Button, 
@@ -12,25 +12,46 @@ import {
   SimpleGrid,
   Badge,
   Flex,
-  Spacer
+  Spacer,
+  Image
 } from "@chakra-ui/react";
 
 export default function ImageUploader({ 
   eventId, 
   onUploaded,
-  showUploadedImages = false
+  showUploadedImages = false,
+  initialImageId
 }: { 
   eventId?: string; 
-  onUploaded: (imageId: string, variants: any) => void;
+  onUploaded: (imageId: string, variants?: any) => void;
   showUploadedImages?: boolean;
+  initialImageId?: string;
 }) {
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
   const [uploadedImages, setUploadedImages] = useState<Array<{id: string, variants: any, fileName: string}>>([]);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
+  const [currentImage, setCurrentImage] = useState<{id: string, variants: any} | null>(null);
   const toast = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
+
+  // Load initial image if provided
+  useEffect(() => {
+    if (initialImageId) {
+      fetch(`/api/images/id/${initialImageId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.id) {
+            setCurrentImage(data);
+            onUploaded(data.id, data.variants);
+          }
+        })
+        .catch(error => {
+          console.error("Failed to load initial image:", error);
+        });
+    }
+  }, [initialImageId, onUploaded]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
@@ -126,6 +147,11 @@ export default function ImageUploader({
     setUploadedImages(prev => prev.filter(img => img.id !== imageId));
   };
 
+  const removeCurrentImage = () => {
+    setCurrentImage(null);
+    onUploaded(""); // Clear the image ID
+  };
+
   const getImageUrl = (image: any) => {
     // Use direct S3 URLs instead of going through our API
     if (image.variants?.thumb?.webpUrl) {
@@ -170,6 +196,36 @@ export default function ImageUploader({
 
   return (
     <VStack spacing={4} align="stretch">
+      {/* Current Image Display */}
+      {currentImage && (
+        <Box p={4} bg="gray.50" borderRadius="md" position="relative">
+          <Text fontSize="sm" fontWeight="medium" mb={2}>
+            Current Hero Image:
+          </Text>
+          <Box w="full" h="32" borderRadius="md" overflow="hidden" mb={2}>
+            <Image 
+              src={getImageUrl(currentImage)} 
+              alt="Current hero image"
+              w="full"
+              h="full"
+              objectFit="cover"
+              fallbackSrc="/placeholder-image.svg"
+            />
+          </Box>
+          <IconButton
+            aria-label="Remove current image"
+            icon={<span>✕</span>}
+            size="sm"
+            variant="ghost"
+            colorScheme="red"
+            position="absolute"
+            top={2}
+            right={2}
+            onClick={removeCurrentImage}
+          />
+        </Box>
+      )}
+
       {/* File Selection */}
       <VStack spacing={3} align="stretch">
         <HStack spacing={3}>
@@ -185,12 +241,13 @@ export default function ImageUploader({
           <Input 
             ref={folderInputRef}
             type="file" 
-            webkitdirectory=""
             accept="image/*" 
             onChange={handleFolderSelect}
             p={1}
             flex={1}
             placeholder="Select folder"
+            // @ts-ignore - webkitdirectory is a valid HTML attribute for folder selection
+            webkitdirectory=""
           />
         </HStack>
         
@@ -245,7 +302,7 @@ export default function ImageUploader({
         </Box>
       )}
       
-      {files.length === 0 && (
+      {files.length === 0 && !currentImage && (
         <Text color="gray.500" fontSize="sm">
           Select images or a folder to upload (JPG, PNG, WebP, HEIC supported)
         </Text>

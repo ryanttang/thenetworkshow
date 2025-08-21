@@ -4,7 +4,7 @@ import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
 
 export const metadata: Metadata = {
-  title: "Events Platform",
+  title: "THC Members Only Club",
   description: "A modern events management platform",
 };
 

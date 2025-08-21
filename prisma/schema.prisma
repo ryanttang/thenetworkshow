@@ -37,6 +37,7 @@ model Event {
   title         String
   description   String?
   ticketUrl     String?
+  buttonType    String       @default("RSVP") // "RSVP" or "BUY_TICKETS"
   locationName  String?
   address       String?
   city          String?

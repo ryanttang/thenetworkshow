@@ -1,8 +1,27 @@
 "use client";
 import { SimpleGrid, Box } from "@chakra-ui/react";
 import EventCard from "./EventCard";
+import { useState } from "react";
 
-export default function EventGrid({ items }: { items: any[] }) {
+export default function EventGrid({ 
+  items: initialItems, 
+  showArchiveActions = false,
+  isAdminView = false
+}: { 
+  items: any[];
+  showArchiveActions?: boolean;
+  isAdminView?: boolean;
+}) {
+  const [items, setItems] = useState(initialItems);
+
+  const handleDelete = (deletedId: string) => {
+    setItems(prev => prev.filter(item => item.id !== deletedId));
+  };
+
+  const handleStatusChange = (eventId: string, newStatus: string) => {
+    setItems(prev => prev.filter(item => item.id !== deletedId));
+  };
+
   return (
     <Box>
       <SimpleGrid 
@@ -13,6 +32,7 @@ export default function EventGrid({ items }: { items: any[] }) {
         {items.map(e => (
           <EventCard
             key={e.id}
+            id={e.id}
             slug={e.slug}
             title={e.title}
             startAt={e.startAt}
@@ -20,6 +40,13 @@ export default function EventGrid({ items }: { items: any[] }) {
             city={e.city}
             state={e.state}
             hero={e.heroImage}
+            buttonType={e.buttonType}
+            ticketUrl={e.ticketUrl}
+            status={e.status}
+            onDelete={() => handleDelete(e.id)}
+            onStatusChange={handleStatusChange}
+            showArchiveActions={showArchiveActions}
+            isAdminView={isAdminView}
           />
         ))}
       </SimpleGrid>
