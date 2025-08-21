@@ -5,8 +5,9 @@ import { createEventSchema } from "@/lib/validation";
 import { Box, Button, FormControl, FormLabel, Input, Textarea, HStack, Switch, VStack, useToast } from "@chakra-ui/react";
 import ImageUploader from "./ImageUploader";
 import { useState } from "react";
+import type { z } from "zod";
 
-type FormVals = any;
+type FormVals = z.infer<typeof createEventSchema>;
 
 export default function EventForm({ initial, mode = "create", eventId }: { 
   initial?: Partial<FormVals>; 
@@ -28,7 +29,8 @@ export default function EventForm({ initial, mode = "create", eventId }: {
       state: "",
       startAt: "",
       endAt: "",
-      status: "DRAFT",
+      status: "DRAFT" as const,
+      timezone: "America/Los_Angeles",
       ...initial
     }
   });

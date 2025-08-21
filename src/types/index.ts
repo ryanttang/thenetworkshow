@@ -41,11 +41,19 @@ export interface Image {
   format: string;
   width: number;
   height: number;
-  variants: Record<string, any>;
+  variants: ImageVariants;
   createdAt: Date;
   updatedAt: Date;
   event?: Event | null;
   uploader?: User;
+}
+
+export interface ImageVariants {
+  tiny: ImageVariant;
+  thumb: ImageVariant;
+  card: ImageVariant;
+  hero: ImageVariant;
+  original: ImageVariant;
 }
 
 export interface ImageVariant {
@@ -67,4 +75,30 @@ export interface Session {
   expires: string;
   role?: string;
   userId?: string;
+}
+
+export interface Gallery {
+  id: string;
+  name: string;
+  description?: string | null;
+  eventId?: string | null;
+  isPublic: boolean;
+  tags: string[];
+  createdAt: Date;
+  updatedAt: Date;
+  images?: GalleryImage[];
+  event?: Event | null;
+}
+
+export interface GalleryImage {
+  id: string;
+  galleryId: string;
+  imageId: string;
+  title?: string | null;
+  caption?: string | null;
+  tags: string[];
+  sortOrder: number;
+  createdAt: Date;
+  image?: Image | null;
+  gallery?: Gallery | null;
 }

@@ -2,13 +2,33 @@
 import { SimpleGrid, Box } from "@chakra-ui/react";
 import EventCard from "./EventCard";
 import { useState } from "react";
+import type { Event } from "@/types";
+
+// More flexible type that can handle both Event interface and Prisma query results
+type EventItem = Event | {
+  id: string;
+  slug: string;
+  title: string;
+  description?: string | null;
+  ticketUrl?: string | null;
+  buttonType: string;
+  locationName?: string | null;
+  city?: string | null;
+  state?: string | null;
+  startAt: Date;
+  endAt?: Date | null;
+  status: string;
+  heroImageId?: string | null;
+  heroImage?: any;
+  [key: string]: any;
+};
 
 export default function EventGrid({ 
   items: initialItems, 
   showArchiveActions = false,
   isAdminView = false
 }: { 
-  items: any[];
+  items: EventItem[];
   showArchiveActions?: boolean;
   isAdminView?: boolean;
 }) {
@@ -19,7 +39,9 @@ export default function EventGrid({
   };
 
   const handleStatusChange = (eventId: string, newStatus: string) => {
-    setItems(prev => prev.filter(item => item.id !== deletedId));
+    setItems(prev => prev.map(item => 
+      item.id === eventId ? { ...item, status: newStatus } : item
+    ));
   };
 
   return (
@@ -40,9 +62,9 @@ export default function EventGrid({
             city={e.city}
             state={e.state}
             hero={e.heroImage}
-            buttonType={e.buttonType}
+            buttonType={e.buttonType as Event['buttonType']}
             ticketUrl={e.ticketUrl}
-            status={e.status}
+            status={e.status as Event['status']}
             onDelete={() => handleDelete(e.id)}
             onStatusChange={handleStatusChange}
             showArchiveActions={showArchiveActions}

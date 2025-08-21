@@ -8,7 +8,7 @@ type Props = {
   id: string;
   slug: string;
   title: string;
-  startAt: string;
+  startAt: string | Date;
   locationName?: string | null;
   city?: string | null;
   state?: string | null;
@@ -45,6 +45,14 @@ export default function EventCard({
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef<HTMLButtonElement>(null);
+
+  // Format the startAt date for display
+  const formatStartAt = (date: string | Date) => {
+    if (typeof date === 'string') {
+      return format(new Date(date), 'MMM dd, yyyy • h:mm a');
+    }
+    return format(date, 'MMM dd, yyyy • h:mm a');
+  };
 
   const handleDelete = async () => {
     try {
@@ -204,7 +212,7 @@ export default function EventCard({
               fontWeight="500"
               mb={2}
             >
-              {format(new Date(startAt), "EEE, MMM d • p")}
+              {formatStartAt(startAt)}
             </Text>
             <Text 
               color="gray.600" 
@@ -255,7 +263,7 @@ export default function EventCard({
             
             <Button 
               as={NextLink} 
-              href={`/events/${slug}`} 
+              href={`/events/${id}`} 
               colorScheme="teal" 
               variant="outline" 
               size="md"

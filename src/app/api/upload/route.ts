@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { uploadBufferToS3 } from "@/lib/s3";
 import { VARIANTS, makeVariant, normalizeBuffer } from "@/lib/images";
 import { randomUUID } from "crypto";
+import type { ImageVariants } from "@/types";
 
 export const runtime = "nodejs"; // ensure sharp works
 
@@ -31,7 +32,7 @@ export async function POST(req: NextRequest) {
   const baseBuf = await normalizeBuffer(inputBuf);
 
   const baseKey = `events/${eventId ?? "unassigned"}/${randomUUID()}`;
-  const variants: Record<string, any> = {};
+  const variants: Partial<ImageVariants> = {};
 
   for (const v of VARIANTS) {
     const out = await makeVariant(baseBuf, v.width);
@@ -58,12 +59,12 @@ export async function POST(req: NextRequest) {
       width: hero.width,
       height: hero.height,
       variants: {
-        tiny: variants.tiny,
-        thumb: variants.thumb,
-        card: variants.card,
-        hero: variants.hero,
+        tiny: variants.tiny!,
+        thumb: variants.thumb!,
+        card: variants.card!,
+        hero: variants.hero!,
         original: { webpKey: origWebpKey, jpgKey: origJpgKey, webpUrl: origWebpUrl, jpgUrl: origJpgUrl, width: hero.width, height: hero.height }
-      }
+      } as any // Type assertion for Prisma JSON field
     }
   });
 

@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Box, Button, Heading, Image as CImage, Stack, Text, Container, Badge, HStack, VStack } from "@chakra-ui/react";
+import { Box, Button, Heading, Image as CImage, Text, Container, HStack, VStack } from "@chakra-ui/react";
 import { format } from "date-fns";
 import Link from "next/link";
 import { Event } from "@/types";
 
-export default function EventDetail({ params }: { params: { slug: string }}) {
+export default function EventDetail({ params }: { params: { id: string }}) {
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -14,12 +14,26 @@ export default function EventDetail({ params }: { params: { slug: string }}) {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const res = await fetch(`/api/events/${params.slug}`);
-        if (!res.ok) {
-          throw new Error('Event not found');
+        // Check if it's a UUID (ID) or slug
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.id);
+        
+        if (isUUID) {
+          // Look up by ID
+          const res = await fetch(`/api/events/${params.id}`);
+          if (!res.ok) {
+            throw new Error('Event not found');
+          }
+          const eventData = await res.json();
+          setEvent(eventData);
+        } else {
+          // Look up by slug (for public access, published events only)
+          const res = await fetch(`/api/events/${params.id}`);
+          if (!res.ok) {
+            throw new Error('Event not found');
+          }
+          const eventData = await res.json();
+          setEvent(eventData);
         }
-        const eventData = await res.json();
-        setEvent(eventData);
       } catch (err) {
         setError(true);
       } finally {
@@ -28,7 +42,7 @@ export default function EventDetail({ params }: { params: { slug: string }}) {
     };
 
     fetchEvent();
-  }, [params.slug]);
+  }, [params.id]);
 
   if (loading) {
     return (

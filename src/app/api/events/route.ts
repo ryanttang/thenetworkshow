@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerAuthSession } from "@/lib/auth";
 import { createEventSchema } from "@/lib/validation";
 import { createSlug } from "@/lib/utils";
+import type { Prisma } from "@prisma/client";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -15,7 +16,9 @@ export async function GET(req: NextRequest) {
   const to = searchParams.get("to");
   const q = searchParams.get("q");
 
-  const where: any = { status };
+  const where: Prisma.EventWhereInput = { 
+    status: status as "DRAFT" | "PUBLISHED" | "ARCHIVED" 
+  };
   
   // If owner=me, filter by current user's events
   if (owner === "me") {
@@ -30,7 +33,12 @@ export async function GET(req: NextRequest) {
     where.ownerId = user.id;
   }
   
-  if (from || to) where.startAt = { ...(from ? { gte: new Date(from) } : {}), ...(to ? { lte: new Date(to) } : {}) };
+  if (from || to) {
+    where.startAt = { 
+      ...(from ? { gte: new Date(from) } : {}), 
+      ...(to ? { lte: new Date(to) } : {}) 
+    };
+  }
   if (q) where.title = { contains: q, mode: "insensitive" };
 
   const [items, count] = await Promise.all([

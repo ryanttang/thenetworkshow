@@ -3,6 +3,8 @@ import { getServerAuthSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import EventForm from "@/components/events/EventForm";
 import { Box, Heading, Text, VStack } from "@chakra-ui/react";
+import type { z } from "zod";
+import { createEventSchema } from "@/lib/validation";
 
 export default async function EditEventPage({ params }: { params: { id: string } }) {
   const session = await getServerAuthSession();
@@ -23,10 +25,21 @@ export default async function EditEventPage({ params }: { params: { id: string }
     return new Date(date).toISOString().slice(0, 16);
   };
 
-  const initialData = {
-    ...event,
+  const initialData: Partial<z.infer<typeof createEventSchema>> = {
+    title: event.title,
+    description: event.description || "",
+    ticketUrl: event.ticketUrl || "",
+    buttonType: event.buttonType as "RSVP" | "BUY_TICKETS",
+    locationName: event.locationName || "",
+    address: event.address || "",
+    city: event.city || "",
+    state: event.state || "",
+    latitude: event.latitude || undefined,
+    longitude: event.longitude || undefined,
     startAt: formatDateForInput(event.startAt),
     endAt: event.endAt ? formatDateForInput(event.endAt) : "",
+    timezone: event.timezone,
+    status: event.status,
     heroImageId: event.heroImageId || undefined
   };
 

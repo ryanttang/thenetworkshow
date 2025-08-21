@@ -39,7 +39,7 @@ export default function ImageUploader({
   // Load initial image if provided
   useEffect(() => {
     if (initialImageId) {
-      fetch(`/api/images/id/${initialImageId}`)
+      fetch(`/api/images/metadata/${initialImageId}`)
         .then(res => res.json())
         .then(data => {
           if (data.id) {
