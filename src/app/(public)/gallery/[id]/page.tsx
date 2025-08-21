@@ -1,9 +1,19 @@
 import { prisma } from "@/lib/prisma";
-import GalleryPage from "@/components/gallery/GalleryPage";
+import { notFound } from "next/navigation";
+import GalleryDetailPage from "@/components/gallery/GalleryDetailPage";
 
-export default async function GalleryRoute() {
-  const galleries = await prisma.gallery.findMany({
-    where: { isPublic: true },
+interface GalleryDetailRouteProps {
+  params: {
+    id: string;
+  };
+}
+
+export default async function GalleryDetailRoute({ params }: GalleryDetailRouteProps) {
+  const gallery = await prisma.gallery.findUnique({
+    where: { 
+      id: params.id,
+      isPublic: true 
+    },
     include: {
       event: {
         select: {
@@ -18,12 +28,15 @@ export default async function GalleryRoute() {
         },
         orderBy: { sortOrder: 'asc' }
       }
-    },
-    orderBy: { createdAt: 'desc' }
+    }
   });
 
-  // Transform galleries to match the expected interface
-  const transformedGalleries = galleries.map(gallery => ({
+  if (!gallery) {
+    notFound();
+  }
+
+  // Transform gallery to match the expected interface
+  const transformedGallery = {
     ...gallery,
     description: gallery.description || undefined,
     createdAt: gallery.createdAt.toISOString(),
@@ -38,17 +51,7 @@ export default async function GalleryRoute() {
         updatedAt: img.image.updatedAt.toISOString()
       }
     }))
-  }));
+  };
 
-  // Get all unique tags for filtering
-  const allTags = Array.from(
-    new Set(
-      transformedGalleries.flatMap(gallery => [
-        ...gallery.tags,
-        ...gallery.images.flatMap(img => img.tags)
-      ])
-    )
-  ).sort();
-
-  return <GalleryPage galleries={transformedGalleries} allTags={allTags} />;
+  return <GalleryDetailPage gallery={transformedGallery} />;
 }

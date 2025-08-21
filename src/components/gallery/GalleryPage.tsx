@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Link from "next/link";
 import {
   Box,
   Container,
@@ -124,11 +125,38 @@ export default function GalleryPage({ galleries, allTags }: GalleryPageProps) {
   };
 
   const getImageUrl = (image: any) => {
-    if (image.variants?.thumb?.key) {
-      return `/api/images/${image.variants.thumb.key}`;
+    
+    // Use direct S3 URLs instead of going through our API
+    if (image.variants?.thumb?.webpUrl) {
+      return image.variants.thumb.webpUrl;
     }
-    if (image.variants?.card?.key) {
-      return `/api/images/${image.variants.card.key}`;
+    if (image.variants?.thumb?.jpgUrl) {
+      return image.variants.thumb.jpgUrl;
+    }
+    if (image.variants?.card?.webpUrl) {
+      return image.variants.card.webpUrl;
+    }
+    if (image.variants?.card?.jpgUrl) {
+      return image.variants.card.jpgUrl;
+    }
+    if (image.variants?.hero?.webpUrl) {
+      return image.variants.hero.webpUrl;
+    }
+    if (image.variants?.hero?.jpgUrl) {
+      return image.variants.hero.jpgUrl;
+    }
+    // Fallback to our API route if no direct URLs
+    if (image.variants?.thumb?.webpKey) {
+      return `/api/images/${image.variants.thumb.webpKey}`;
+    }
+    if (image.variants?.thumb?.jpgKey) {
+      return `/api/images/${image.variants.thumb.jpgKey}`;
+    }
+    if (image.variants?.card?.webpKey) {
+      return `/api/images/${image.variants.card.webpKey}`;
+    }
+    if (image.variants?.card?.jpgKey) {
+      return `/api/images/${image.variants.card.jpgKey}`;
     }
     return "/placeholder-image.svg";
   };
@@ -232,16 +260,17 @@ export default function GalleryPage({ galleries, allTags }: GalleryPageProps) {
         {/* Galleries Grid */}
         <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
           {filteredGalleries.map((gallery) => (
-            <Box
-              key={gallery.id}
-              border="1px"
-              borderColor="gray.200"
-              borderRadius="lg"
-              overflow="hidden"
-              shadow="md"
-              _hover={{ shadow: "lg", transform: "translateY(-2px)" }}
-              transition="all 0.2s"
-            >
+            <Link key={gallery.id} href={`/gallery/${gallery.id}`} passHref>
+              <Box
+                border="1px"
+                borderColor="gray.200"
+                borderRadius="lg"
+                overflow="hidden"
+                shadow="md"
+                _hover={{ shadow: "lg", transform: "translateY(-2px)" }}
+                transition="all 0.2s"
+                cursor="pointer"
+              >
               {/* Gallery Header */}
               <Box p={4} bg="gray.50">
                 <Heading size="md" mb={2}>{gallery.name}</Heading>
@@ -285,7 +314,11 @@ export default function GalleryPage({ galleries, allTags }: GalleryPageProps) {
                     <Box
                       key={img.id}
                       cursor="pointer"
-                      onClick={() => handleImageClick(img)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleImageClick(img);
+                      }}
                       _hover={{ opacity: 0.8 }}
                       transition="opacity 0.2s"
                     >
@@ -317,6 +350,7 @@ export default function GalleryPage({ galleries, allTags }: GalleryPageProps) {
                 </SimpleGrid>
               </Box>
             </Box>
+            </Link>
           ))}
         </SimpleGrid>
 
