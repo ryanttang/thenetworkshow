@@ -255,11 +255,24 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
   };
 
   const getImageUrl = (image: any) => {
-    if (image.variants?.thumb?.key) {
-      return `/api/images/${image.variants.thumb.key}`;
+    // Fix: Use the correct key properties from the variants
+    if (image.variants?.thumb?.webpKey) {
+      return `/api/images/${image.variants.thumb.webpKey}`;
     }
-    if (image.variants?.card?.key) {
-      return `/api/images/${image.variants.card.key}`;
+    if (image.variants?.thumb?.jpgKey) {
+      return `/api/images/${image.variants.thumb.jpgKey}`;
+    }
+    if (image.variants?.card?.webpKey) {
+      return `/api/images/${image.variants.card.webpKey}`;
+    }
+    if (image.variants?.card?.jpgKey) {
+      return `/api/images/${image.variants.card.jpgKey}`;
+    }
+    if (image.variants?.hero?.webpKey) {
+      return `/api/images/${image.variants.hero.webpKey}`;
+    }
+    if (image.variants?.hero?.jpgKey) {
+      return `/api/images/${image.variants.hero.jpgKey}`;
     }
     return "/placeholder-image.svg";
   };
@@ -352,6 +365,10 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
                         w="full"
                         h="20"
                         fallbackSrc="/placeholder-image.svg"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = "/placeholder-image.svg";
+                        }}
                       />
                     </Box>
                   ))}
@@ -539,6 +556,10 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
                           w="full"
                           h="20"
                           fallbackSrc="/placeholder-image.svg"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = "/placeholder-image.svg";
+                          }}
                         />
                         {isFormEditable && (
                           <IconButton

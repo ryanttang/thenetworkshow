@@ -1,6 +1,19 @@
 "use client";
-import { useState } from "react";
-import { Box, Button, Input, Text, VStack, useToast, HStack, IconButton } from "@chakra-ui/react";
+import { useState, useRef } from "react";
+import { 
+  Box, 
+  Button, 
+  Input, 
+  Text, 
+  VStack, 
+  useToast, 
+  HStack, 
+  IconButton,
+  SimpleGrid,
+  Badge,
+  Flex,
+  Spacer
+} from "@chakra-ui/react";
 
 export default function ImageUploader({ 
   eventId, 
@@ -11,35 +24,91 @@ export default function ImageUploader({
   onUploaded: (imageId: string, variants: any) => void;
   showUploadedImages?: boolean;
 }) {
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
-  const [uploadedImages, setUploadedImages] = useState<Array<{id: string, variants: any}>>([]);
+  const [uploadedImages, setUploadedImages] = useState<Array<{id: string, variants: any, fileName: string}>>([]);
+  const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
   const toast = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const folderInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    setFiles(prev => [...prev, ...selectedFiles]);
+  };
+
+  const handleFolderSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    // Filter for image files only
+    const imageFiles = selectedFiles.filter(file => file.type.startsWith('image/'));
+    setFiles(prev => [...prev, ...imageFiles]);
+  };
+
+  const removeFile = (index: number) => {
+    setFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const clearAllFiles = () => {
+    setFiles([]);
+    setUploadProgress({});
+  };
+
+  const uploadFile = async (file: File): Promise<{imageId: string, variants: any}> => {
+    const fd = new FormData();
+    fd.append("file", file);
+    if (eventId) fd.append("eventId", eventId);
+    
+    const res = await fetch("/api/upload", { method: "POST", body: fd });
+    const json = await res.json();
+    
+    if (!res.ok) {
+      throw new Error(json.error ?? "Upload failed");
+    }
+    
+    return { imageId: json.imageId, variants: json.variants };
+  };
 
   const onUpload = async () => {
-    if (!file) return;
+    if (files.length === 0) return;
     setBusy(true);
     
     try {
-      const fd = new FormData();
-      fd.append("file", file);
-      if (eventId) fd.append("eventId", eventId);
+      const results = [];
       
-      const res = await fetch("/api/upload", { method: "POST", body: fd });
-      const json = await res.json();
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        setUploadProgress(prev => ({ ...prev, [file.name]: 0 }));
+        
+        try {
+          const result = await uploadFile(file);
+          const newImage = { 
+            id: result.imageId, 
+            variants: result.variants, 
+            fileName: file.name 
+          };
+          setUploadedImages(prev => [...prev, newImage]);
+          onUploaded(result.imageId, result.variants);
+          setUploadProgress(prev => ({ ...prev, [file.name]: 100 }));
+          results.push(result);
+        } catch (error) {
+          console.error(`Failed to upload ${file.name}:`, error);
+          toast({
+            title: `Failed to upload ${file.name}`,
+            description: error instanceof Error ? error.message : "Unknown error",
+            status: "error",
+            duration: 5000,
+          });
+        }
+      }
       
-      if (res.ok) {
-        const newImage = { id: json.imageId, variants: json.variants };
-        setUploadedImages(prev => [...prev, newImage]);
-        onUploaded(json.imageId, json.variants);
+      if (results.length > 0) {
         toast({
           title: "Upload successful",
+          description: `Successfully uploaded ${results.length} image${results.length !== 1 ? 's' : ''}`,
           status: "success",
           duration: 3000,
         });
-        setFile(null);
-      } else {
-        throw new Error(json.error ?? "Upload failed");
+        clearAllFiles();
       }
     } catch (error) {
       toast({
@@ -58,59 +127,139 @@ export default function ImageUploader({
   };
 
   const getImageUrl = (image: any) => {
-    if (image.variants?.thumb?.key) {
-      return `/api/images/${image.variants.thumb.key}`;
+    // Fix: Use the correct key properties from the variants
+    if (image.variants?.thumb?.webpKey) {
+      return `/api/images/${image.variants.thumb.webpKey}`;
     }
-    if (image.variants?.card?.key) {
-      return `/api/images/${image.variants.card.key}`;
+    if (image.variants?.thumb?.jpgKey) {
+      return `/api/images/${image.variants.thumb.jpgKey}`;
+    }
+    if (image.variants?.card?.webpKey) {
+      return `/api/images/${image.variants.card.webpKey}`;
+    }
+    if (image.variants?.card?.jpgKey) {
+      return `/api/images/${image.variants.card.jpgKey}`;
     }
     return "/placeholder-image.svg";
   };
 
+  const getTotalSize = () => {
+    return files.reduce((total, file) => total + file.size, 0);
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
   return (
-    <VStack spacing={3} align="stretch">
-      <HStack>
-        <Input 
-          type="file" 
-          accept="image/*" 
-          onChange={e => setFile(e.target.files?.[0] ?? null)}
-          p={1}
-          flex={1}
-        />
-        <Button 
-          onClick={onUpload} 
-          isLoading={busy} 
-          colorScheme="teal"
-          disabled={!file}
-          size="sm"
-        >
-          Upload
-        </Button>
-      </HStack>
+    <VStack spacing={4} align="stretch">
+      {/* File Selection */}
+      <VStack spacing={3} align="stretch">
+        <HStack spacing={3}>
+          <Input 
+            ref={fileInputRef}
+            type="file" 
+            accept="image/*" 
+            multiple
+            onChange={handleFileSelect}
+            p={1}
+            flex={1}
+          />
+          <Input 
+            ref={folderInputRef}
+            type="file" 
+            webkitdirectory=""
+            accept="image/*" 
+            onChange={handleFolderSelect}
+            p={1}
+            flex={1}
+            placeholder="Select folder"
+          />
+        </HStack>
+        
+        <HStack spacing={3}>
+          <Button 
+            onClick={onUpload} 
+            isLoading={busy} 
+            colorScheme="teal"
+            disabled={files.length === 0}
+            size="sm"
+          >
+            Upload {files.length > 0 ? `(${files.length})` : ''}
+          </Button>
+          {files.length > 0 && (
+            <Button 
+              onClick={clearAllFiles} 
+              variant="outline" 
+              size="sm"
+            >
+              Clear All
+            </Button>
+          )}
+        </HStack>
+      </VStack>
       
-      {!file && (
+      {/* File Info */}
+      {files.length > 0 && (
+        <Box p={3} bg="gray.50" borderRadius="md">
+          <Text fontSize="sm" fontWeight="medium" mb={2}>
+            Selected Files ({files.length}) - Total: {formatFileSize(getTotalSize())}
+          </Text>
+          <VStack spacing={2} align="stretch" maxH="32" overflowY="auto">
+            {files.map((file, index) => (
+              <HStack key={`${file.name}-${index}`} p={2} bg="white" borderRadius="md" shadow="sm">
+                <Text fontSize="sm" flex={1} noOfLines={1}>
+                  {file.name}
+                </Text>
+                <Badge colorScheme="blue" variant="subtle">
+                  {formatFileSize(file.size)}
+                </Badge>
+                <IconButton
+                  aria-label="Remove file"
+                  icon={<span>✕</span>}
+                  size="xs"
+                  variant="ghost"
+                  colorScheme="red"
+                  onClick={() => removeFile(index)}
+                />
+              </HStack>
+            ))}
+          </VStack>
+        </Box>
+      )}
+      
+      {files.length === 0 && (
         <Text color="gray.500" fontSize="sm">
-          Upload an image (JPG, PNG, WebP, HEIC supported)
+          Select images or a folder to upload (JPG, PNG, WebP, HEIC supported)
         </Text>
       )}
 
+      {/* Uploaded Images */}
       {showUploadedImages && uploadedImages.length > 0 && (
         <Box>
           <Text fontSize="sm" fontWeight="medium" mb={2}>
             Recently uploaded:
           </Text>
-          <VStack spacing={2} align="stretch">
+          <SimpleGrid columns={3} spacing={3}>
             {uploadedImages.map((img) => (
-              <HStack key={img.id} p={2} bg="gray.50" borderRadius="md">
-                <Box w="12" h="12" borderRadius="md" overflow="hidden">
+              <Box key={img.id} p={2} bg="gray.50" borderRadius="md" position="relative">
+                <Box w="full" h="24" borderRadius="md" overflow="hidden" mb={2}>
                   <img 
                     src={getImageUrl(img)} 
-                    alt="Uploaded image"
+                    alt={img.fileName || "Uploaded image"}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = "/placeholder-image.svg";
+                    }}
                   />
                 </Box>
-                <Text fontSize="sm" flex={1}>
-                  Image uploaded successfully
+                <Text fontSize="xs" color="gray.600" noOfLines={1} mb={1}>
+                  {img.fileName || "Image"}
                 </Text>
                 <IconButton
                   aria-label="Remove image"
@@ -118,11 +267,14 @@ export default function ImageUploader({
                   size="xs"
                   variant="ghost"
                   colorScheme="red"
+                  position="absolute"
+                  top={1}
+                  right={1}
                   onClick={() => removeImage(img.id)}
                 />
-              </HStack>
+              </Box>
             ))}
-          </VStack>
+          </SimpleGrid>
         </Box>
       )}
     </VStack>
