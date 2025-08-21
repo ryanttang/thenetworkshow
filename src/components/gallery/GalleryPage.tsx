@@ -29,7 +29,6 @@ import {
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
-// SearchIcon replaced with emoji to fix Chakra UI compatibility issues
 
 interface GalleryImage {
   id: string;
@@ -124,6 +123,16 @@ export default function GalleryPage({ galleries, allTags }: GalleryPageProps) {
     setSelectedEvent("");
   };
 
+  const getImageUrl = (image: any) => {
+    if (image.variants?.thumb?.key) {
+      return `/api/images/${image.variants.thumb.key}`;
+    }
+    if (image.variants?.card?.key) {
+      return `/api/images/${image.variants.card.key}`;
+    }
+    return "/placeholder-image.svg";
+  };
+
   return (
     <Container maxW="7xl" py={8}>
       <VStack spacing={8} align="stretch">
@@ -143,7 +152,7 @@ export default function GalleryPage({ galleries, allTags }: GalleryPageProps) {
               <Text fontWeight="semibold" mb={2}>Search</Text>
               <InputGroup>
                 <InputLeftElement pointerEvents="none">
-                  <Text color="gray.300">🔍</Text>
+                  <span>🔍</span>
                 </InputLeftElement>
                 <Input
                   placeholder="Search galleries and descriptions..."
@@ -281,12 +290,13 @@ export default function GalleryPage({ galleries, allTags }: GalleryPageProps) {
                       transition="opacity 0.2s"
                     >
                       <Image
-                        src={img.image.variants?.thumb?.key || img.image.variants?.card?.key}
+                        src={getImageUrl(img.image)}
                         alt={img.title || "Gallery image"}
                         borderRadius="md"
                         objectFit="cover"
                         w="full"
                         h="20"
+                        fallbackSrc="/placeholder-image.svg"
                       />
                     </Box>
                   ))}
@@ -332,12 +342,13 @@ export default function GalleryPage({ galleries, allTags }: GalleryPageProps) {
             {selectedImage && (
               <VStack spacing={4}>
                 <Image
-                  src={selectedImage.image.variants?.card?.key || selectedImage.image.variants?.thumb?.key}
+                  src={getImageUrl(selectedImage.image)}
                   alt={selectedImage.title || "Gallery image"}
                   borderRadius="md"
                   maxW="full"
                   maxH="96"
                   objectFit="contain"
+                  fallbackSrc="/placeholder-image.svg"
                 />
                 {selectedImage.title && (
                   <Heading size="md">{selectedImage.title}</Heading>

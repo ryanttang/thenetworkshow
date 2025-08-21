@@ -13,19 +13,23 @@ import {
   Text, 
   useToast,
   Divider,
-  HStack
+  HStack,
+  Alert,
+  AlertIcon
 } from "@chakra-ui/react";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const router = useRouter();
   const toast = useToast();
 
   const handleCredentialsSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
 
     try {
       const result = await signIn("credentials", {
@@ -35,13 +39,14 @@ export default function SignInPage() {
       });
 
       if (result?.error) {
+        setError("Invalid email or password");
         toast({
           title: "Sign in failed",
           description: "Invalid email or password",
           status: "error",
           duration: 5000,
         });
-      } else {
+      } else if (result?.ok) {
         toast({
           title: "Signed in successfully",
           status: "success",
@@ -50,6 +55,8 @@ export default function SignInPage() {
         router.push("/dashboard");
       }
     } catch (error) {
+      console.error("Sign in error:", error);
+      setError("An unexpected error occurred");
       toast({
         title: "Sign in failed",
         description: "An unexpected error occurred",
@@ -63,9 +70,12 @@ export default function SignInPage() {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
+    setError("");
     try {
       await signIn("google", { callbackUrl: "/dashboard" });
     } catch (error) {
+      console.error("Google sign in error:", error);
+      setError("Google authentication failed");
       toast({
         title: "Google sign in failed",
         description: "An error occurred during Google authentication",
@@ -82,6 +92,13 @@ export default function SignInPage() {
         <VStack spacing={6}>
           <Heading size="lg">Sign In</Heading>
           
+          {error && (
+            <Alert status="error" borderRadius="md">
+              <AlertIcon />
+              {error}
+            </Alert>
+          )}
+          
           <Box as="form" onSubmit={handleCredentialsSignIn} w="100%">
             <VStack spacing={4}>
               <FormControl isRequired>
@@ -91,6 +108,7 @@ export default function SignInPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
+                  disabled={isLoading}
                 />
               </FormControl>
               
@@ -101,6 +119,7 @@ export default function SignInPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
+                  disabled={isLoading}
                 />
               </FormControl>
               
@@ -109,6 +128,7 @@ export default function SignInPage() {
                 colorScheme="teal"
                 w="100%"
                 isLoading={isLoading}
+                loadingText="Signing in..."
               >
                 Sign In
               </Button>
@@ -122,6 +142,7 @@ export default function SignInPage() {
             w="100%"
             variant="outline"
             isLoading={isLoading}
+            loadingText="Connecting to Google..."
           >
             Continue with Google
           </Button>

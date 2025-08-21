@@ -21,11 +21,14 @@ export async function DELETE(
 
     const { id } = params;
 
-    // Check if gallery exists and user owns the associated event
+    // Check if gallery exists and user has access to it
     const gallery = await prisma.gallery.findFirst({
       where: { 
         id,
-        event: { ownerId: user.id }
+        OR: [
+          { event: { ownerId: user.id } }, // User owns the associated event
+          { eventId: null } // Or it's a standalone gallery (anyone can delete)
+        ]
       },
       include: { event: true }
     });

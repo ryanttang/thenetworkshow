@@ -39,8 +39,9 @@ import {
   Divider,
   Flex,
   Spacer,
+  InputGroup,
+  InputLeftElement,
 } from "@chakra-ui/react";
-// Icons replaced with emojis to fix Chakra UI compatibility issues
 import { useRouter } from "next/navigation";
 import ImageUploader from "@/components/events/ImageUploader";
 
@@ -93,6 +94,7 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
   const [newTag, setNewTag] = useState("");
   const [uploadedImages, setUploadedImages] = useState<any[]>([]);
   const [selectedImages, setSelectedImages] = useState<any[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
@@ -172,6 +174,8 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
         return;
       }
 
+      setIsSubmitting(true);
+
       const response = await fetch("/api/galleries", {
         method: isEditing ? "PUT" : "POST",
         headers: {
@@ -194,20 +198,23 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
         onClose();
         router.refresh();
       } else {
-        throw new Error("Failed to save gallery");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to save gallery");
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to save gallery",
+        description: error instanceof Error ? error.message : "Failed to save gallery",
         status: "error",
         duration: 3000,
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDeleteGallery = async (galleryId: string) => {
-    if (!confirm("Are you sure you want to delete this gallery?")) return;
+    if (!confirm("Are you sure you want to delete this gallery? This action cannot be undone.")) return;
 
     try {
       const response = await fetch(`/api/galleries/${galleryId}`, {
@@ -223,21 +230,38 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
         });
         router.refresh();
       } else {
-        throw new Error("Failed to delete gallery");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete gallery");
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to delete gallery",
+        description: error instanceof Error ? error.message : "Failed to delete gallery",
         status: "error",
         duration: 3000,
       });
     }
   };
 
-  const handleImageUpload = (images: any[]) => {
-    setUploadedImages(images);
-    setSelectedImages(images);
+  const handleImageUpload = (imageId: string, variants: any) => {
+    const newImage = { id: imageId, variants };
+    setUploadedImages(prev => [...prev, newImage]);
+    setSelectedImages(prev => [...prev, newImage]);
+  };
+
+  const removeSelectedImage = (imageId: string) => {
+    setSelectedImages(prev => prev.filter(img => img.id !== imageId));
+    setUploadedImages(prev => prev.filter(img => img.id !== imageId));
+  };
+
+  const getImageUrl = (image: any) => {
+    if (image.variants?.thumb?.key) {
+      return `/api/images/${image.variants.thumb.key}`;
+    }
+    if (image.variants?.card?.key) {
+      return `/api/images/${image.variants.card.key}`;
+    }
+    return "/placeholder-image.svg";
   };
 
   return (
@@ -250,7 +274,7 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
             <Text color="gray.600">Create and manage photo galleries for your events</Text>
           </Box>
           <Button
-                            leftIcon={<Text fontSize="sm">➕</Text>}
+            leftIcon={<span>➕</span>}
             colorScheme="teal"
             size="lg"
             onClick={handleCreateGallery}
@@ -269,6 +293,8 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
               borderRadius="lg"
               overflow="hidden"
               shadow="md"
+              _hover={{ shadow: "lg", transform: "translateY(-2px)" }}
+              transition="all 0.2s"
             >
               {/* Gallery Header */}
               <Box p={4} bg="gray.50">
@@ -317,12 +343,13 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
                   {gallery.images.slice(0, 6).map((img) => (
                     <Box key={img.id}>
                       <Image
-                        src={img.image.variants?.thumb?.key || img.image.variants?.card?.key}
+                        src={getImageUrl(img.image)}
                         alt={img.title || "Gallery image"}
                         borderRadius="md"
                         objectFit="cover"
                         w="full"
                         h="20"
+                        fallbackSrc="/placeholder-image.svg"
                       />
                     </Box>
                   ))}
@@ -348,21 +375,21 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
                 <HStack spacing={2}>
                   <IconButton
                     aria-label="View gallery"
-                    icon={<Text fontSize="sm">👁️</Text>}
+                    icon={<span>👁️</span>}
                     size="sm"
                     variant="outline"
                     onClick={() => handleViewGallery(gallery)}
                   />
                   <IconButton
                     aria-label="Edit gallery"
-                    icon={<Text fontSize="sm">✏️</Text>}
+                    icon={<span>✏️</span>}
                     size="sm"
                     variant="outline"
                     onClick={() => handleEditGallery(gallery)}
                   />
                   <IconButton
                     aria-label="Delete gallery"
-                    icon={<Text fontSize="sm">🗑️</Text>}
+                    icon={<span>🗑️</span>}
                     size="sm"
                     variant="outline"
                     colorScheme="red"
@@ -485,16 +512,13 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
               {isEditing && (
                 <>
                   <Divider />
-                  <Box>
-                    <FormLabel>Upload Images</FormLabel>
-                    <ImageUploader
-                      onUploaded={(imageId, variants) => {
-                        // Handle individual image uploads
-                        const newImage = { id: imageId, variants };
-                        setSelectedImages([...selectedImages, newImage]);
-                      }}
-                    />
-                  </Box>
+                                      <Box>
+                      <FormLabel>Upload Images</FormLabel>
+                      <ImageUploader
+                        onUploaded={handleImageUpload}
+                        showUploadedImages={true}
+                      />
+                    </Box>
                 </>
               )}
 
@@ -504,15 +528,28 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
                   <FormLabel>Selected Images ({selectedImages.length})</FormLabel>
                   <SimpleGrid columns={4} spacing={2}>
                     {selectedImages.map((img, index) => (
-                      <Box key={index} position="relative">
+                      <Box key={img.id || index} position="relative">
                         <Image
-                          src={img.variants?.thumb?.key || img.variants?.card?.key}
+                          src={getImageUrl(img)}
                           alt={`Selected image ${index + 1}`}
                           borderRadius="md"
                           objectFit="cover"
                           w="full"
                           h="20"
+                          fallbackSrc="/placeholder-image.svg"
                         />
+                        {isEditing && (
+                          <IconButton
+                            aria-label="Remove image"
+                            icon={<span>✕</span>}
+                            size="xs"
+                            colorScheme="red"
+                            position="absolute"
+                            top={1}
+                            right={1}
+                            onClick={() => removeSelectedImage(img.id)}
+                          />
+                        )}
                       </Box>
                     ))}
                   </SimpleGrid>
@@ -525,7 +562,12 @@ export default function GalleryManagement({ events, galleries }: GalleryManageme
             <HStack spacing={3}>
               <Button onClick={onClose}>Cancel</Button>
               {isEditing && (
-                <Button colorScheme="teal" onClick={handleSubmit}>
+                <Button 
+                  colorScheme="teal" 
+                  onClick={handleSubmit}
+                  isLoading={isSubmitting}
+                  loadingText="Saving..."
+                >
                   Save Changes
                 </Button>
               )}

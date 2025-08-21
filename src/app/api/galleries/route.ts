@@ -93,11 +93,14 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "Gallery ID and name are required" }, { status: 400 });
     }
 
-    // Check if gallery exists and user owns the associated event
+    // Check if gallery exists and user has access to it
     const existingGallery = await prisma.gallery.findFirst({
       where: { 
         id,
-        event: { ownerId: user.id }
+        OR: [
+          { event: { ownerId: user.id } }, // User owns the associated event
+          { eventId: null } // Or it's a standalone gallery (anyone can edit)
+        ]
       },
       include: { event: true }
     });

@@ -17,9 +17,14 @@ export default async function GalleryManagementPage() {
     orderBy: { startAt: 'desc' }
   });
 
-  // Get user's galleries
+  // Get all galleries the user can access (owned events + standalone galleries)
   const galleries = await prisma.gallery.findMany({
-    where: { event: { ownerId: me.id } },
+    where: {
+      OR: [
+        { event: { ownerId: me.id } }, // Galleries from user's events
+        { eventId: null } // Standalone galleries
+      ]
+    },
     include: {
       event: {
         select: {
