@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma, setUserContext } from "@/lib/prisma";
+import { getServerAuthSession } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const limit = Math.min(parseInt(url.searchParams.get("limit") || "12", 10), 50);
+
+  // Get session to set user context for RLS
+  const session = await getServerAuthSession();
+  const userId = session?.user?.id || null;
+  
+  // Set user context for RLS policies
+  await setUserContext(userId);
 
   const posts = await prisma.instagramPost.findMany({
     where: { isPublished: true },

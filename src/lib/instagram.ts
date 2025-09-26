@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma, setUserContext } from "@/lib/prisma";
 
 const INSTAGRAM_APP_ID = process.env.INSTAGRAM_APP_ID || process.env.FACEBOOK_APP_ID;
 const INSTAGRAM_APP_SECRET = process.env.INSTAGRAM_APP_SECRET || process.env.FACEBOOK_APP_SECRET;
@@ -85,6 +85,9 @@ export async function upsertInstagramAccount(params: {
   accessToken: string;
   expiresInSeconds?: number | null;
 }) {
+  // Set user context for RLS policies
+  await setUserContext(params.ownerUserId);
+
   const expiresAt = params.expiresInSeconds
     ? new Date(Date.now() + params.expiresInSeconds * 1000)
     : null;
@@ -110,7 +113,12 @@ export async function upsertInstagramAccount(params: {
   return account;
 }
 
-export async function upsertInstagramPosts(accountId: string, items: Array<any>) {
+export async function upsertInstagramPosts(accountId: string, items: Array<any>, userId?: string) {
+  // Set user context for RLS policies if userId is provided
+  if (userId) {
+    await setUserContext(userId);
+  }
+
   for (const item of items) {
     const takenAt = item.timestamp ? new Date(item.timestamp) : null;
     await prisma.instagramPost.upsert({

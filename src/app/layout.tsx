@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Providers from "./providers";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
+import KeyboardShortcut from "@/components/ui/KeyboardShortcut";
 import { Box, Image } from "@chakra-ui/react";
 
 export const metadata: Metadata = {
@@ -14,6 +15,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <Providers>
+          <KeyboardShortcut />
           <Navbar />
           <Box width="100%" height="200px" overflow="hidden">
             <Image 

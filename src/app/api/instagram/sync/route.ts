@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerAuthSession } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { prisma, setUserContext } from "@/lib/prisma";
 import { fetchUserMedia, upsertInstagramPosts } from "@/lib/instagram";
 
 export async function POST() {
@@ -8,6 +8,9 @@ export async function POST() {
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  // Set user context for RLS policies
+  await setUserContext(session.user.id as string);
 
   const account = await prisma.instagramAccount.findFirst({ where: { userId: session.user.id as string } });
   if (!account) return NextResponse.json({ error: "No Instagram account connected" }, { status: 400 });
@@ -20,7 +23,7 @@ export async function POST() {
     after = page.paging?.cursors?.after;
   } while (after);
 
-  await upsertInstagramPosts(account.id, collected);
+  await upsertInstagramPosts(account.id, collected, session.user.id as string);
 
   return NextResponse.json({ ok: true, imported: collected.length });
 }
