@@ -25,16 +25,14 @@ export default function Navbar() {
         </HStack>
         <HStack spacing={6}>
           <Link as={NextLink} href="/gallery">Gallery</Link>
+          <Link as={NextLink} href="/faq">FAQ</Link>
           <Link href="https://thcmembersonlyclub.com/waiver/" isExternal>
             Waiver
           </Link>
           {session ? (
-            <>
-              <Link as={NextLink} href="/dashboard">Dashboard</Link>
-              <Button size="sm" variant="outline" onClick={() => signOut()}>
-                Sign Out
-              </Button>
-            </>
+            <Button size="sm" variant="outline" onClick={() => signOut()}>
+              Sign Out
+            </Button>
           ) : (
             <Link as={NextLink} href="/signin">Sign In</Link>
           )}

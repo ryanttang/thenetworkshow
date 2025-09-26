@@ -87,8 +87,10 @@ export default function CoordinationCard({ coordination, events }: CoordinationC
         duration: 3000,
       });
 
-      // Refresh the page to update the list
-      window.location.reload();
+      // Trigger parent component refresh
+      if (typeof window !== 'undefined') {
+        window.location.reload();
+      }
     } catch (error) {
       toast({
         title: "Error",
@@ -291,7 +293,9 @@ export default function CoordinationCard({ coordination, events }: CoordinationC
               events={events}
               onSuccess={() => {
                 onClose();
-                window.location.reload();
+                if (typeof window !== 'undefined') {
+                  window.location.reload();
+                }
               }}
             />
           </ModalBody>
@@ -309,7 +313,9 @@ export default function CoordinationCard({ coordination, events }: CoordinationC
               coordinationId={coordination.id}
               onSuccess={() => {
                 onUploadClose();
-                window.location.reload();
+                if (typeof window !== 'undefined') {
+                  window.location.reload();
+                }
               }}
             />
           </ModalBody>

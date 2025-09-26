@@ -169,7 +169,6 @@ function DocumentPreview({ document }: { document: any }) {
 export default function CoordinationPage({ params }: CoordinationPageProps) {
   const [coordination, setCoordination] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [viewingDocument, setViewingDocument] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCoordination = async () => {
@@ -193,9 +192,6 @@ export default function CoordinationPage({ params }: CoordinationPageProps) {
     fetchCoordination();
   }, [params.token]);
 
-  const handleViewDocument = (documentId: string) => {
-    setViewingDocument(viewingDocument === documentId ? null : documentId);
-  };
 
   if (loading) {
     return (
@@ -370,38 +366,25 @@ export default function CoordinationPage({ params }: CoordinationPageProps) {
                           <Text fontSize="xs" color="gray.500">
                             {formatFileSize(doc.fileSize)}
                           </Text>
-                          <HStack spacing={2}>
-                            <Button
-                              size="sm"
-                              colorScheme="blue"
-                              variant="outline"
-                              leftIcon={<span>👁️</span>}
-                              onClick={() => handleViewDocument(doc.id)}
-                            >
-                              {viewingDocument === doc.id ? 'Hide' : 'View'}
-                            </Button>
-                            <Button
-                              size="sm"
-                              colorScheme="blue"
-                              variant="outline"
-                              leftIcon={<span>⬇️</span>}
-                              as={Link}
-                              href={doc.fileUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              Download
-                            </Button>
-                          </HStack>
+                          <Button
+                            size="sm"
+                            colorScheme="blue"
+                            variant="outline"
+                            leftIcon={<span>⬇️</span>}
+                            as={Link}
+                            href={doc.fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Download
+                          </Button>
                         </HStack>
                       </VStack>
                     </CardBody>
                   </Card>
                   
                   {/* Document Preview */}
-                  {viewingDocument === doc.id && (
-                    <DocumentPreview document={doc} />
-                  )}
+                  <DocumentPreview document={doc} />
                 </Box>
               ))}
               </VStack>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -41,6 +41,11 @@ import {
   Spacer,
   InputGroup,
   InputLeftElement,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
 } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import ImageUploader from "@/components/events/ImageUploader";
@@ -97,9 +102,30 @@ export default function GalleryManagement({ events, galleries, onRefresh }: Gall
   const [selectedImages, setSelectedImages] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  // Instagram state
+  const [instagramAccount, setInstagramAccount] = useState<any>(null);
+  const [instagramPosts, setInstagramPosts] = useState<any[]>([]);
+  const [isLoadingInstagram, setIsLoadingInstagram] = useState(false);
+  
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
   const toast = useToast();
+
+  // Load Instagram account status
+  useEffect(() => {
+    const checkInstagramAccount = async () => {
+      try {
+        const response = await fetch('/api/instagram/account');
+        if (response.ok) {
+          const data = await response.json();
+          setInstagramAccount(data.account);
+        }
+      } catch (error) {
+        console.error('Failed to check Instagram account:', error);
+      }
+    };
+    checkInstagramAccount();
+  }, []);
 
   const handleCreateGallery = () => {
     setSelectedGallery(null);
@@ -287,6 +313,39 @@ export default function GalleryManagement({ events, galleries, onRefresh }: Gall
 
   const isFormEditable = isEditing || !selectedGallery; // Enable form when creating new gallery or editing
 
+  // Instagram functions
+  const handleConnectInstagram = () => {
+    window.location.href = '/api/instagram/auth';
+  };
+
+  const handleSyncInstagram = async () => {
+    setIsLoadingInstagram(true);
+    try {
+      const response = await fetch('/api/instagram/sync', { method: 'POST' });
+      if (response.ok) {
+        const data = await response.json();
+        toast({
+          title: "Success",
+          description: `Imported ${data.imported} Instagram posts`,
+          status: "success",
+          duration: 3000,
+        });
+        onRefresh();
+      } else {
+        throw new Error('Failed to sync Instagram posts');
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to sync Instagram posts",
+        status: "error",
+        duration: 5000,
+      });
+    } finally {
+      setIsLoadingInstagram(false);
+    }
+  };
+
   return (
     <Container maxW="7xl" py={8}>
       <VStack spacing={8} align="stretch">
@@ -306,139 +365,218 @@ export default function GalleryManagement({ events, galleries, onRefresh }: Gall
           </Button>
         </HStack>
 
-        {/* Galleries Grid */}
-        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-          {galleries.map((gallery) => (
-            <Box
-              key={gallery.id}
-              border="1px"
-              borderColor="gray.200"
-              borderRadius="lg"
-              overflow="hidden"
-              shadow="md"
-              _hover={{ shadow: "lg", transform: "translateY(-2px)" }}
-              transition="all 0.2s"
-            >
-              {/* Gallery Header */}
-              <Box p={4} bg="gray.50">
-                <Heading size="md" mb={2}>{gallery.name}</Heading>
-                {gallery.event && (
-                  <Text color="blue.600" fontSize="sm" mb={2}>
-                    Event: {gallery.event.title}
-                  </Text>
-                )}
-                {gallery.description && (
-                  <Text color="gray.600" fontSize="sm" mb={2}>
-                    {gallery.description}
-                  </Text>
-                )}
-                <HStack spacing={2} mb={2}>
-                  <Badge colorScheme={gallery.isPublic ? "green" : "gray"}>
-                    {gallery.isPublic ? "Public" : "Private"}
-                  </Badge>
-                  <Text color="gray.500" fontSize="xs">
-                    {new Date(gallery.createdAt).toLocaleDateString()}
-                  </Text>
-                </HStack>
-              </Box>
+        {/* Tabs */}
+        <Tabs variant="enclosed" colorScheme="teal">
+          <TabList>
+            <Tab>Regular Galleries</Tab>
+            <Tab>Instagram</Tab>
+          </TabList>
 
-              {/* Gallery Tags */}
-              {gallery.tags.length > 0 && (
-                <Box p={4} pt={0}>
-                  <Wrap spacing={2}>
-                    {gallery.tags.map((tag) => (
-                      <WrapItem key={tag}>
-                        <Badge colorScheme="blue" variant="subtle">
-                          {tag}
+          <TabPanels>
+            <TabPanel px={0}>
+
+              {/* Galleries Grid */}
+              <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
+                {galleries.map((gallery) => (
+                  <Box
+                    key={gallery.id}
+                    border="1px"
+                    borderColor="gray.200"
+                    borderRadius="lg"
+                    overflow="hidden"
+                    shadow="md"
+                    _hover={{ shadow: "lg", transform: "translateY(-2px)" }}
+                    transition="all 0.2s"
+                  >
+                    {/* Gallery Header */}
+                    <Box p={4} bg="gray.50">
+                      <Heading size="md" mb={2}>{gallery.name}</Heading>
+                      {gallery.event && (
+                        <Text color="blue.600" fontSize="sm" mb={2}>
+                          Event: {gallery.event.title}
+                        </Text>
+                      )}
+                      {gallery.description && (
+                        <Text color="gray.600" fontSize="sm" mb={2}>
+                          {gallery.description}
+                        </Text>
+                      )}
+                      <HStack spacing={2} mb={2}>
+                        <Badge colorScheme={gallery.isPublic ? "green" : "gray"}>
+                          {gallery.isPublic ? "Public" : "Private"}
                         </Badge>
-                      </WrapItem>
-                    ))}
-                  </Wrap>
+                        <Text color="gray.500" fontSize="xs">
+                          {new Date(gallery.createdAt).toLocaleDateString()}
+                        </Text>
+                      </HStack>
+                    </Box>
+
+                    {/* Gallery Tags */}
+                    {gallery.tags.length > 0 && (
+                      <Box p={4} pt={0}>
+                        <Wrap spacing={2}>
+                          {gallery.tags.map((tag) => (
+                            <WrapItem key={tag}>
+                              <Badge colorScheme="blue" variant="subtle">
+                                {tag}
+                              </Badge>
+                            </WrapItem>
+                          ))}
+                        </Wrap>
+                      </Box>
+                    )}
+
+                    {/* Gallery Images Preview */}
+                    <Box p={4} pt={0}>
+                      <Text fontSize="sm" color="gray.600" mb={3}>
+                        {gallery.images.length} photo{gallery.images.length !== 1 ? 's' : ''}
+                      </Text>
+                      <SimpleGrid columns={3} spacing={2}>
+                        {gallery.images.slice(0, 6).map((img) => (
+                          <Box key={img.id}>
+                            <Image
+                              src={getImageUrl(img.image)}
+                              alt={img.title || "Gallery image"}
+                              borderRadius="md"
+                              objectFit="cover"
+                              w="full"
+                              h="20"
+                              fallbackSrc="/placeholder-image.svg"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = "/placeholder-image.svg";
+                              }}
+                            />
+                          </Box>
+                        ))}
+                        {gallery.images.length > 6 && (
+                          <Box
+                            bg="gray.200"
+                            borderRadius="md"
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                            h="20"
+                          >
+                            <Text fontSize="xs" color="gray.600">
+                              +{gallery.images.length - 6} more
+                            </Text>
+                          </Box>
+                        )}
+                      </SimpleGrid>
+                    </Box>
+
+                    {/* Action Buttons */}
+                    <Box p={4} pt={0}>
+                      <HStack spacing={2}>
+                        <IconButton
+                          aria-label="View gallery"
+                          icon={<span>👁️</span>}
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleViewGallery(gallery)}
+                        />
+                        <IconButton
+                          aria-label="Edit gallery"
+                          icon={<span>✏️</span>}
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEditGallery(gallery)}
+                        />
+                        <IconButton
+                          aria-label="Delete gallery"
+                          icon={<span>🗑️</span>}
+                          size="sm"
+                          variant="outline"
+                          colorScheme="red"
+                          onClick={() => handleDeleteGallery(gallery.id)}
+                        />
+                      </HStack>
+                    </Box>
+                  </Box>
+                ))}
+              </SimpleGrid>
+
+              {/* No Galleries */}
+              {galleries.length === 0 && (
+                <Box textAlign="center" py={12}>
+                  <Text fontSize="lg" color="gray.500" mb={4}>
+                    You haven't created any galleries yet
+                  </Text>
+                  <Button onClick={handleCreateGallery} colorScheme="teal">
+                    Create Your First Gallery
+                  </Button>
                 </Box>
               )}
+            </TabPanel>
 
-              {/* Gallery Images Preview */}
-              <Box p={4} pt={0}>
-                <Text fontSize="sm" color="gray.600" mb={3}>
-                  {gallery.images.length} photo{gallery.images.length !== 1 ? 's' : ''}
-                </Text>
-                <SimpleGrid columns={3} spacing={2}>
-                  {gallery.images.slice(0, 6).map((img) => (
-                    <Box key={img.id}>
-                      <Image
-                        src={getImageUrl(img.image)}
-                        alt={img.title || "Gallery image"}
-                        borderRadius="md"
-                        objectFit="cover"
-                        w="full"
-                        h="20"
-                        fallbackSrc="/placeholder-image.svg"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = "/placeholder-image.svg";
-                        }}
-                      />
-                    </Box>
-                  ))}
-                  {gallery.images.length > 6 && (
-                    <Box
-                      bg="gray.200"
-                      borderRadius="md"
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                      h="20"
-                    >
-                      <Text fontSize="xs" color="gray.600">
-                        +{gallery.images.length - 6} more
-                      </Text>
-                    </Box>
-                  )}
-                </SimpleGrid>
-              </Box>
+            <TabPanel px={0}>
+              {/* Instagram Tab */}
+              <VStack spacing={6} align="stretch">
+                {/* Instagram Account Status */}
+                <Box p={6} bg="gray.50" borderRadius="lg">
+                  <VStack spacing={4} align="stretch">
+                    <Heading size="md">Instagram Integration</Heading>
+                    
+                    {instagramAccount ? (
+                      <VStack spacing={3} align="stretch">
+                        <HStack justify="space-between">
+                          <Text>Connected as: <strong>@{instagramAccount.username}</strong></Text>
+                          <Badge colorScheme="green">Connected</Badge>
+                        </HStack>
+                        <HStack spacing={3}>
+                          <Button
+                            colorScheme="blue"
+                            onClick={handleSyncInstagram}
+                            isLoading={isLoadingInstagram}
+                            loadingText="Syncing..."
+                          >
+                            Sync Posts
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => window.location.href = '/api/instagram/auth'}
+                          >
+                            Reconnect
+                          </Button>
+                        </HStack>
+                      </VStack>
+                    ) : (
+                      <VStack spacing={3} align="stretch">
+                        <Text color="gray.600">No Instagram account connected</Text>
+                        <Button
+                          colorScheme="pink"
+                          onClick={handleConnectInstagram}
+                          leftIcon={<span>📷</span>}
+                        >
+                          Connect Instagram Account
+                        </Button>
+                      </VStack>
+                    )}
+                  </VStack>
+                </Box>
 
-              {/* Action Buttons */}
-              <Box p={4} pt={0}>
-                <HStack spacing={2}>
-                  <IconButton
-                    aria-label="View gallery"
-                    icon={<span>👁️</span>}
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleViewGallery(gallery)}
-                  />
-                  <IconButton
-                    aria-label="Edit gallery"
-                    icon={<span>✏️</span>}
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleEditGallery(gallery)}
-                  />
-                  <IconButton
-                    aria-label="Delete gallery"
-                    icon={<span>🗑️</span>}
-                    size="sm"
-                    variant="outline"
-                    colorScheme="red"
-                    onClick={() => handleDeleteGallery(gallery.id)}
-                  />
-                </HStack>
-              </Box>
-            </Box>
-          ))}
-        </SimpleGrid>
-
-        {/* No Galleries */}
-        {galleries.length === 0 && (
-          <Box textAlign="center" py={12}>
-            <Text fontSize="lg" color="gray.500" mb={4}>
-              You haven't created any galleries yet
-            </Text>
-            <Button onClick={handleCreateGallery} colorScheme="teal">
-              Create Your First Gallery
-            </Button>
-          </Box>
-        )}
+                {/* Instagram Posts Preview */}
+                {instagramAccount && (
+                  <Box>
+                    <Heading size="md" mb={4}>Recent Instagram Posts</Heading>
+                    <Text color="gray.600" mb={4}>
+                      These posts will appear in your public gallery automatically
+                    </Text>
+                    <SimpleGrid columns={{ base: 2, md: 4, lg: 6 }} spacing={4}>
+                      {/* This would show a preview of Instagram posts */}
+                      <Box textAlign="center" p={4} border="1px" borderColor="gray.200" borderRadius="md">
+                        <Text fontSize="sm" color="gray.500">
+                          Instagram posts will appear here after syncing
+                        </Text>
+                      </Box>
+                    </SimpleGrid>
+                  </Box>
+                )}
+              </VStack>
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
       </VStack>
 
       {/* Gallery Modal */}

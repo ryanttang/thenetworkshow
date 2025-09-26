@@ -80,12 +80,20 @@ export default function ImageUploader({
     if (eventId) fd.append("eventId", eventId);
     
     const res = await fetch("/api/upload", { method: "POST", body: fd });
-    const json = await res.json();
     
     if (!res.ok) {
-      throw new Error(json.error ?? "Upload failed");
+      let errorMessage = "Upload failed";
+      try {
+        const json = await res.json();
+        errorMessage = json.error || json.details || "Upload failed";
+      } catch (e) {
+        // If response is not JSON, use status text
+        errorMessage = res.statusText || "Upload failed";
+      }
+      throw new Error(errorMessage);
     }
     
+    const json = await res.json();
     return { imageId: json.imageId, variants: json.variants };
   };
 
@@ -108,7 +116,6 @@ export default function ImageUploader({
             fileName: file.name 
           };
           setUploadedImages(prev => [...prev, newImage]);
-          onUploaded(result.imageId, result.variants);
           setUploadProgress(prev => ({ ...prev, [file.name]: 100 }));
           results.push(result);
         } catch (error) {
@@ -123,6 +130,10 @@ export default function ImageUploader({
       }
       
       if (results.length > 0) {
+        // Only call onUploaded once with the last uploaded image
+        const lastResult = results[results.length - 1];
+        onUploaded(lastResult.imageId, lastResult.variants);
+        
         toast({
           title: "Upload successful",
           description: `Successfully uploaded ${results.length} image${results.length !== 1 ? 's' : ''}`,
@@ -174,10 +185,10 @@ export default function ImageUploader({
     }
     // Fallback to our API route if no direct URLs
     if (image.variants?.thumb?.webpKey) {
-      return `/api/images/${image.variants.thumb.webpKey}`;
+      return `/api/images/${encodeURIComponent(image.variants.thumb.webpKey)}`;
     }
     if (image.variants?.thumb?.jpgKey) {
-      return `/api/images/${image.variants.thumb.jpgKey}`;
+      return `/api/images/${encodeURIComponent(image.variants.thumb.jpgKey)}`;
     }
     return "/placeholder-image.svg";
   };

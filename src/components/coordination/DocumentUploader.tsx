@@ -99,14 +99,14 @@ export default function DocumentUploader({ coordinationId, onSuccess }: Document
     const fd = new FormData();
     fd.append("file", file);
     
-    const res = await fetch("/api/upload", { method: "POST", body: fd });
+    const res = await fetch("/api/upload/document", { method: "POST", body: fd });
     const json = await res.json();
     
     if (!res.ok) {
       throw new Error(json.error ?? "Upload failed");
     }
     
-    return json.imageId; // Assuming the upload API returns an imageId that we can use as file reference
+    return json.fileUrl; // Return the actual file URL for the document
   };
 
   const createDocument = async (file: File, fileUrl: string) => {
@@ -176,7 +176,10 @@ export default function DocumentUploader({ coordinationId, onSuccess }: Document
           duration: 3000,
         });
         clearAllFiles();
-        if (onSuccess) onSuccess();
+        // Call onSuccess callback to trigger parent state update
+        if (onSuccess) {
+          onSuccess();
+        }
       }
     } catch (error) {
       toast({

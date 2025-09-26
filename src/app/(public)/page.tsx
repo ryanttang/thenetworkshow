@@ -25,7 +25,7 @@ export default async function HomePage() {
           Upcoming Events
         </Heading>
         <Box textAlign="center" color="gray.600">
-          Discover amazing events happening in your area
+          Discover amazing events happening in Southern California and beyond
         </Box>
       </Box>
       <EventGrid items={data.items || []} />

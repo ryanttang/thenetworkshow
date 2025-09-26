@@ -1,7 +1,7 @@
 "use client";
 import { SimpleGrid, Box } from "@chakra-ui/react";
 import EventCard from "./EventCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Event } from "@/types";
 
 // More flexible type that can handle both Event interface and Prisma query results
@@ -33,6 +33,11 @@ export default function EventGrid({
   isAdminView?: boolean;
 }) {
   const [items, setItems] = useState(initialItems);
+
+  // Sync state when initialItems prop changes
+  useEffect(() => {
+    setItems(initialItems);
+  }, [initialItems]);
 
   const handleDelete = (deletedId: string) => {
     setItems(prev => prev.filter(item => item.id !== deletedId));

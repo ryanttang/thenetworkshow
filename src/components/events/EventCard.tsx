@@ -39,9 +39,6 @@ export default function EventCard({
   showArchiveActions = false,
   isAdminView = false // Default to public view
 }: Props) {
-  const variants = hero?.variants as any;
-  const v = variants?.card ?? variants?.thumb ?? variants?.tiny;
-  const img = v?.webpUrl ?? v?.jpgUrl;
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef<HTMLButtonElement>(null);
@@ -53,6 +50,51 @@ export default function EventCard({
     }
     return format(date, 'MMM dd, yyyy • h:mm a');
   };
+
+  // Get image URL with proper fallback logic
+  const getImageUrl = (image: any) => {
+    if (!image?.variants) {
+      return null;
+    }
+    
+    // Use direct S3 URLs first
+    if (image.variants?.card?.webpUrl) {
+      return image.variants.card.webpUrl;
+    }
+    if (image.variants?.card?.jpgUrl) {
+      return image.variants.card.jpgUrl;
+    }
+    if (image.variants?.thumb?.webpUrl) {
+      return image.variants.thumb.webpUrl;
+    }
+    if (image.variants?.thumb?.jpgUrl) {
+      return image.variants.thumb.jpgUrl;
+    }
+    if (image.variants?.hero?.webpUrl) {
+      return image.variants.hero.webpUrl;
+    }
+    if (image.variants?.hero?.jpgUrl) {
+      return image.variants.hero.jpgUrl;
+    }
+    
+    // Fallback to API route if no direct URLs
+    if (image.variants?.card?.webpKey) {
+      return `/api/images/${encodeURIComponent(image.variants.card.webpKey)}`;
+    }
+    if (image.variants?.card?.jpgKey) {
+      return `/api/images/${encodeURIComponent(image.variants.card.jpgKey)}`;
+    }
+    if (image.variants?.thumb?.webpKey) {
+      return `/api/images/${encodeURIComponent(image.variants.thumb.webpKey)}`;
+    }
+    if (image.variants?.thumb?.jpgKey) {
+      return `/api/images/${encodeURIComponent(image.variants.thumb.jpgKey)}`;
+    }
+    
+    return null;
+  };
+
+  const img = getImageUrl(hero);
 
   const handleDelete = async () => {
     try {
@@ -190,6 +232,11 @@ export default function EventCard({
             h="220px"
             objectFit="cover"
             loading="lazy"
+            fallbackSrc="/placeholder-image.svg"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = "/placeholder-image.svg";
+            }}
           />
         )}
         <Stack p={6} spacing={4} flex={1} display="flex" flexDirection="column">

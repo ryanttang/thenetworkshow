@@ -27,6 +27,7 @@ model User {
   role          Role     @default(VIEWER)
   events        Event[]  @relation("UserEvents")
   images        Image[]  @relation("UserImages")
+  instagramAccounts InstagramAccount[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
@@ -179,4 +180,48 @@ model CoordinationDocument {
   
   @@index([coordinationId, sortOrder])
   @@index([type])
+}
+
+// Instagram integration
+
+model InstagramAccount {
+  id               String   @id @default(cuid())
+  userId           String   // owner in our system who connected the account
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  igUserId         String   @unique // Instagram user ID
+  username         String
+  accountType      String?  // BUSINESS, CREATOR, PERSONAL (Basic Display)
+
+  accessToken      String   // long-lived token (Basic Display) or page token (Graph)
+  tokenExpiresAt   DateTime? // when token expires if applicable
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  posts            InstagramPost[]
+
+  @@index([userId])
+}
+
+model InstagramPost {
+  id             String   @id @default(cuid())
+  accountId      String
+  account        InstagramAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  igMediaId      String   @unique
+  mediaType      String   // IMAGE, VIDEO, CAROUSEL_ALBUM
+  mediaUrl       String
+  thumbnailUrl   String?
+  permalink      String
+  caption        String?
+  takenAt        DateTime?
+
+  isPublished    Boolean  @default(true) // if false, keep it hidden publicly
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([accountId, isPublished])
+  @@index([takenAt])
 }
