@@ -57,6 +57,7 @@ model Event {
 
   images        Image[]       @relation("EventImages")
   galleries     Gallery[]     @relation("EventGallery")
+  coordination  Coordination[] @relation("EventCoordination")
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
@@ -127,4 +128,55 @@ model GalleryImage {
   @@unique([galleryId, imageId])
   @@index([galleryId, sortOrder])
   @@index([tags])
+}
+
+enum CoordinationDocumentType {
+  MAP
+  RUN_OF_SHOW
+  ITINERARY
+  SCHEDULE
+  DIAGRAM
+  RIDER
+  NOTES
+  OTHER
+}
+
+model Coordination {
+  id          String   @id @default(cuid())
+  eventId     String
+  event       Event    @relation("EventCoordination", fields: [eventId], references: [id], onDelete: Cascade)
+  
+  title       String
+  description String?
+  notes       String?
+  
+  shareToken  String   @unique @default(cuid())
+  isActive    Boolean  @default(true)
+  
+  documents   CoordinationDocument[] @relation("CoordinationDocuments")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([eventId])
+  @@index([shareToken])
+}
+
+model CoordinationDocument {
+  id              String                   @id @default(cuid())
+  coordinationId  String
+  coordination    Coordination             @relation("CoordinationDocuments", fields: [coordinationId], references: [id], onDelete: Cascade)
+  
+  title           String
+  description     String?
+  type            CoordinationDocumentType
+  fileUrl         String
+  fileName        String
+  fileSize        Int
+  mimeType        String
+  
+  sortOrder       Int                      @default(0)
+  createdAt       DateTime                 @default(now())
+  
+  @@index([coordinationId, sortOrder])
+  @@index([type])
 }

@@ -11,12 +11,23 @@ export default function Navbar() {
     <Box as="header" bg={bg} boxShadow="sm" position="sticky" top={0} zIndex={10}>
       <Flex maxW="7xl" mx="auto" px={4} py={3} align="center" justify="space-between">
         <HStack spacing={3}>
-          <Link as={NextLink} href="/" fontWeight="bold" fontSize="xl">
-            THC Members Only Club
+          <Link as={NextLink} href="/" display="flex" alignItems="center" gap={2}>
+            <Image 
+              src="/thc-logo.png" 
+              alt="THC Members Only Club" 
+              height="60px" 
+              width="auto"
+            />
+            <Box fontWeight="bold" fontSize="xl">
+              THC Members Only Club
+            </Box>
           </Link>
         </HStack>
         <HStack spacing={6}>
           <Link as={NextLink} href="/gallery">Gallery</Link>
+          <Link href="https://thcmembersonlyclub.com/waiver/" isExternal>
+            Waiver
+          </Link>
           {session ? (
             <>
               <Link as={NextLink} href="/dashboard">Dashboard</Link>

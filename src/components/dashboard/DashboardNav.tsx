@@ -26,6 +26,7 @@ const navItems: NavItem[] = [
   { label: "Events", href: "/dashboard/events", icon: "📅" },
   { label: "Archive", href: "/dashboard/events/archive", icon: "📦" },
   { label: "Gallery", href: "/dashboard/gallery", icon: "🖼️" },
+  { label: "Coordination", href: "/dashboard/coordination", icon: "📋" },
 ];
 
 export default function DashboardNav() {
