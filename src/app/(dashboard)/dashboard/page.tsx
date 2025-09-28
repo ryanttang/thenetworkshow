@@ -32,7 +32,7 @@ export default async function DashboardPage() {
     orderBy: { createdAt: "desc" }
   });
 
-  const coordinations = await (prisma as any).coordination.findMany({
+  const coordinations = await prisma.coordination.findMany({
     where: { 
       event: { ownerId: me.id }
     },
