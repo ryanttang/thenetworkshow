@@ -24,14 +24,16 @@ import { useSession, signOut } from "next-auth/react";
 import { useRef, useState, useEffect } from "react";
 
 export default function Navbar() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const bg = useColorModeValue("white", "gray.800");
   const btnRef = useRef<HTMLButtonElement>(null);
   
   const [isMobile, setIsMobile] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
   
   useEffect(() => {
+    setIsHydrated(true);
     const checkIsMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -48,7 +50,8 @@ export default function Navbar() {
     { label: "Waiver", href: "https://thcmembersonlyclub.com/waiver/", isExternal: true },
   ];
 
-  if (session) {
+  // Only add Dashboard link after hydration to avoid mismatch
+  if (isHydrated && session) {
     navLinks.push({ label: "Dashboard", href: "/dashboard" });
   }
 
