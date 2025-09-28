@@ -65,7 +65,10 @@ export const authOptions: NextAuthOptions = {
       return session;
     }
   },
-  pages: { signIn: "/signin" },
+  pages: { 
+    signIn: "/signin",
+    error: "/api/auth/error"
+  },
   debug: process.env.NODE_ENV === "development",
   // Add proper URL handling
   useSecureCookies: process.env.NODE_ENV === "production",
