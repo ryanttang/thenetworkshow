@@ -76,7 +76,7 @@ const nextConfig = {
               "img-src 'self' data: https: blob:",
               "font-src 'self' https://fonts.gstatic.com",
               "connect-src 'self' https://api.instagram.com https://graph.instagram.com",
-              "frame-src 'self' https://accounts.google.com",
+              "frame-src 'self' https://accounts.google.com https://www.youtube.com https://youtube.com",
               "object-src 'none'",
               "base-uri 'self'",
               "form-action 'self'",

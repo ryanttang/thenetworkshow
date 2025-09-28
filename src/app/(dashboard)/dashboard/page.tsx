@@ -42,8 +42,6 @@ export default async function DashboardPage() {
     orderBy: { createdAt: "desc" }
   });
 
-
-
   return (
     <Container maxW="full" px={0}>
       <VStack align="stretch" spacing={16} py={8}>
