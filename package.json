@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "deploy:db": "node scripts/deploy-database.js",
     "verify": "node scripts/verify-deployment.js",
-    "deploy:full": "npm run build && npm run deploy:db && npm run verify"
+    "deploy:full": "npm run build && npm run deploy:db && npm run verify",
+    "check:db": "node scripts/check-database.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.635.0",
