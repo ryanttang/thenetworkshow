@@ -7,8 +7,6 @@ import {
   Link, 
   Image, 
   Button, 
-  useColorModeValue,
-  useBreakpointValue,
   IconButton,
   useDisclosure,
   Drawer,
@@ -26,16 +24,20 @@ import { useRef, useState, useEffect } from "react";
 
 export default function Navbar() {
   const { data: session } = useSession();
-  const bg = useColorModeValue("white", "gray.800");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef<HTMLButtonElement>(null);
   
   const [isMobile, setIsMobile] = useState(false);
+  const [bg, setBg] = useState("white");
   
   useEffect(() => {
     const checkIsMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
+    
+    // Set background color based on system preference
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setBg(prefersDark ? "gray.800" : "white");
     
     checkIsMobile();
     window.addEventListener('resize', checkIsMobile);

@@ -6,7 +6,6 @@ import {
   VStack,
   Text,
   Button,
-  useBreakpointValue,
   Container,
   IconButton,
   Tooltip,

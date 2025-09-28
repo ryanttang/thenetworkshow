@@ -9,7 +9,6 @@ import {
   VStack,
   HStack,
   IconButton,
-  useBreakpointValue,
   AspectRatio,
   Flex,
 } from "@chakra-ui/react";
