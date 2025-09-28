@@ -25,7 +25,8 @@ export function rateLimit(options: RateLimitOptions) {
     const windowStart = now - windowMs;
 
     // Clean up expired entries
-    for (const [k, v] of store.entries()) {
+    const entries = Array.from(store.entries());
+    for (const [k, v] of entries) {
       if (v.resetTime < now) {
         store.delete(k);
       }

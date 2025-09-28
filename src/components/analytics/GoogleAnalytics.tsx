@@ -15,7 +15,7 @@ export function GoogleAnalytics() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.gtag) {
+    if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
       const url = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : '');
       analytics.trackPageView(url);
     }

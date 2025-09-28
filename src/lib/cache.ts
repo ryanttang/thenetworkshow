@@ -56,7 +56,8 @@ class Cache {
   // Clean expired entries
   cleanup(): void {
     const now = Date.now();
-    for (const [key, item] of this.store.entries()) {
+    const entries = Array.from(this.store.entries());
+    for (const [key, item] of entries) {
       if (now > item.expires) {
         this.store.delete(key);
       }

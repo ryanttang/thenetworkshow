@@ -171,7 +171,7 @@ export class PerformanceMonitor {
       this.endTiming(name, { ...metadata, success: true });
       return result;
     } catch (error) {
-      this.endTiming(name, { ...metadata, success: false, error: error.message });
+      this.endTiming(name, { ...metadata, success: false, error: error instanceof Error ? error.message : 'Unknown error' });
       throw error;
     }
   }
