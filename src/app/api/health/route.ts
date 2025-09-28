@@ -5,8 +5,8 @@ export async function GET() {
   const startTime = Date.now();
   
   try {
-    // Check database connection
-    await prisma.$queryRaw`SELECT 1`;
+    // Check database connection with a simple query
+    await prisma.user.count();
     const dbLatency = Date.now() - startTime;
     
     // Check environment variables
