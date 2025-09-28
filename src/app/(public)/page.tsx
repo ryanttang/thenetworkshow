@@ -1,6 +1,7 @@
 import EventGrid from "@/components/events/EventGrid";
 import VideoSlider from "@/components/videos/VideoSlider";
 import GalleryPreview from "@/components/gallery/GalleryPreview";
+import SubscribeForm from "@/components/SubscribeForm";
 import { Box, Heading, Container, VStack, Text } from "@chakra-ui/react";
 
 export const revalidate = 60; // ISR
@@ -41,9 +42,12 @@ export default async function HomePage() {
   }
   
   return (
-    <VStack spacing={16} align="stretch">
+    <VStack spacing={0} align="stretch">
+      {/* Subscribe Section */}
+      <SubscribeForm />
+
       {/* Upcoming Events Section */}
-      <Container maxW="7xl" py={8}>
+      <Container maxW="7xl" py={16}>
         <Box mb={8}>
           <Heading size="2xl" textAlign="center" mb={4}>
             Upcoming Events
