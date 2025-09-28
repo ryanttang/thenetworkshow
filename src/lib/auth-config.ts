@@ -14,6 +14,12 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
+        // Check if DATABASE_URL is available
+        if (!process.env.DATABASE_URL) {
+          console.error("DATABASE_URL not configured");
+          return null;
+        }
+
         try {
           const user = await prisma.user.findUnique({ 
             where: { email: creds.email.toLowerCase() }
