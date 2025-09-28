@@ -23,7 +23,7 @@ import {
 import { ViewIcon, HamburgerIcon } from "@chakra-ui/icons";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 
 interface NavItem {
   label: string;
@@ -49,8 +49,20 @@ export default function DashboardNav() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef<HTMLButtonElement>(null);
   
-  const isMobile = useBreakpointValue({ base: true, lg: false });
-  const buttonSize = useBreakpointValue({ base: "sm", md: "md" });
+  const [isMobile, setIsMobile] = useState(false);
+  const [buttonSize, setButtonSize] = useState<"sm" | "md">("md");
+  
+  useEffect(() => {
+    const checkBreakpoints = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < 1024); // lg breakpoint
+      setButtonSize(width < 768 ? "sm" : "md"); // md breakpoint
+    };
+    
+    checkBreakpoints();
+    window.addEventListener('resize', checkBreakpoints);
+    return () => window.removeEventListener('resize', checkBreakpoints);
+  }, []);
 
   const groupedItems = navItems.reduce((acc, item) => {
     const category = item.category || "other";

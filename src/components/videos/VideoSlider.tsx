@@ -37,7 +37,20 @@ const getYouTubeVideoId = (url: string): string => {
 export default function VideoSlider({ videos }: VideoSliderProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const slidesToShow = useBreakpointValue({ base: 1, md: 2, lg: 3 }) || 1;
+  const [slidesToShow, setSlidesToShow] = useState(1);
+  
+  useEffect(() => {
+    const checkSlidesToShow = () => {
+      const width = window.innerWidth;
+      if (width >= 1024) setSlidesToShow(3); // lg
+      else if (width >= 768) setSlidesToShow(2); // md
+      else setSlidesToShow(1); // base
+    };
+    
+    checkSlidesToShow();
+    window.addEventListener('resize', checkSlidesToShow);
+    return () => window.removeEventListener('resize', checkSlidesToShow);
+  }, []);
 
   const nextSlide = () => {
     setCurrentIndex((prev) => 

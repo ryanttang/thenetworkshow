@@ -22,7 +22,7 @@ import {
 import { HamburgerIcon } from "@chakra-ui/icons";
 import NextLink from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -30,7 +30,17 @@ export default function Navbar() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef<HTMLButtonElement>(null);
   
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
 
   const navLinks = [
     { label: "Gallery", href: "/gallery" },
