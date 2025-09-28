@@ -6,41 +6,42 @@ import { Button, HStack, Heading, Box, Text, VStack, SimpleGrid, Card, CardBody,
 import Link from "next/link";
 
 export default async function DashboardPage() {
-  const session = await getServerAuthSession();
-  if (!session?.user?.email) redirect("/signin");
-  
-  const me = await prisma.user.findUnique({ where: { email: session.user.email }});
-  if (!me) redirect("/signin");
-  
-  const items = await prisma.event.findMany({ 
-    where: { 
-      ownerId: me.id,
-      status: "PUBLISHED"
-    }, 
-    include: { heroImage: true }, 
-    orderBy: { startAt: "desc" }
-  });
+  try {
+    const session = await getServerAuthSession();
+    if (!session?.user?.email) redirect("/signin");
+    
+    const me = await prisma.user.findUnique({ where: { email: session.user.email }});
+    if (!me) redirect("/signin");
+    
+    const items = await prisma.event.findMany({ 
+      where: { 
+        ownerId: me.id,
+        status: "PUBLISHED"
+      }, 
+      include: { heroImage: true }, 
+      orderBy: { startAt: "desc" }
+    });
 
-  const galleries = await prisma.gallery.findMany({
-    where: {
-      OR: [
-        { event: { ownerId: me.id } }, // Galleries from user's events
-        { eventId: null } // Standalone galleries (accessible to all users)
-      ]
-    },
-    include: { _count: { select: { images: true } } },
-    orderBy: { createdAt: "desc" }
-  });
+    const galleries = await prisma.gallery.findMany({
+      where: {
+        OR: [
+          { event: { ownerId: me.id } }, // Galleries from user's events
+          { eventId: null } // Standalone galleries (accessible to all users)
+        ]
+      },
+      include: { _count: { select: { images: true } } },
+      orderBy: { createdAt: "desc" }
+    });
 
-  const coordinations = await prisma.coordination.findMany({
-    where: { 
-      event: { ownerId: me.id }
-    },
-    include: { 
-      _count: { select: { documents: true } }
-    },
-    orderBy: { createdAt: "desc" }
-  });
+    const coordinations = await prisma.coordination.findMany({
+      where: { 
+        event: { ownerId: me.id }
+      },
+      include: { 
+        _count: { select: { documents: true } }
+      },
+      orderBy: { createdAt: "desc" }
+    });
 
   return (
     <Container maxW="full" px={0}>
@@ -369,4 +370,8 @@ export default async function DashboardPage() {
       </VStack>
     </Container>
   );
+  } catch (error) {
+    console.error("Dashboard error:", error);
+    throw error;
+  }
 }
