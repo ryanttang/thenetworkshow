@@ -3,7 +3,7 @@ import Providers from "./providers";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
 import KeyboardShortcut from "@/components/ui/KeyboardShortcut";
-import { Box, Image } from "@chakra-ui/react";
+import { Box, Image, ColorModeScript } from "@chakra-ui/react";
 
 export const metadata: Metadata = {
   title: "THC Members Only Club",
@@ -13,6 +13,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <ColorModeScript />
+      </head>
       <body>
         <Providers>
           <KeyboardShortcut />
