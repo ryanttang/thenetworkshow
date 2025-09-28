@@ -11,12 +11,6 @@ export const prisma = globalForPrisma.prisma || new PrismaClient({
   // Configure for Supabase pooler
   ...(process.env.DATABASE_URL?.includes('pooler.supabase.com') && {
     log: ['error'],
-    // Disable prepared statements for pooler compatibility
-    __internal: {
-      engine: {
-        forceEngine: 'binary',
-      },
-    },
   }),
 });
 
