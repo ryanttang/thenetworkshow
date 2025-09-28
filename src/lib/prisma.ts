@@ -19,14 +19,6 @@ const createPrismaClient = () => {
     ...(process.env.NODE_ENV === 'production' && {
       log: ['error'],
     }),
-    // Disable prepared statements for pooled connections
-    ...(process.env.DATABASE_URL?.includes('supabase.com') && {
-      __internal: {
-        engine: {
-          enableEngineDebugMode: false,
-        },
-      },
-    }),
   });
 };
 
