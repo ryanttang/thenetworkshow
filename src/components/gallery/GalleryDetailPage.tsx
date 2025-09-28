@@ -161,7 +161,11 @@ export default function GalleryDetailPage({ gallery }: GalleryDetailPageProps) {
             </Text>
           )}
           <Text color="gray.500" fontSize="sm" mb={4}>
-            {new Date(gallery.createdAt).toLocaleDateString()} • {gallery.images.length} photo{gallery.images.length !== 1 ? 's' : ''}
+            {new Date(gallery.createdAt).toLocaleDateString('en-US', { 
+              year: 'numeric', 
+              month: 'short', 
+              day: 'numeric' 
+            })} • {gallery.images.length} photo{gallery.images.length !== 1 ? 's' : ''}
           </Text>
           
           {/* Gallery Tags */}

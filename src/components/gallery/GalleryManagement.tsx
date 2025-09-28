@@ -406,7 +406,11 @@ export default function GalleryManagement({ events, galleries, onRefresh }: Gall
                           {gallery.isPublic ? "Public" : "Private"}
                         </Badge>
                         <Text color="gray.500" fontSize="xs">
-                          {new Date(gallery.createdAt).toLocaleDateString()}
+                          {new Date(gallery.createdAt).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric' 
+                          })}
                         </Text>
                       </HStack>
                     </Box>

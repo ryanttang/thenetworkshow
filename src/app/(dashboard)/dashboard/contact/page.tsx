@@ -480,7 +480,11 @@ export default function ContactDashboard() {
                       </Td>
                       <Td>
                         <Text fontSize="sm" color="gray.600">
-                          {new Date(message.createdAt).toLocaleDateString()}
+                          {new Date(message.createdAt).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric' 
+                          })}
                         </Text>
                       </Td>
                       <Td>
@@ -556,7 +560,13 @@ export default function ContactDashboard() {
                   <Text fontWeight="medium" mb={2}>Contact Information:</Text>
                   <Text>Name: {selectedMessage.name}</Text>
                   <Text>Email: {selectedMessage.email}</Text>
-                  <Text>Date: {new Date(selectedMessage.createdAt).toLocaleString()}</Text>
+                  <Text>Date: {new Date(selectedMessage.createdAt).toLocaleString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit'
+                  })}</Text>
                 </Box>
 
                 {selectedMessage.subject && (
@@ -591,7 +601,13 @@ export default function ContactDashboard() {
                     </Text>
                     {selectedMessage.respondedAt && (
                       <Text fontSize="sm" color="gray.600" mt={1}>
-                        Responded on: {new Date(selectedMessage.respondedAt).toLocaleString()}
+                        Responded on: {new Date(selectedMessage.respondedAt).toLocaleString('en-US', { 
+                          year: 'numeric', 
+                          month: 'short', 
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: '2-digit'
+                        })}
                       </Text>
                     )}
                   </Box>

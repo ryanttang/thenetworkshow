@@ -142,7 +142,11 @@ export default function CoordinationForm({
                   >
                     {events.map((event) => (
                       <option key={event.id} value={event.id}>
-                        {event.title} - {new Date(event.startAt).toLocaleDateString()}
+                        {event.title} - {new Date(event.startAt).toLocaleDateString('en-US', { 
+                          year: 'numeric', 
+                          month: 'short', 
+                          day: 'numeric' 
+                        })}
                       </option>
                     ))}
                   </Select>

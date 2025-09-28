@@ -201,7 +201,11 @@ export default function UsersPage() {
                     </Badge>
                   </Td>
                   <Td>
-                    {new Date(user.createdAt).toLocaleDateString()}
+                    {new Date(user.createdAt).toLocaleDateString('en-US', { 
+                      year: 'numeric', 
+                      month: 'short', 
+                      day: 'numeric' 
+                    })}
                   </Td>
                   <Td>
                     <HStack spacing={2}>

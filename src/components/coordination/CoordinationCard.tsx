@@ -190,7 +190,11 @@ export default function CoordinationCard({ coordination, events }: CoordinationC
                 Documents: {coordination._count.documents}
               </Text>
               <Text fontSize="xs" color="gray.400">
-                Created {new Date(coordination.createdAt).toLocaleDateString()}
+                Created {new Date(coordination.createdAt).toLocaleDateString('en-US', { 
+                  year: 'numeric', 
+                  month: 'short', 
+                  day: 'numeric' 
+                })}
               </Text>
             </HStack>
 

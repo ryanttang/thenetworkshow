@@ -324,7 +324,11 @@ export default function GalleryPage({ galleries, allTags }: GalleryPageProps) {
                         </Text>
                       )}
                       <Text color="gray.500" fontSize="xs">
-                        {new Date(gallery.createdAt).toLocaleDateString()}
+                        {new Date(gallery.createdAt).toLocaleDateString('en-US', { 
+                          year: 'numeric', 
+                          month: 'short', 
+                          day: 'numeric' 
+                        })}
                       </Text>
                     </Box>
 
@@ -528,7 +532,11 @@ export default function GalleryPage({ galleries, allTags }: GalleryPageProps) {
                   </Text>
                   {selectedInstagramPost.takenAt && (
                     <Text fontSize="sm" color="gray.500">
-                      {new Date(selectedInstagramPost.takenAt).toLocaleDateString()}
+                      {new Date(selectedInstagramPost.takenAt).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                      })}
                     </Text>
                   )}
                 </HStack>

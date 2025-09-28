@@ -136,7 +136,11 @@ export default function SubscribersPage() {
         const csvContent = [
           "Email,Status,Subscribed Date",
           ...data.subscribers.map(sub => 
-            `${sub.email},${sub.isActive ? 'Active' : 'Inactive'},"${new Date(sub.createdAt).toLocaleDateString()}"`
+            `${sub.email},${sub.isActive ? 'Active' : 'Inactive'},"${new Date(sub.createdAt).toLocaleDateString('en-US', { 
+              year: 'numeric', 
+              month: 'short', 
+              day: 'numeric' 
+            })}"`
           )
         ].join('\n');
 
@@ -343,10 +347,18 @@ export default function SubscribersPage() {
                       </Badge>
                     </Td>
                     <Td fontSize="sm" color="gray.600">
-                      {new Date(subscriber.createdAt).toLocaleDateString()}
+                      {new Date(subscriber.createdAt).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                      })}
                     </Td>
                     <Td fontSize="sm" color="gray.600">
-                      {new Date(subscriber.updatedAt).toLocaleDateString()}
+                      {new Date(subscriber.updatedAt).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                      })}
                     </Td>
                   </Tr>
                 ))}
