@@ -84,14 +84,14 @@ export class PerformanceOptimizer {
   static async loadComponent<T>(importFn: () => Promise<{ default: T }>): Promise<T> {
     const startTime = performance.now();
     try {
-      const module = await importFn();
+      const importedModule = await importFn();
       const loadTime = performance.now() - startTime;
       
       if (loadTime > 1000) {
         console.warn(`Slow component load: ${loadTime.toFixed(2)}ms`);
       }
       
-      return module.default;
+      return importedModule.default;
     } catch (error) {
       console.error('Component load failed:', error);
       throw error;
