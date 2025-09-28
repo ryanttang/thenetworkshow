@@ -17,7 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <KeyboardShortcut />
           <Navbar />
-          <Box width="100%" height="200px" overflow="hidden">
+          <Box width="100%" height={{ base: "120px", md: "160px", lg: "200px" }} overflow="hidden">
             <Image 
               src="/thcmembers-banner.png" 
               alt="THC Members Only Club Banner" 
