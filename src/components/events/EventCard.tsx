@@ -310,7 +310,7 @@ export default function EventCard({
             
             <Button 
               as={NextLink} 
-              href={`/events/${id}`} 
+              href={isAdminView ? `/events/${id}` : `/events/${slug}`} 
               colorScheme="teal" 
               variant="outline" 
               size="md"

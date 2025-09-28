@@ -13,7 +13,10 @@ export default async function DashboardPage() {
   if (!me) redirect("/signin");
   
   const items = await prisma.event.findMany({ 
-    where: { ownerId: me.id }, 
+    where: { 
+      ownerId: me.id,
+      status: "PUBLISHED"
+    }, 
     include: { heroImage: true }, 
     orderBy: { startAt: "desc" }
   });
