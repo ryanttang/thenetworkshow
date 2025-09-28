@@ -1,7 +1,15 @@
 import { prisma } from "@/lib/prisma";
 import GalleryPage from "@/components/gallery/GalleryPage";
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export default async function GalleryRoute() {
+  // Check if DATABASE_URL is available
+  if (!process.env.DATABASE_URL) {
+    return <GalleryPage galleries={[]} allTags={[]} />;
+  }
+
   const galleries = await prisma.gallery.findMany({
     where: { isPublic: true },
     include: {

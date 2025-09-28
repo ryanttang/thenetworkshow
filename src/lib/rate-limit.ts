@@ -1,57 +1,103 @@
-interface RateLimitStore {
-  [key: string]: {
-    count: number;
-    resetTime: number;
-  };
+import { NextRequest } from 'next/server';
+
+interface RateLimitOptions {
+  windowMs: number; // Time window in milliseconds
+  max: number; // Maximum number of requests per window
+  keyGenerator?: (req: NextRequest) => string;
 }
 
-const store: RateLimitStore = {};
+interface RateLimitResult {
+  success: boolean;
+  limit: number;
+  remaining: number;
+  reset: number;
+}
 
-export function createRateLimiter(
-  maxRequests: number = 100,
-  windowMs: number = 15 * 60 * 1000 // 15 minutes
-) {
-  return function rateLimit(identifier: string): { allowed: boolean; remaining: number; resetTime: number } {
+// In-memory store for rate limiting (use Redis in production)
+const store = new Map<string, { count: number; resetTime: number }>();
+
+export function rateLimit(options: RateLimitOptions) {
+  const { windowMs, max, keyGenerator } = options;
+
+  return (req: NextRequest): RateLimitResult => {
+    const key = keyGenerator ? keyGenerator(req) : getDefaultKey(req);
     const now = Date.now();
-    const key = identifier;
+    const windowStart = now - windowMs;
+
+    // Clean up expired entries
+    for (const [k, v] of store.entries()) {
+      if (v.resetTime < now) {
+        store.delete(k);
+      }
+    }
+
+    const current = store.get(key);
     
-    if (!store[key] || now > store[key].resetTime) {
-      store[key] = {
-        count: 1,
-        resetTime: now + windowMs
+    if (!current || current.resetTime < now) {
+      // First request or window expired
+      const resetTime = now + windowMs;
+      store.set(key, { count: 1, resetTime });
+      
+      return {
+        success: true,
+        limit: max,
+        remaining: max - 1,
+        reset: resetTime,
       };
-      return { allowed: true, remaining: maxRequests - 1, resetTime: store[key].resetTime };
     }
-    
-    if (store[key].count >= maxRequests) {
-      return { allowed: false, remaining: 0, resetTime: store[key].resetTime };
+
+    if (current.count >= max) {
+      // Rate limit exceeded
+      return {
+        success: false,
+        limit: max,
+        remaining: 0,
+        reset: current.resetTime,
+      };
     }
-    
-    store[key].count++;
-    return { 
-      allowed: true, 
-      remaining: maxRequests - store[key].count, 
-      resetTime: store[key].resetTime 
+
+    // Increment counter
+    current.count++;
+    store.set(key, current);
+
+    return {
+      success: true,
+      limit: max,
+      remaining: max - current.count,
+      reset: current.resetTime,
     };
   };
 }
 
-export function getClientIdentifier(req: Request): string {
-  // In production, you might want to use a more sophisticated method
-  // like IP address, user ID, or API key
+function getDefaultKey(req: NextRequest): string {
+  // Use IP address as default key
   const forwarded = req.headers.get('x-forwarded-for');
-  const realIp = req.headers.get('x-real-ip');
-  const ip = forwarded || realIp || 'unknown';
-  
+  const ip = forwarded ? forwarded.split(',')[0] : req.ip || 'unknown';
   return `rate_limit:${ip}`;
 }
 
-// Clean up expired entries periodically
-setInterval(() => {
-  const now = Date.now();
-  Object.keys(store).forEach(key => {
-    if (now > store[key].resetTime) {
-      delete store[key];
-    }
-  });
-}, 60000); // Clean up every minute
+// Predefined rate limiters
+export const authRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 attempts per window
+  keyGenerator: (req) => {
+    const forwarded = req.headers.get('x-forwarded-for');
+    const ip = forwarded ? forwarded.split(',')[0] : req.ip || 'unknown';
+    return `auth:${ip}`;
+  },
+});
+
+export const apiRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // 100 requests per window
+});
+
+export const uploadRateLimit = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10, // 10 uploads per hour
+});
+
+export const contactRateLimit = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 3, // 3 contact messages per hour
+});

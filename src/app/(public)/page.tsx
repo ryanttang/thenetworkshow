@@ -4,7 +4,8 @@ import GalleryPreview from "@/components/gallery/GalleryPreview";
 import SubscribeForm from "@/components/SubscribeForm";
 import { Box, Heading, Container, VStack, Text } from "@chakra-ui/react";
 
-export const revalidate = 60; // ISR
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
   // For build time, we'll show an empty state
@@ -15,30 +16,33 @@ export default async function HomePage() {
   let videosData = { videos: [] };
   let galleryData = { allImages: [] };
   
-  try {
-    const [eventsRes, videosRes, galleryRes] = await Promise.all([
-      fetch(`${baseUrl}/api/events?status=PUBLISHED&limit=30`, { 
-        next: { revalidate: 60 } 
-      }),
-      fetch(`${baseUrl}/api/videos?published=true&limit=10`, { 
-        next: { revalidate: 60 } 
-      }),
-      fetch(`${baseUrl}/api/galleries/public`, { 
-        next: { revalidate: 60 } 
-      })
-    ]);
-    
-    if (eventsRes.ok) {
-      eventsData = await eventsRes.json();
+  // Only fetch data if we're not in build mode
+  if (process.env.DATABASE_URL) {
+    try {
+      const [eventsRes, videosRes, galleryRes] = await Promise.all([
+        fetch(`${baseUrl}/api/events?status=PUBLISHED&limit=30`, { 
+          next: { revalidate: 60 } 
+        }),
+        fetch(`${baseUrl}/api/videos?published=true&limit=10`, { 
+          next: { revalidate: 60 } 
+        }),
+        fetch(`${baseUrl}/api/galleries/public`, { 
+          next: { revalidate: 60 } 
+        })
+      ]);
+      
+      if (eventsRes.ok) {
+        eventsData = await eventsRes.json();
+      }
+      if (videosRes.ok) {
+        videosData = await videosRes.json();
+      }
+      if (galleryRes.ok) {
+        galleryData = await galleryRes.json();
+      }
+    } catch (error) {
+      console.log('Error fetching data during build:', error);
     }
-    if (videosRes.ok) {
-      videosData = await videosRes.json();
-    }
-    if (galleryRes.ok) {
-      galleryData = await galleryRes.json();
-    }
-  } catch (error) {
-    console.log('Error fetching data during build:', error);
   }
   
   return (

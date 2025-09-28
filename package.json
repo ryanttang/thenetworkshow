@@ -9,7 +9,10 @@
     "prisma:migrate": "prisma migrate dev",
     "seed": "tsx prisma/seed.ts",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "deploy:db": "node scripts/deploy-database.js",
+    "verify": "node scripts/verify-deployment.js",
+    "deploy:full": "npm run build && npm run deploy:db && npm run verify"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.635.0",
