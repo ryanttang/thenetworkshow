@@ -1,0 +1,311 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import {
+  Box,
+  Container,
+  Heading,
+  Text,
+  Image,
+  VStack,
+  SimpleGrid,
+  Badge,
+  Wrap,
+  WrapItem,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
+} from "@chakra-ui/react";
+
+interface GalleryImage {
+  id: string;
+  title?: string | null;
+  caption?: string | null;
+  tags: string[];
+  galleryName: string;
+  galleryId: string;
+  eventTitle?: string | null;
+  image: {
+    variants: any;
+    width: number;
+    height: number;
+  };
+  createdAt: string;
+}
+
+interface GalleryPreviewProps {
+  images: GalleryImage[];
+}
+
+export default function GalleryPreview({ images }: GalleryPreviewProps) {
+  const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
+  const [randomImages, setRandomImages] = useState<GalleryImage[]>([]);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  // Select 9 random images on component mount
+  useEffect(() => {
+    if (images && images.length > 0) {
+      const shuffled = [...images].sort(() => 0.5 - Math.random());
+      setRandomImages(shuffled.slice(0, 9));
+    }
+  }, [images]);
+
+  const handleImageClick = (image: GalleryImage) => {
+    setSelectedImage(image);
+    onOpen();
+  };
+
+  const getImageUrl = (image: any) => {
+    // Use direct S3 URLs instead of going through our API
+    if (image.variants?.thumb?.webpUrl) {
+      return image.variants.thumb.webpUrl;
+    }
+    if (image.variants?.thumb?.jpgUrl) {
+      return image.variants.thumb.jpgUrl;
+    }
+    if (image.variants?.card?.webpUrl) {
+      return image.variants.card.webpUrl;
+    }
+    if (image.variants?.card?.jpgUrl) {
+      return image.variants.card.jpgUrl;
+    }
+    if (image.variants?.hero?.webpUrl) {
+      return image.variants.hero.webpUrl;
+    }
+    if (image.variants?.hero?.jpgUrl) {
+      return image.variants.hero.jpgUrl;
+    }
+    // Fallback to our API route if no direct URLs
+    if (image.variants?.thumb?.webpKey) {
+      return `/api/images/${image.variants.thumb.webpKey}`;
+    }
+    if (image.variants?.thumb?.jpgKey) {
+      return `/api/images/${image.variants.thumb.jpgKey}`;
+    }
+    if (image.variants?.card?.webpKey) {
+      return `/api/images/${image.variants.card.webpKey}`;
+    }
+    if (image.variants?.card?.jpgKey) {
+      return `/api/images/${image.variants.card.jpgKey}`;
+    }
+    return "/placeholder-image.svg";
+  };
+
+  const getFullImageUrl = (image: any) => {
+    // Use full-size image for modal
+    if (image.variants?.hero?.webpUrl) {
+      return image.variants.hero.webpUrl;
+    }
+    if (image.variants?.hero?.jpgUrl) {
+      return image.variants.hero.jpgUrl;
+    }
+    if (image.variants?.card?.webpUrl) {
+      return image.variants.card.webpUrl;
+    }
+    if (image.variants?.card?.jpgUrl) {
+      return image.variants.card.jpgUrl;
+    }
+    // Fallback to our API route if no direct URLs
+    if (image.variants?.hero?.webpKey) {
+      return `/api/images/${image.variants.hero.webpKey}`;
+    }
+    if (image.variants?.hero?.jpgKey) {
+      return `/api/images/${image.variants.hero.jpgKey}`;
+    }
+    if (image.variants?.card?.webpKey) {
+      return `/api/images/${image.variants.card.webpKey}`;
+    }
+    if (image.variants?.card?.jpgKey) {
+      return `/api/images/${image.variants.card.jpgKey}`;
+    }
+    return getImageUrl(image);
+  };
+
+  if (!images || images.length === 0) {
+    return (
+      <Container maxW="7xl" py={8}>
+        <VStack spacing={8} align="stretch">
+          <Box textAlign="center">
+            <Heading size="2xl" mb={4}>Gallery</Heading>
+            <Text fontSize="lg" color="gray.600">
+              No images available yet. Check back soon for amazing photos from our events!
+            </Text>
+          </Box>
+        </VStack>
+      </Container>
+    );
+  }
+
+  return (
+    <Container maxW="7xl" py={8}>
+      <VStack spacing={8} align="stretch">
+        {/* Header */}
+        <Box textAlign="center">
+          <Heading size="2xl" mb={4}>Gallery</Heading>
+          <Text fontSize="lg" color="gray.600">
+            A glimpse into our amazing events and community
+          </Text>
+        </Box>
+
+        {/* 3x3 Masonry Grid */}
+        <Box>
+          <div className="masonry-grid-preview">
+            {randomImages.map((img) => (
+              <div
+                key={img.id}
+                className="masonry-item-preview"
+                style={{
+                  breakInside: "avoid",
+                  marginBottom: "16px",
+                  cursor: "pointer",
+                }}
+                onClick={() => handleImageClick(img)}
+              >
+                <Box
+                  borderRadius="lg"
+                  overflow="hidden"
+                  shadow="md"
+                  _hover={{ shadow: "lg", transform: "scale(1.02)" }}
+                  transition="all 0.2s"
+                  bg="white"
+                >
+                  <Image
+                    src={getImageUrl(img.image)}
+                    alt={img.title || "Gallery image"}
+                    w="full"
+                    h="auto"
+                    objectFit="cover"
+                    fallbackSrc="/placeholder-image.svg"
+                    loading="lazy"
+                  />
+                  {(img.title || img.caption || img.tags.length > 0) && (
+                    <Box p={3}>
+                      {img.title && (
+                        <Text fontWeight="semibold" fontSize="sm" mb={1}>
+                          {img.title}
+                        </Text>
+                      )}
+                      {img.caption && (
+                        <Text fontSize="xs" color="gray.600" mb={2}>
+                          {img.caption}
+                        </Text>
+                      )}
+                      {img.tags.length > 0 && (
+                        <Wrap spacing={1}>
+                          {img.tags.map((tag) => (
+                            <WrapItem key={tag}>
+                              <Badge colorScheme="blue" variant="outline" size="sm">
+                                {tag}
+                              </Badge>
+                            </WrapItem>
+                          ))}
+                        </Wrap>
+                      )}
+                    </Box>
+                  )}
+                </Box>
+              </div>
+            ))}
+          </div>
+        </Box>
+
+        {/* View All Gallery Link */}
+        <Box textAlign="center">
+          <Link href="/gallery">
+            <Box
+              as="button"
+              display="inline-block"
+              px={6}
+              py={3}
+              bg="blue.500"
+              color="white"
+              borderRadius="lg"
+              fontWeight="semibold"
+              _hover={{ bg: "blue.600", transform: "translateY(-2px)" }}
+              transition="all 0.2s"
+              shadow="md"
+              cursor="pointer"
+            >
+              View All Photos
+            </Box>
+          </Link>
+        </Box>
+      </VStack>
+
+      {/* Image Modal */}
+      <Modal isOpen={isOpen} onClose={onClose} size="6xl">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalCloseButton />
+          <ModalBody p={6}>
+            {selectedImage && (
+              <VStack spacing={4}>
+                <Image
+                  src={getFullImageUrl(selectedImage.image)}
+                  alt={selectedImage.title || "Gallery image"}
+                  borderRadius="md"
+                  maxW="full"
+                  maxH="80vh"
+                  objectFit="contain"
+                  fallbackSrc="/placeholder-image.svg"
+                />
+                <Box textAlign="center">
+                  {selectedImage.title && (
+                    <Heading size="md" mb={2}>{selectedImage.title}</Heading>
+                  )}
+                  {selectedImage.caption && (
+                    <Text color="gray.600" mb={3}>{selectedImage.caption}</Text>
+                  )}
+                  <Text color="blue.600" fontSize="sm" mb={2}>
+                    From: {selectedImage.galleryName}
+                    {selectedImage.eventTitle && ` • ${selectedImage.eventTitle}`}
+                  </Text>
+                  {selectedImage.tags.length > 0 && (
+                    <Wrap spacing={2} justify="center" mb={3}>
+                      {selectedImage.tags.map((tag) => (
+                        <WrapItem key={tag}>
+                          <Badge colorScheme="blue">{tag}</Badge>
+                        </WrapItem>
+                      ))}
+                    </Wrap>
+                  )}
+                  <Text fontSize="sm" color="gray.500">
+                    {selectedImage.image.width} × {selectedImage.image.height}
+                  </Text>
+                </Box>
+              </VStack>
+            )}
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+
+      <style jsx>{`
+        .masonry-grid-preview {
+          column-count: 3;
+          column-gap: 16px;
+        }
+        
+        @media (max-width: 768px) {
+          .masonry-grid-preview {
+            column-count: 2;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .masonry-grid-preview {
+            column-count: 1;
+          }
+        }
+        
+        .masonry-item-preview {
+          display: inline-block;
+          width: 100%;
+        }
+      `}</style>
+    </Container>
+  );
+}

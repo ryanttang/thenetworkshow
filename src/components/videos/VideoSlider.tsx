@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Box,
   Heading,
@@ -12,8 +12,6 @@ import {
   useBreakpointValue,
   AspectRatio,
   Flex,
-  Spinner,
-  Center,
 } from "@chakra-ui/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import type { RecentEventVideo } from "@/types";
@@ -38,15 +36,8 @@ const getYouTubeVideoId = (url: string): string => {
 
 export default function VideoSlider({ videos }: VideoSliderProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
 
   const slidesToShow = useBreakpointValue({ base: 1, md: 2, lg: 3 }) || 1;
-
-  useEffect(() => {
-    if (videos.length > 0) {
-      setIsLoading(false);
-    }
-  }, [videos]);
 
   const nextSlide = () => {
     setCurrentIndex((prev) => 
@@ -69,15 +60,6 @@ export default function VideoSlider({ videos }: VideoSliderProps) {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  if (isLoading) {
-    return (
-      <Container maxW="7xl" py={8}>
-        <Center py={20}>
-          <Spinner size="xl" />
-        </Center>
-      </Container>
-    );
-  }
 
   if (videos.length === 0) {
     return null;
@@ -117,7 +99,7 @@ export default function VideoSlider({ videos }: VideoSliderProps) {
                         {video.videoUrl.includes('youtube.com') || video.videoUrl.includes('youtu.be') ? (
                           <Box
                             as="iframe"
-                            src={`https://www.youtube.com/embed/${getYouTubeVideoId(video.videoUrl)}?autoplay=${video.autoplay ? 1 : 0}&loop=${video.loop ? 1 : 0}&mute=${video.muted ? 1 : 0}&controls=1&rel=0&modestbranding=1&playsinline=1`}
+                            src={`https://www.youtube.com/embed/${getYouTubeVideoId(video.videoUrl)}?autoplay=${video.autoplay ? 1 : 0}&loop=${video.loop ? 1 : 0}&playlist=${video.loop ? getYouTubeVideoId(video.videoUrl) : ''}&mute=${video.muted ? 1 : 0}&controls=1&rel=0&modestbranding=1&playsinline=1`}
                             w="100%"
                             h="100%"
                             borderRadius="lg"

@@ -130,9 +130,10 @@ export default function ImageUploader({
       }
       
       if (results.length > 0) {
-        // Only call onUploaded once with the last uploaded image
-        const lastResult = results[results.length - 1];
-        onUploaded(lastResult.imageId, lastResult.variants);
+        // Call onUploaded for each successfully uploaded image
+        results.forEach(result => {
+          onUploaded(result.imageId, result.variants);
+        });
         
         toast({
           title: "Upload successful",

@@ -261,7 +261,7 @@ export default function VideosPage() {
                         {video.videoUrl.includes('youtube.com') || video.videoUrl.includes('youtu.be') ? (
                           <Box
                             as="iframe"
-                            src={`https://www.youtube.com/embed/${getYouTubeVideoId(video.videoUrl)}?autoplay=0&loop=${video.loop ? 1 : 0}&mute=${video.muted ? 1 : 0}&controls=1&rel=0&modestbranding=1&playsinline=1`}
+                            src={`https://www.youtube.com/embed/${getYouTubeVideoId(video.videoUrl)}?autoplay=0&loop=${video.loop ? 1 : 0}&playlist=${video.loop ? getYouTubeVideoId(video.videoUrl) : ''}&mute=${video.muted ? 1 : 0}&controls=1&rel=0&modestbranding=1&playsinline=1`}
                             w="100%"
                             h="100%"
                             borderRadius="md"

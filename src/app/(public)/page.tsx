@@ -1,6 +1,7 @@
 import EventGrid from "@/components/events/EventGrid";
 import VideoSlider from "@/components/videos/VideoSlider";
-import { Box, Heading, Container, VStack } from "@chakra-ui/react";
+import GalleryPreview from "@/components/gallery/GalleryPreview";
+import { Box, Heading, Container, VStack, Text } from "@chakra-ui/react";
 
 export const revalidate = 60; // ISR
 
@@ -11,13 +12,17 @@ export default async function HomePage() {
   
   let eventsData = { items: [] };
   let videosData = { videos: [] };
+  let galleryData = { allImages: [] };
   
   try {
-    const [eventsRes, videosRes] = await Promise.all([
+    const [eventsRes, videosRes, galleryRes] = await Promise.all([
       fetch(`${baseUrl}/api/events?status=PUBLISHED&limit=30`, { 
         next: { revalidate: 60 } 
       }),
       fetch(`${baseUrl}/api/videos?published=true&limit=10`, { 
+        next: { revalidate: 60 } 
+      }),
+      fetch(`${baseUrl}/api/galleries/public`, { 
         next: { revalidate: 60 } 
       })
     ]);
@@ -27,6 +32,9 @@ export default async function HomePage() {
     }
     if (videosRes.ok) {
       videosData = await videosRes.json();
+    }
+    if (galleryRes.ok) {
+      galleryData = await galleryRes.json();
     }
   } catch (error) {
     console.log('Error fetching data during build:', error);
@@ -51,6 +59,9 @@ export default async function HomePage() {
       {videosData.videos && videosData.videos.length > 0 && (
         <VideoSlider videos={videosData.videos} />
       )}
+
+      {/* Gallery Section */}
+      <GalleryPreview images={galleryData.allImages || []} />
     </VStack>
   );
 }
