@@ -9,6 +9,8 @@ export const authOptions: NextAuthOptions = {
       name: "Credentials",
       credentials: { email: {}, password: {} },
       async authorize(creds) {
+        console.log("Authorize called with:", { email: creds?.email, hasPassword: !!creds?.password });
+        
         if (!creds?.email || !creds?.password) {
           console.log("Missing credentials");
           return null;
@@ -25,6 +27,8 @@ export const authOptions: NextAuthOptions = {
             where: { email: creds.email.toLowerCase() }
           });
           
+          console.log("User lookup result:", user ? { id: user.id, email: user.email, hasPassword: !!user.hashedPassword } : "not found");
+          
           if (!user) {
             console.log("User not found:", creds.email);
             return null;
@@ -36,6 +40,7 @@ export const authOptions: NextAuthOptions = {
           }
           
           const isValidPassword = await compare(creds.password, user.hashedPassword);
+          console.log("Password validation result:", isValidPassword);
           
           if (!isValidPassword) {
             console.log("Invalid password for user:", creds.email);
@@ -75,7 +80,7 @@ export const authOptions: NextAuthOptions = {
     signIn: "/signin",
     error: "/api/auth/error"
   },
-  debug: process.env.NODE_ENV === "development",
+  debug: true, // Enable debug in production for troubleshooting
   // Add proper URL handling
   useSecureCookies: process.env.NODE_ENV === "production",
   cookies: {
