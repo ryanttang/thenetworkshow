@@ -50,8 +50,12 @@ export default function DashboardNav() {
   const [isMobile, setIsMobile] = useState(false);
   const [buttonSize, setButtonSize] = useState<"sm" | "md">("md");
   const [isOpen, setIsOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   
   useEffect(() => {
+    // Mark as client-side to prevent hydration mismatch
+    setIsClient(true);
+    
     const checkBreakpoints = () => {
       const width = window.innerWidth;
       setIsMobile(width < 1024); // lg breakpoint
@@ -100,7 +104,8 @@ export default function DashboardNav() {
     );
   };
 
-  if (isMobile) {
+  // Prevent hydration mismatch by not rendering mobile layout until client-side
+  if (isClient && isMobile) {
     return (
       <>
         <Box
@@ -191,6 +196,7 @@ export default function DashboardNav() {
     );
   }
 
+  // Show desktop layout by default, or mobile layout if client-side and mobile
   return (
     <Box
       bg="white"
@@ -216,33 +222,35 @@ export default function DashboardNav() {
             Admin Panel
           </Text>
 
-          {/* Navigation Groups */}
-          <Flex align="center" gap={6} flex={1} justify="center">
-            {/* Main */}
-            <HStack spacing={2}>
-              {groupedItems.main?.map((item) => (
-                <NavButton key={item.href} item={item} />
-              ))}
-            </HStack>
+          {/* Navigation Groups - Hide on mobile until client-side */}
+          {(!isClient || !isMobile) && (
+            <Flex align="center" gap={6} flex={1} justify="center">
+              {/* Main */}
+              <HStack spacing={2}>
+                {groupedItems.main?.map((item) => (
+                  <NavButton key={item.href} item={item} />
+                ))}
+              </HStack>
 
-            <Divider orientation="vertical" height="24px" />
+              <Divider orientation="vertical" height="24px" />
 
-            {/* Content */}
-            <HStack spacing={2}>
-              {groupedItems.content?.map((item) => (
-                <NavButton key={item.href} item={item} />
-              ))}
-            </HStack>
+              {/* Content */}
+              <HStack spacing={2}>
+                {groupedItems.content?.map((item) => (
+                  <NavButton key={item.href} item={item} />
+                ))}
+              </HStack>
 
-            <Divider orientation="vertical" height="24px" />
+              <Divider orientation="vertical" height="24px" />
 
-            {/* Management */}
-            <HStack spacing={2}>
-              {groupedItems.management?.map((item) => (
-                <NavButton key={item.href} item={item} />
-              ))}
-            </HStack>
-          </Flex>
+              {/* Management */}
+              <HStack spacing={2}>
+                {groupedItems.management?.map((item) => (
+                  <NavButton key={item.href} item={item} />
+                ))}
+              </HStack>
+            </Flex>
+          )}
 
           {/* Preview Button */}
           <Tooltip label="Preview Homepage" placement="bottom">
