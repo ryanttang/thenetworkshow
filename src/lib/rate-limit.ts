@@ -79,8 +79,8 @@ function getDefaultKey(req: NextRequest): string {
 
 // Predefined rate limiters
 export const authRateLimit = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // 10 attempts per window (increased from 5)
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: 50, // 50 attempts per window (generous for debugging)
   keyGenerator: (req) => {
     const forwarded = req.headers.get('x-forwarded-for');
     const ip = forwarded ? forwarded.split(',')[0] : req.ip || 'unknown';
