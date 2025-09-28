@@ -102,3 +102,20 @@ export interface GalleryImage {
   image?: Image | null;
   gallery?: Gallery | null;
 }
+
+export interface RecentEventVideo {
+  id: string;
+  title: string;
+  caption?: string | null;
+  videoUrl: string;
+  videoType: 'UPLOADED' | 'EXTERNAL';
+  thumbnailUrl?: string | null;
+  duration?: number | null;
+  sortOrder: number;
+  isPublished: boolean;
+  autoplay: boolean;
+  loop: boolean;
+  muted: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}

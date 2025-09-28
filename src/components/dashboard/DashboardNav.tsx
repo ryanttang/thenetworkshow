@@ -25,6 +25,7 @@ const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: "🏠" },
   { label: "Events", href: "/dashboard/events", icon: "📅" },
   { label: "Archive", href: "/dashboard/events/archive", icon: "📦" },
+  { label: "Videos", href: "/dashboard/videos", icon: "🎥" },
   { label: "Gallery", href: "/dashboard/gallery", icon: "🖼️" },
   { label: "Coordination", href: "/dashboard/coordination", icon: "📋" },
   { label: "Contact", href: "/dashboard/contact", icon: "📧" },

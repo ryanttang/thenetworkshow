@@ -25,3 +25,11 @@ export async function uploadBufferToS3(
   const base = process.env.S3_PUBLIC_BASE_URL!;
   return `${base}/${Key}`;
 }
+
+export async function uploadFile(file: File, keyPrefix: string): Promise<string> {
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const key = `${keyPrefix}${Date.now()}-${file.name}`;
+  const contentType = file.type;
+  
+  return uploadBufferToS3(key, buffer, contentType);
+}

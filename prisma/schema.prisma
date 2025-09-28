@@ -242,3 +242,23 @@ model ContactMessage {
   @@index([createdAt])
   @@index([email])
 }
+
+model RecentEventVideo {
+  id          String   @id @default(cuid())
+  title       String
+  caption     String?
+  videoUrl    String   // Can be uploaded file URL or external link
+  videoType   String   @default("UPLOADED") // "UPLOADED" or "EXTERNAL"
+  thumbnailUrl String? // For external videos, we can generate thumbnails
+  duration    Int?     // Duration in seconds
+  sortOrder   Int      @default(0)
+  isPublished Boolean  @default(true)
+  autoplay    Boolean  @default(true)  // Auto-play video on load
+  loop        Boolean  @default(true)  // Loop video continuously
+  muted       Boolean  @default(true)  // Mute video by default
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isPublished, sortOrder])
+  @@index([createdAt])
+}
