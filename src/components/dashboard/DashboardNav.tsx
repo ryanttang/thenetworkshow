@@ -12,7 +12,6 @@ import {
   Tooltip,
   Flex,
   Divider,
-  useDisclosure,
   Drawer,
   DrawerBody,
   DrawerHeader,
@@ -46,11 +45,11 @@ const navItems: NavItem[] = [
 
 export default function DashboardNav() {
   const pathname = usePathname();
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef<HTMLButtonElement>(null);
   
   const [isMobile, setIsMobile] = useState(false);
   const [buttonSize, setButtonSize] = useState<"sm" | "md">("md");
+  const [isOpen, setIsOpen] = useState(false);
   
   useEffect(() => {
     const checkBreakpoints = () => {
@@ -144,7 +143,7 @@ export default function DashboardNav() {
                   icon={<HamburgerIcon />}
                   size="sm"
                   variant="ghost"
-                  onClick={onOpen}
+                  onClick={() => setIsOpen(true)}
                 />
               </HStack>
             </Flex>
@@ -154,7 +153,7 @@ export default function DashboardNav() {
         <Drawer
           isOpen={isOpen}
           placement="right"
-          onClose={onClose}
+          onClose={() => setIsOpen(false)}
           finalFocusRef={btnRef}
         >
           <DrawerOverlay />

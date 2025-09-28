@@ -10,7 +10,6 @@ import {
   useColorModeValue,
   useBreakpointValue,
   IconButton,
-  useDisclosure,
   Drawer,
   DrawerBody,
   DrawerHeader,
@@ -27,10 +26,10 @@ import { useRef, useState, useEffect } from "react";
 export default function Navbar() {
   const { data: session } = useSession();
   const bg = useColorModeValue("white", "gray.800");
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef<HTMLButtonElement>(null);
   
   const [isMobile, setIsMobile] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   
   useEffect(() => {
     const checkIsMobile = () => {
@@ -102,7 +101,7 @@ export default function Navbar() {
                 icon={<HamburgerIcon />}
                 size="sm"
                 variant="ghost"
-                onClick={onOpen}
+                onClick={() => setIsOpen(true)}
               />
             </HStack>
           </Flex>
@@ -111,7 +110,7 @@ export default function Navbar() {
         <Drawer
           isOpen={isOpen}
           placement="right"
-          onClose={onClose}
+          onClose={() => setIsOpen(false)}
           finalFocusRef={btnRef}
         >
           <DrawerOverlay />
