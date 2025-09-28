@@ -46,10 +46,11 @@ export default function GalleryPreview({ images }: GalleryPreviewProps) {
   const [randomImages, setRandomImages] = useState<GalleryImage[]>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  // Select 9 random images on component mount
+  // Select 9 images on component mount (deterministic to avoid hydration mismatch)
   useEffect(() => {
     if (images && images.length > 0) {
-      const shuffled = [...images].sort(() => 0.5 - Math.random());
+      // Use a deterministic approach instead of Math.random() to avoid hydration mismatch
+      const shuffled = [...images].sort((a, b) => a.id.localeCompare(b.id));
       setRandomImages(shuffled.slice(0, 9));
     }
   }, [images]);
