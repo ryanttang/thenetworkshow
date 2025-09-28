@@ -1,5 +1,4 @@
 import Credentials from "next-auth/providers/credentials";
-import Google from "next-auth/providers/google";
 import { prisma } from "@/lib/prisma";
 import { compare } from "bcryptjs";
 import type { NextAuthOptions } from "next-auth";
@@ -49,13 +48,7 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
       }
-    }),
-    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? [
-      Google({
-        clientId: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET
-      })
-    ] : [])
+    })
   ],
   session: { strategy: "jwt" as const },
   callbacks: {

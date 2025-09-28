@@ -31,11 +31,10 @@ NEXTAUTH_SECRET="your-secret-key"
 DATABASE_URL="postgresql://user:password@host:5432/eventsdb"
 ```
 
-### Optional for Google OAuth:
+### Google OAuth (removed - not needed):
 ```bash
-GOOGLE_CLIENT_ID="your-google-client-id"
-GOOGLE_CLIENT_SECRET="your-google-client-secret"
-NEXT_PUBLIC_GOOGLE_CLIENT_ID="your-google-client-id"
+# Google OAuth has been removed from this application
+# Only email/password authentication is supported
 ```
 
 ## Common Issues and Solutions

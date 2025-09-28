@@ -9,9 +9,9 @@ const envSchema = z.object({
   NEXTAUTH_URL: z.string().url('Invalid NEXTAUTH_URL'),
   NEXTAUTH_SECRET: z.string().min(32, 'NEXTAUTH_SECRET must be at least 32 characters'),
   
-  // Google OAuth (optional)
-  GOOGLE_CLIENT_ID: z.string().optional(),
-  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  // Google OAuth (removed - not needed)
+  // GOOGLE_CLIENT_ID: z.string().optional(),
+  // GOOGLE_CLIENT_SECRET: z.string().optional(),
   
   // AWS S3
   AWS_REGION: z.string().min(1, 'AWS_REGION is required'),

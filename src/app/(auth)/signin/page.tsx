@@ -12,8 +12,6 @@ import {
   Heading, 
   Text, 
   useToast,
-  Divider,
-  HStack,
   Alert,
   AlertIcon
 } from "@chakra-ui/react";
@@ -86,36 +84,6 @@ export default function SignInPage() {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    setIsLoading(true);
-    setError("");
-    try {
-      // Check if Google OAuth is configured
-      if (!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID) {
-        setError("Google authentication is not configured");
-        toast({
-          title: "Google sign in unavailable",
-          description: "Google authentication is not configured",
-          status: "error",
-          duration: 5000,
-        });
-        return;
-      }
-
-      await signIn("google", { callbackUrl: "/dashboard" });
-    } catch (error) {
-      console.error("Google sign in error:", error);
-      setError("Google authentication failed");
-      toast({
-        title: "Google sign in failed",
-        description: "An error occurred during Google authentication",
-        status: "error",
-        duration: 5000,
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <Box minH="100vh" bg="gray.50" py={20}>
@@ -165,18 +133,6 @@ export default function SignInPage() {
               </Button>
             </VStack>
           </Box>
-
-          <Divider />
-          
-          <Button
-            onClick={handleGoogleSignIn}
-            w="100%"
-            variant="outline"
-            isLoading={isLoading}
-            loadingText="Connecting to Google..."
-          >
-            Continue with Google
-          </Button>
 
           <Text fontSize="sm" color="gray.600" textAlign="center">
             Demo accounts:<br />
