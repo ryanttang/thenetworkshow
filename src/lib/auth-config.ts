@@ -50,10 +50,12 @@ export const authOptions: NextAuthOptions = {
         }
       }
     }),
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!
-    })
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? [
+      Google({
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET
+      })
+    ] : [])
   ],
   session: { strategy: "jwt" as const },
   callbacks: {
@@ -71,5 +73,18 @@ export const authOptions: NextAuthOptions = {
     }
   },
   pages: { signIn: "/signin" },
-  debug: process.env.NODE_ENV === "development"
+  debug: process.env.NODE_ENV === "development",
+  // Add proper URL handling
+  useSecureCookies: process.env.NODE_ENV === "production",
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === "production"
+      }
+    }
+  }
 };

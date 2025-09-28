@@ -32,17 +32,35 @@ export default function SignInPage() {
     setError("");
 
     try {
+      // Validate email format
+      if (!email || !email.includes('@')) {
+        setError("Please enter a valid email address");
+        return;
+      }
+
+      // Validate password
+      if (!password || password.length < 6) {
+        setError("Password must be at least 6 characters");
+        return;
+      }
+
       const result = await signIn("credentials", {
-        email,
+        email: email.trim().toLowerCase(),
         password,
         redirect: false,
       });
 
       if (result?.error) {
-        setError("Invalid email or password");
+        if (result.error === "CredentialsSignin") {
+          setError("Invalid email or password");
+        } else if (result.error === "RateLimit") {
+          setError("Too many attempts. Please try again later.");
+        } else {
+          setError("Sign in failed. Please try again.");
+        }
         toast({
           title: "Sign in failed",
-          description: "Invalid email or password",
+          description: result.error === "RateLimit" ? "Too many attempts. Please try again later." : "Invalid email or password",
           status: "error",
           duration: 5000,
         });
@@ -56,10 +74,10 @@ export default function SignInPage() {
       }
     } catch (error) {
       console.error("Sign in error:", error);
-      setError("An unexpected error occurred");
+      setError("An unexpected error occurred. Please try again.");
       toast({
         title: "Sign in failed",
-        description: "An unexpected error occurred",
+        description: "An unexpected error occurred. Please try again.",
         status: "error",
         duration: 5000,
       });
@@ -72,6 +90,18 @@ export default function SignInPage() {
     setIsLoading(true);
     setError("");
     try {
+      // Check if Google OAuth is configured
+      if (!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID) {
+        setError("Google authentication is not configured");
+        toast({
+          title: "Google sign in unavailable",
+          description: "Google authentication is not configured",
+          status: "error",
+          duration: 5000,
+        });
+        return;
+      }
+
       await signIn("google", { callbackUrl: "/dashboard" });
     } catch (error) {
       console.error("Google sign in error:", error);
@@ -82,6 +112,7 @@ export default function SignInPage() {
         status: "error",
         duration: 5000,
       });
+    } finally {
       setIsLoading(false);
     }
   };
