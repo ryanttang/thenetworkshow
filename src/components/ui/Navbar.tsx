@@ -26,6 +26,7 @@ export default function Navbar() {
         <HStack spacing={6}>
           <Link as={NextLink} href="/gallery">Gallery</Link>
           <Link as={NextLink} href="/faq">FAQ</Link>
+          <Link as={NextLink} href="/contact">Contact</Link>
           <Link href="https://thcmembersonlyclub.com/waiver/" isExternal>
             Waiver
           </Link>

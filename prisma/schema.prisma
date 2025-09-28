@@ -225,3 +225,20 @@ model InstagramPost {
   @@index([accountId, isPublished])
   @@index([takenAt])
 }
+
+model ContactMessage {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  subject     String?
+  message     String
+  isRead      Boolean  @default(false)
+  respondedAt DateTime?
+  response    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isRead])
+  @@index([createdAt])
+  @@index([email])
+}
