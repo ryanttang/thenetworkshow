@@ -29,6 +29,9 @@ export default function Navbar() {
           <Link href="https://thcmembersonlyclub.com/waiver/" isExternal>
             Waiver
           </Link>
+          {session && (
+            <Link as={NextLink} href="/dashboard">Dashboard</Link>
+          )}
           {session ? (
             <Button size="sm" variant="outline" onClick={() => signOut()}>
               Sign Out
