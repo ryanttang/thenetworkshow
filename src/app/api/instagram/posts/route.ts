@@ -8,7 +8,15 @@ export async function GET(request: NextRequest) {
 
   // Get session to set user context for RLS
   const session = await getServerAuthSession();
-  const userId = session?.user?.id || null;
+  let userId = null;
+  
+  if (session?.user?.email) {
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true }
+    });
+    userId = user?.id || null;
+  }
   
   // Set user context for RLS policies
   await setUserContext(userId);

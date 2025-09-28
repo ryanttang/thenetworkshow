@@ -5,14 +5,24 @@ import { fetchUserMedia, upsertInstagramPosts } from "@/lib/instagram";
 
 export async function POST() {
   const session = await getServerAuthSession();
-  if (!session?.user?.id) {
+  if (!session?.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Set user context for RLS policies
-  await setUserContext(session.user.id as string);
+  // Get user ID from email
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    select: { id: true }
+  });
 
-  const account = await prisma.instagramAccount.findFirst({ where: { userId: session.user.id as string } });
+  if (!user) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
+  // Set user context for RLS policies
+  await setUserContext(user.id);
+
+  const account = await prisma.instagramAccount.findFirst({ where: { userId: user.id } });
   if (!account) return NextResponse.json({ error: "No Instagram account connected" }, { status: 400 });
 
   const collected: any[] = [];
@@ -23,7 +33,7 @@ export async function POST() {
     after = page.paging?.cursors?.after;
   } while (after);
 
-  await upsertInstagramPosts(account.id, collected, session.user.id as string);
+  await upsertInstagramPosts(account.id, collected, user.id);
 
   return NextResponse.json({ ok: true, imported: collected.length });
 }

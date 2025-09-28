@@ -499,6 +499,7 @@ export default function ContactDashboard() {
                           </Tooltip>
                           <Tooltip label="Send Response">
                             <IconButton
+                              aria-label="Send Response"
                               size="sm"
                               icon={<EmailIcon />}
                               colorScheme="blue"
@@ -508,6 +509,7 @@ export default function ContactDashboard() {
                           </Tooltip>
                           <Tooltip label="Delete Message">
                             <IconButton
+                              aria-label="Delete Message"
                               size="sm"
                               icon={<DeleteIcon />}
                               colorScheme="red"

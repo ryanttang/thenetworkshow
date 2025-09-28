@@ -4,7 +4,7 @@ import { exchangeCodeForToken, getLongLivedToken, fetchUserProfile, upsertInstag
 
 export async function GET(request: NextRequest) {
   const session = await getServerAuthSession();
-  if (!session?.user?.id) {
+  if (!session?.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -20,12 +20,23 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Get user ID from email
+    const { prisma } = await import("@/lib/prisma");
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true }
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     const tokenResp = await exchangeCodeForToken(code);
     const ll = await getLongLivedToken(tokenResp.access_token);
     const profile = await fetchUserProfile(ll.access_token);
 
     await upsertInstagramAccount({
-      ownerUserId: session.user.id as string,
+      ownerUserId: user.id,
       igUserId: profile.id,
       username: profile.username,
       accountType: profile.account_type ?? null,

@@ -57,7 +57,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     console.log("Parsed data:", JSON.stringify(parsed.data, null, 2));
 
     // Convert datetime-local format to proper ISO format for Prisma
-    const updateData = { ...parsed.data };
+    const updateData: any = { ...parsed.data };
     if (updateData.startAt) {
       updateData.startAt = new Date(updateData.startAt);
     }

@@ -39,8 +39,8 @@ interface CoordinationCardProps {
   coordination: {
     id: string;
     title: string;
-    description?: string;
-    notes?: string;
+    description?: string | null;
+    notes?: string | null;
     shareToken: string;
     isActive: boolean;
     createdAt: Date;

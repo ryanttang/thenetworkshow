@@ -272,7 +272,7 @@ export default function VideosPage() {
                           <Box
                             as="video"
                             src={video.videoUrl}
-                            poster={video.thumbnailUrl}
+                            poster={video.thumbnailUrl || undefined}
                             controls
                             autoPlay={false}
                             loop={video.loop}

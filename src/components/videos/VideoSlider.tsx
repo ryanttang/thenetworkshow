@@ -111,7 +111,7 @@ export default function VideoSlider({ videos }: VideoSliderProps) {
                             as="video"
                             src={video.videoUrl}
                             controls
-                            poster={video.thumbnailUrl}
+                            poster={video.thumbnailUrl || undefined}
                             autoPlay={video.autoplay}
                             loop={video.loop}
                             muted={video.muted}

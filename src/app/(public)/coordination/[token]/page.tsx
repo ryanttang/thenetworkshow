@@ -337,7 +337,7 @@ export default function CoordinationPage({ params }: CoordinationPageProps) {
               </Box>
             ) : (
               <VStack spacing={4} align="stretch">
-                {coordination.documents.map((doc) => (
+                {coordination.documents.map((doc: any) => (
                   <Box key={doc.id}>
                   <Card shadow="sm" borderRadius="lg" border="1px solid" borderColor="gray.100">
                     <CardBody>
