@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { 
   Box, 
@@ -12,11 +12,12 @@ import {
   Alert,
   AlertIcon,
   AlertTitle,
-  AlertDescription
+  AlertDescription,
+  Spinner
 } from '@chakra-ui/react';
 import Link from 'next/link';
 
-export default function AuthErrorPage() {
+function AuthErrorContent() {
   const searchParams = useSearchParams();
   const [error, setError] = useState<string>('');
   const [countdown, setCountdown] = useState<number>(0);
@@ -178,5 +179,20 @@ export default function AuthErrorPage() {
         )}
       </VStack>
     </Container>
+  );
+}
+
+export default function AuthErrorPage() {
+  return (
+    <Suspense fallback={
+      <Container maxW="container.md" py={20}>
+        <VStack spacing={8} textAlign="center">
+          <Spinner size="xl" color="blue.500" />
+          <Text>Loading...</Text>
+        </VStack>
+      </Container>
+    }>
+      <AuthErrorContent />
+    </Suspense>
   );
 }
