@@ -13,35 +13,49 @@ export default async function DashboardPage() {
     const me = await prisma.user.findUnique({ where: { email: session.user.email }});
     if (!me) redirect("/signin");
     
+    // Admins and Organizers can see all events, others only see their own
+    const canManageAllEvents = me.role === "ADMIN" || me.role === "ORGANIZER";
+    
     const items = await prisma.event.findMany({ 
       where: { 
-        ownerId: me.id,
+        ...(canManageAllEvents ? {} : { ownerId: me.id }),
         status: "PUBLISHED"
+
       }, 
-      include: { heroImage: true }, 
+      include: { heroImage: true, owner: { select: { name: true, email: true } } }, 
       orderBy: { startAt: "desc" }
     });
 
     const galleries = await prisma.gallery.findMany({
       where: {
         OR: [
-          { event: { ownerId: me.id } }, // Galleries from user's events
-          { eventId: null } // Standalone galleries (accessible to all users)
-        ]
+          ...(canManageAllEvents ? [] : [{ event: { ownerId: me.id } }]), // Galleries from user's events (or all for admins)
+          { eventId: null }, // Standalone galleries (accessible to all users)
+          ...(canManageAllEvents ? [{ id: { not: undefined } }] : []) // All galleries for admins
+        ].filter(Boolean)
       },
-      include: { _count: { select: { images: true } } },
+      include: { 
+        _count: { select: { images: true } },
+        event: { select: { ownerId: true, title: true } }
+      },
       orderBy: { createdAt: "desc" }
     });
 
+    // Note: Coordinations query temporarily commented out to focus on Events
+    // TODO: Fix coordination access for admins/organizers
+    const coordinations: any[] = [];
+    /*
     const coordinations = await prisma.coordination.findMany({
       where: { 
         event: { ownerId: me.id }
       },
       include: { 
-        _count: { select: { documents: true } }
+        _count: { select: { documents: true } },
+        event: { select: { ownerId: true, title: true } }
       },
       orderBy: { createdAt: "desc" }
     });
+    */
 
   return (
     <Container maxW="full" px={0}>

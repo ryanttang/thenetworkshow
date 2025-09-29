@@ -5,6 +5,7 @@ import EventForm from "@/components/events/EventForm";
 import { Box, Heading, Text, VStack } from "@chakra-ui/react";
 import type { z } from "zod";
 import { createEventSchema } from "@/lib/validation";
+import { canEditEvent } from "@/lib/rbac";
 
 export default async function EditEventPage({ params }: { params: { id: string } }) {
   const session = await getServerAuthSession();
@@ -14,11 +15,16 @@ export default async function EditEventPage({ params }: { params: { id: string }
   if (!me) redirect("/signin");
   
   const event = await prisma.event.findUnique({ 
-    where: { id: params.id, ownerId: me.id }, 
+    where: { id: params.id }, 
     include: { heroImage: true }
   });
   
   if (!event) redirect("/dashboard/events");
+  
+  // Check if user can edit this event (admins/organizers can edit any event)
+  if (!canEditEvent(event, me.id, me.role)) {
+    redirect("/dashboard/events");
+  }
 
   // Format dates for datetime-local inputs
   const formatDateForInput = (date: Date) => {

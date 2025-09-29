@@ -12,12 +12,15 @@ export default async function DashboardEventsPage() {
   const me = await prisma.user.findUnique({ where: { email: session.user.email }});
   if (!me) redirect("/signin");
   
+  // Admins and Organizers can see all events, others only see their own
+  const canManageAllEvents = me.role === "ADMIN" || me.role === "ORGANIZER";
+  
   const allActiveEvents = await prisma.event.findMany({ 
     where: { 
-      ownerId: me.id,
+      ...(canManageAllEvents ? {} : { ownerId: me.id }),
       status: { not: "ARCHIVED" }
     }, 
-    include: { heroImage: true }, 
+    include: { heroImage: true, owner: { select: { name: true, email: true } } }, 
     orderBy: { startAt: "desc" }
   });
 
@@ -26,7 +29,7 @@ export default async function DashboardEventsPage() {
 
   const archivedCount = await prisma.event.count({
     where: {
-      ownerId: me.id,
+      ...(canManageAllEvents ? {} : { ownerId: me.id }),
       status: "ARCHIVED"
     }
   });
@@ -35,8 +38,15 @@ export default async function DashboardEventsPage() {
     <VStack align="stretch" spacing={6}>
       <VStack spacing={6} align="center" mb={8}>
         <Box textAlign="center">
-          <Heading size="xl" mb={3}>My Events</Heading>
-          <Text color="gray.600">Manage your events and create new ones</Text>
+          <Heading size="xl" mb={3}>
+            {canManageAllEvents ? "All Events" : "My Events"}
+          </Heading>
+          <Text color="gray.600">
+            {canManageAllEvents 
+              ? "Manage all events across the platform" 
+              : "Manage your events and create new ones"
+            }
+          </Text>
         </Box>
         <HStack spacing={4}>
           <Button as={Link} href="/dashboard/events/new" colorScheme="teal" size="lg">
@@ -53,7 +63,10 @@ export default async function DashboardEventsPage() {
       {allActiveEvents.length === 0 ? (
         <Box textAlign="center" py={12}>
           <Text fontSize="lg" color="gray.500" mb={4}>
-            You haven't created any events yet
+            {canManageAllEvents 
+              ? "No events have been created yet" 
+              : "You haven't created any events yet"
+            }
           </Text>
           <Button as={Link} href="/dashboard/events/new" colorScheme="teal">
             Create Your First Event

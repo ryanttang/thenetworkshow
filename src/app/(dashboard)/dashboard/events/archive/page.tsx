@@ -12,12 +12,15 @@ export default async function ArchivePage() {
   const me = await prisma.user.findUnique({ where: { email: session.user.email }});
   if (!me) redirect("/signin");
   
+  // Admins and Organizers can see all events, others only see their own
+  const canManageAllEvents = me.role === "ADMIN" || me.role === "ORGANIZER";
+  
   const archivedEvents = await prisma.event.findMany({ 
     where: { 
-      ownerId: me.id,
+      ...(canManageAllEvents ? {} : { ownerId: me.id }),
       status: "ARCHIVED"
     }, 
-    include: { heroImage: true }, 
+    include: { heroImage: true, owner: { select: { name: true, email: true } } }, 
     orderBy: { startAt: "desc" }
   });
 
@@ -26,7 +29,12 @@ export default async function ArchivePage() {
       <VStack spacing={6} align="center" mb={8}>
         <Box textAlign="center">
           <Heading size="xl" mb={3}>Archived Events</Heading>
-          <Text color="gray.600">View and manage your archived events</Text>
+          <Text color="gray.600">
+            {canManageAllEvents 
+              ? "View and manage all archived events" 
+              : "View and manage your archived events"
+            }
+          </Text>
         </Box>
         <HStack spacing={4}>
           <Button as={Link} href="/dashboard/events" colorScheme="teal" variant="outline" size="lg">
@@ -41,7 +49,10 @@ export default async function ArchivePage() {
       {archivedEvents.length === 0 ? (
         <Box textAlign="center" py={12}>
           <Text fontSize="lg" color="gray.500" mb={4}>
-            You don't have any archived events
+            {canManageAllEvents 
+              ? "No events have been archived yet" 
+              : "You don't have any archived events"
+            }
           </Text>
           <Button as={Link} href="/dashboard/events" colorScheme="teal">
             View Active Events

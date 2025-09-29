@@ -16,13 +16,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Get all galleries the user can access (owned events + standalone galleries)
+    // Admins and Organizers can see all galleries, others only see their own + standalone
+    const canManageAllEvents = user.role === "ADMIN" || user.role === "ORGANIZER";
+
+    // Get all galleries the user can access
     const galleries = await prisma.gallery.findMany({
       where: {
         OR: [
-          { event: { ownerId: user.id } }, // Galleries from user's events
-          { eventId: null } // Standalone galleries
-        ]
+          ...(canManageAllEvents ? [] : [{ event: { ownerId: user.id } }]), // Galleries from user's events (or all for admins)
+          { eventId: null }, // Standalone galleries (accessible to all users)
+          ...(canManageAllEvents ? [{ id: { not: undefined } }] : []) // All galleries for admins
+        ].filter(Boolean)
       },
       include: {
         event: {
@@ -85,10 +89,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Gallery name is required" }, { status: 400 });
     }
 
-    // Check if event exists and user owns it (if eventId is provided)
+    // Admins and Organizers can create galleries for any event
+    const canManageAllEvents = user.role === "ADMIN" || user.role === "ORGANIZER";
+
+    // Check if event exists and user has permission to access it (if eventId is provided)
     if (eventId) {
       const event = await prisma.event.findFirst({
-        where: { id: eventId, ownerId: user.id }
+        where: { 
+          id: eventId, 
+          ...(canManageAllEvents ? {} : { ownerId: user.id })
+        }
       });
       if (!event) {
         return NextResponse.json({ error: "Event not found or access denied" }, { status: 404 });

@@ -38,9 +38,12 @@ export default async function CoordinationPage() {
   const user = await prisma.user.findUnique({ where: { email: session.user.email }});
   if (!user) redirect("/signin");
   
+  // Admins and Organizers can see all coordinations, others only see their own
+  const canManageAllEvents = user.role === "ADMIN" || user.role === "ORGANIZER";
+  
   const coordinations = await prisma.coordination.findMany({ 
     where: { 
-      event: { ownerId: user.id }
+      ...(canManageAllEvents ? {} : { event: { ownerId: user.id } })
     }, 
     include: { 
       event: {
@@ -49,6 +52,7 @@ export default async function CoordinationPage() {
           title: true,
           slug: true,
           startAt: true,
+          owner: { select: { name: true, email: true } }
         }
       },
       documents: true,
@@ -60,12 +64,16 @@ export default async function CoordinationPage() {
   });
 
   const events = await prisma.event.findMany({
-    where: { ownerId: user.id },
+    where: {
+      ...(canManageAllEvents ? {} : { ownerId: user.id }),
+      status: { not: "ARCHIVED" }
+    },
     select: {
       id: true,
       title: true,
       slug: true,
       startAt: true,
+      owner: { select: { name: true, email: true } }
     },
     orderBy: { startAt: "desc" }
   });
@@ -92,7 +100,10 @@ export default async function CoordinationPage() {
             lineHeight="1.6"
             mx="auto"
           >
-            Manage coordination documents, maps, schedules, and shareable links for your events
+            {canManageAllEvents 
+              ? "Manage coordination documents, maps, schedules, and shareable links for all events" 
+              : "Manage coordination documents, maps, schedules, and shareable links for your events"
+            }
           </Text>
         </Box>
 

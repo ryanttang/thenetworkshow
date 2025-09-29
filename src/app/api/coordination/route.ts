@@ -27,11 +27,13 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const eventId = searchParams.get("eventId");
+    const owner = searchParams.get("owner"); // Allow admin to specify owner filter
+
+    // Admins and Organizers can see all coordinations, others only see their own
+    const canManageAllEvents = user.role === "ADMIN" || user.role === "ORGANIZER";
 
     let whereClause: any = {
-      event: {
-        ownerId: user.id,
-      },
+      ...(canManageAllEvents && owner !== "me" ? {} : { event: { ownerId: user.id } }),
     };
 
     if (eventId) {
@@ -46,6 +48,7 @@ export async function GET(request: NextRequest) {
             id: true,
             title: true,
             slug: true,
+            owner: { select: { name: true, email: true } }
           },
         },
         documents: {
@@ -86,16 +89,19 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { eventId, title, description, notes } = createCoordinationSchema.parse(body);
 
-    // Verify the event belongs to the user
+    // Admins and Organizers can create coordinations for any event
+    const canManageAllEvents = user.role === "ADMIN" || user.role === "ORGANIZER";
+
+    // Verify the event exists and user has permission to access it
     const event = await prisma.event.findFirst({
       where: {
         id: eventId,
-        ownerId: user.id,
+        ...(canManageAllEvents ? {} : { ownerId: user.id }),
       },
     });
 
     if (!event) {
-      return NextResponse.json({ error: "Event not found" }, { status: 404 });
+      return NextResponse.json({ error: "Event not found or permission denied" }, { status: 404 });
     }
 
     const coordination = await prisma.coordination.create({
