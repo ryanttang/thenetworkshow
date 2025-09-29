@@ -15,11 +15,11 @@ const createPrismaClient = () => {
   });
 };
 
-// Always create a new client to avoid prepared statement conflicts
-export const prisma = createPrismaClient();
+export const prisma = process.env.NODE_ENV === 'production' 
+  ? createPrismaClient()
+  : (globalForPrisma.prisma || createPrismaClient());
 
-// Don't cache in global for now to avoid prepared statement issues
-// if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 // Helper function to set user context for RLS
 export async function setUserContext(userId: string | null) {
