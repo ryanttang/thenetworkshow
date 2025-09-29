@@ -191,13 +191,17 @@ export default function Navbar() {
                 aria-label="Open menu"
                 icon={<HamburgerIcon />}
                 size="md"
-                variant="glass"
+                bg="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"
+                color="white"
+                shadow="md"
+                fontWeight="600"
                 onClick={() => setIsOpen(true)}
                 _hover={{
-                  bg: "rgba(255, 255, 255, 0.3)",
+                  bg: "linear-gradient(135deg, #43a3f7 0%, #00e6f7 100%)",
                   transform: "scale(1.1)",
                   shadow: "lg"
                 }}
+                transition="all 0.3s ease-in-out"
               />
             </HStack>
           </Flex>
