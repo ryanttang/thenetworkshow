@@ -288,8 +288,12 @@ export default function EventCard({
               >
                 Buy Tickets
               </Button>
-            ) : buttonType === 'RSVP' ? (
+            ) : buttonType === 'RSVP' && ticketUrl ? (
               <Button 
+                as="a"
+                href={ticketUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 colorScheme="green" 
                 variant="solid" 
                 size="md"
@@ -299,10 +303,6 @@ export default function EventCard({
                   shadow: "md"
                 }}
                 transition="all 0.2s"
-                onClick={() => {
-                  // TODO: Implement RSVP functionality
-                  alert('RSVP functionality coming soon!');
-                }}
               >
                 RSVP
               </Button>

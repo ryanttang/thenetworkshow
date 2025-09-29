@@ -160,8 +160,12 @@ export default function EventDetail({ params }: { params: { id: string }}) {
               >
                 Buy Tickets
               </Button>
-            ) : event.buttonType === 'RSVP' ? (
+            ) : event.buttonType === 'RSVP' && event.ticketUrl ? (
               <Button 
+                as="a" 
+                href={event.ticketUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
                 colorScheme="green" 
                 variant="solid" 
                 size="lg"
@@ -171,10 +175,6 @@ export default function EventDetail({ params }: { params: { id: string }}) {
                   shadow: "md"
                 }}
                 transition="all 0.2s"
-                onClick={() => {
-                  // TODO: Implement RSVP functionality
-                  alert('RSVP functionality coming soon!');
-                }}
               >
                 RSVP
               </Button>
