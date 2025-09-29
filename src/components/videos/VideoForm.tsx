@@ -329,7 +329,19 @@ export default function VideoForm({ isOpen, onClose, onSubmit, video }: VideoFor
             <Button variant="ghost" mr={3} onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" colorScheme="blue">
+            <Button 
+              type="submit"
+              bg="linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)"
+              color="white"
+              shadow="md"
+              fontWeight="600"
+              _hover={{
+                bg: "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)",
+                transform: "translateY(-1px)",
+                shadow: "lg"
+              }}
+              transition="all 0.3s ease-in-out"
+            >
               {video ? "Update Video" : "Create Video"}
             </Button>
           </ModalFooter>

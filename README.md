@@ -106,6 +106,11 @@ The platform automatically processes uploaded images into multiple variants:
 
 All variants are generated in WebP and JPEG formats for optimal browser compatibility.
 
+### File Upload Limits
+- **Maximum file size**: 10 MB per image file
+- **Supported formats**: JPEG, PNG, WebP, AVIF, HEIC, HEIF
+- **Rate limit**: 10 uploads per hour per user
+
 ## S3 Configuration
 
 Ensure your S3 bucket has the correct CORS policy:

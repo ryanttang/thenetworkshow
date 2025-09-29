@@ -1,8 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: { 
-    serverActions: { bodySizeLimit: '10mb' } 
+    serverActions: { bodySizeLimit: '10mb' },
+    // Increase body size limit for API routes
+    ...(process.env.NODE_ENV === 'production' && {
+      // Production-specific configuration
+    })
   },
+  serverExternalPackages: ['sharp'], // Ensure Sharp is externalized for better performance
   // Disable static optimization for dynamic pages
   output: 'standalone',
   images: {

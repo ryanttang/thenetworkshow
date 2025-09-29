@@ -276,15 +276,18 @@ export default function EventCard({
                 href={ticketUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                colorScheme="blue" 
-                variant="solid" 
                 size="md"
                 px={6}
+                bg="linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)"
+                color="white"
+                shadow="md"
+                fontWeight="600"
                 _hover={{
-                  transform: "translateY(-1px)",
-                  shadow: "md"
+                  transform: "translateY(-2px)",
+                  shadow: "lg",
+                  bg: "linear-gradient(135deg, #2563eb 0.2%, #1e40af 100%)"
                 }}
-                transition="all 0.2s"
+                transition="all 0.3s ease-in-out"
               >
                 Buy Tickets
               </Button>
@@ -294,15 +297,18 @@ export default function EventCard({
                 href={ticketUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                colorScheme="green" 
-                variant="solid" 
                 size="md"
                 px={6}
+                bg="linear-gradient(135deg, #22c55e 0%, #16a34a 100%)"
+                color="white"
+                shadow="md"
+                fontWeight="600"
                 _hover={{
-                  transform: "translateY(-1px)",
-                  shadow: "md"
+                  transform: "translateY(-2px)",
+                  shadow: "lg",
+                  bg: "linear-gradient(135deg, #15803d 0%, #166534 100%)"
                 }}
-                transition="all 0.2s"
+                transition="all 0.3s ease-in-out"
               >
                 RSVP
               </Button>
@@ -311,15 +317,22 @@ export default function EventCard({
             <Button 
               as={NextLink} 
               href={isAdminView ? `/events/${id}` : `/events/${slug}`} 
-              colorScheme="teal" 
               variant="outline" 
               size="md"
               px={6}
+              colorScheme="black"
+              bg="rgba(255, 255, 255, 0.8)"
+              backdropFilter="blur(8px)"
+              borderWidth="2px"
+              fontWeight="500"
               _hover={{
-                transform: "translateY(-1px)",
-                shadow: "md"
+                bg: "gray.50",
+                borderColor: "gray.400",
+                transform: "translateY(-2px)",
+                shadow: "md",
+                color: "gray.700"
               }}
-              transition="all 0.2s"
+              transition="all 0.3s ease-in-out"
             >
               View Details
             </Button>
@@ -331,14 +344,21 @@ export default function EventCard({
               <Button 
                 as={NextLink} 
                 href={`/dashboard/events/${id}/edit`} 
-                colorScheme="blue" 
-                variant="ghost" 
+                variant="outline" 
                 size="sm"
+                colorScheme="black"
+                bg="rgba(255, 255, 255, 0.8)"
+                backdropFilter="blur(8px)"
+                borderWidth="2px"
+                fontWeight="500"
                 _hover={{
+                  bg: "blue.50",
+                  borderColor: "blue.400",
                   transform: "translateY(-1px)",
-                  shadow: "sm"
+                  shadow: "sm",
+                  color: "blue.700"
                 }}
-                transition="all 0.2s"
+                transition="all 0.3s ease-in-out"
               >
                 Edit
               </Button>

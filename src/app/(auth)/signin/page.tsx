@@ -124,10 +124,19 @@ export default function SignInPage() {
               
               <Button
                 type="submit"
-                colorScheme="teal"
                 w="100%"
+                bg="linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)"
+                color="white"
+                shadow="md"
+                fontWeight="600"
                 isLoading={isLoading}
                 loadingText="Signing in..."
+                _hover={{
+                  bg: "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)",
+                  transform: "translateY(-2px)",
+                  shadow: "lg"
+                }}
+                transition="all 0.3s ease-in-out"
               >
                 Sign In
               </Button>

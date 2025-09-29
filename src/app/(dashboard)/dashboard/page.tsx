@@ -51,9 +51,11 @@ export default async function DashboardPage() {
           <Heading 
             size="2xl" 
             mb={6} 
-            color="gray.800"
             fontWeight="700"
             lineHeight="1.2"
+            background="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+            backgroundClip="text"
+            css={{ WebkitTextFillColor: 'transparent' }}
           >
             Welcome back, {me.name || 'Event Organizer'}!
           </Heading>
@@ -79,25 +81,44 @@ export default async function DashboardPage() {
               overflow="hidden"
               border="1px solid"
               borderColor="gray.100"
+              bg="linear-gradient(145deg, rgba(255,255,255,0.9), rgba(248,250,252,0.9))"
+              backdropFilter="blur(10px)"
               _hover={{
                 shadow: "xl",
-                transform: "translateY(-2px)",
-                transition: "all 0.3s ease"
+                transform: "translateY(-8px) scale(1.02)",
+                transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                bg: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(248,250,252,0.95))"
               }}
-              transition="all 0.3s ease"
+              transition="all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)"
+              position="relative"
+              _before={{
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                borderRadius: '2xl 2xl 0 0'
+              }}
             >
               <CardHeader pb={6} px={8} pt={8}>
                 <VStack align="flex-start" spacing={4}>
                   <HStack spacing={4}>
                     <Box 
-                      p={3} 
-                      bg="blue.50" 
+                      p={4} 
+                      bg="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)" 
                       borderRadius="xl"
                       display="flex"
                       alignItems="center"
                       justifyContent="center"
+                      shadow="md"
+                      _hover={{
+                        transform: "scale(1.1) rotate(5deg)",
+                        transition: "all 0.3s ease-in-out"
+                      }}
                     >
-                      <Text fontSize="2xl">📅</Text>
+                      <Text fontSize="2xl" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.1))">📅</Text>
                     </Box>
                     <VStack align="flex-start" spacing={1}>
                       <Heading size="lg" color="gray.800">Events</Heading>
@@ -120,25 +141,36 @@ export default async function DashboardPage() {
                       variant="outline" 
                       size="lg" 
                       w="full"
-                      colorScheme="blue"
+                      colorScheme="black"
+                      bg="rgba(255, 255, 255, 0.8)"
+                      backdropFilter="blur(8px)"
+                      borderWidth="2px"
                       _hover={{
                         bg: "blue.50",
-                        borderColor: "blue.300"
+                        borderColor: "blue.400",
+                        transform: "translateY(-2px)",
+                        shadow: "xl",
+                        color: "blue.700"
                       }}
+                      transition="all 0.3s ease-in-out"
                     >
                       View All Events
                     </Button>
                     <Button 
                       as={Link} 
                       href="/dashboard/events/new" 
-                      colorScheme="blue" 
                       size="lg" 
                       w="full"
+                      bg="linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)"
+                      color="white"
+                      shadow="lg"
+                      fontWeight="600"
                       _hover={{
-                        transform: "translateY(-1px)",
-                        shadow: "lg"
+                        transform: "translateY(-2px)",
+                        shadow: "xl",
+                        bg: "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)"
                       }}
-                      transition="all 0.2s"
+                      transition="all 0.3s ease-in-out"
                     >
                       Create Event
                     </Button>
@@ -154,25 +186,44 @@ export default async function DashboardPage() {
               overflow="hidden"
               border="1px solid"
               borderColor="gray.100"
+              bg="linear-gradient(145deg, rgba(255,255,255,0.9), rgba(248,250,252,0.9))"
+              backdropFilter="blur(10px)"
               _hover={{
                 shadow: "xl",
-                transform: "translateY(-2px)",
-                transition: "all 0.3s ease"
+                transform: "translateY(-8px) scale(1.02)",
+                transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                bg: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(248,250,252,0.95))"
               }}
-              transition="all 0.3s ease"
+              transition="all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)"
+              position="relative"
+              _before={{
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: 'linear-gradient(135deg, #a8e6cf 0%, #88d8a3 100%)',
+                borderRadius: '2xl 2xl 0 0'
+              }}
             >
               <CardHeader pb={6} px={8} pt={8}>
                 <VStack align="flex-start" spacing={4}>
                   <HStack spacing={4}>
                     <Box 
-                      p={3} 
-                      bg="green.50" 
+                      p={4} 
+                      bg="linear-gradient(135deg, #a8e6cf 0%, #88d8a3 100%)" 
                       borderRadius="xl"
                       display="flex"
                       alignItems="center"
                       justifyContent="center"
+                      shadow="md"
+                      _hover={{
+                        transform: "scale(1.1) rotate(-5deg)",
+                        transition: "all 0.3s ease-in-out"
+                      }}
                     >
-                      <Text fontSize="2xl">🖼️</Text>
+                      <Text fontSize="2xl" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.1))">🖼️</Text>
                     </Box>
                     <VStack align="flex-start" spacing={1}>
                       <Heading size="lg" color="gray.800">Gallery</Heading>
@@ -195,25 +246,36 @@ export default async function DashboardPage() {
                       variant="outline" 
                       size="lg" 
                       w="full"
-                      colorScheme="green"
+                      colorScheme="black"
+                      bg="rgba(255, 255, 255, 0.8)"
+                      backdropFilter="blur(8px)"
+                      borderWidth="2px"
                       _hover={{
                         bg: "green.50",
-                        borderColor: "green.300"
+                        borderColor: "green.400",
+                        transform: "translateY(-2px)",
+                        shadow: "xl",
+                        color: "green.700"
                       }}
+                      transition="all 0.3s ease-in-out"
                     >
                       Manage Galleries
                     </Button>
                     <Button 
                       as={Link} 
                       href="/dashboard/gallery" 
-                      colorScheme="green" 
                       size="lg" 
                       w="full"
+                      bg="linear-gradient(135deg, #22c55e 0%, #16a34a 100%)"
+                      color="white"
+                      shadow="lg"
+                      fontWeight="600"
                       _hover={{
-                        transform: "translateY(-1px)",
-                        shadow: "lg"
+                        transform: "translateY(-2px)",
+                        shadow: "xl",
+                        bg: "linear-gradient(135deg, #15803d 0%, #166534 100%)"
                       }}
-                      transition="all 0.2s"
+                      transition="all 0.3s ease-in-out"
                     >
                       Create Gallery
                     </Button>
@@ -229,25 +291,44 @@ export default async function DashboardPage() {
               overflow="hidden"
               border="1px solid"
               borderColor="gray.100"
+              bg="linear-gradient(145deg, rgba(255,255,255,0.9), rgba(248,250,252,0.9))"
+              backdropFilter="blur(10px)"
               _hover={{
                 shadow: "xl",
-                transform: "translateY(-2px)",
-                transition: "all 0.3s ease"
+                transform: "translateY(-8px) scale(1.02)",
+                transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                bg: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(248,250,252,0.95))"
               }}
-              transition="all 0.3s ease"
+              transition="all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)"
+              position="relative"
+              _before={{
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: '2xl 2xl 0 0'
+              }}
             >
               <CardHeader pb={6} px={8} pt={8}>
                 <VStack align="flex-start" spacing={4}>
                   <HStack spacing={4}>
                     <Box 
-                      p={3} 
-                      bg="purple.50" 
+                      p={4} 
+                      bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" 
                       borderRadius="xl"
                       display="flex"
                       alignItems="center"
                       justifyContent="center"
+                      shadow="md"
+                      _hover={{
+                        transform: "scale(1.1) rotate(3deg)",
+                        transition: "all 0.3s ease-in-out"
+                      }}
                     >
-                      <Text fontSize="2xl">📋</Text>
+                      <Text fontSize="2xl" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.1))">📋</Text>
                     </Box>
                     <VStack align="flex-start" spacing={1}>
                       <Heading size="lg" color="gray.800">Coordination</Heading>
@@ -270,25 +351,36 @@ export default async function DashboardPage() {
                       variant="outline" 
                       size="lg" 
                       w="full"
-                      colorScheme="purple"
+                      colorScheme="black"
+                      bg="rgba(255, 255, 255, 0.8)"
+                      backdropFilter="blur(8px)"
+                      borderWidth="2px"
                       _hover={{
                         bg: "purple.50",
-                        borderColor: "purple.300"
+                        borderColor: "purple.400",
+                        transform: "translateY(-2px)",
+                        shadow: "xl",
+                        color: "purple.700"
                       }}
+                      transition="all 0.3s ease-in-out"
                     >
                       Manage Coordination
                     </Button>
                     <Button 
                       as={Link} 
                       href="/dashboard/coordination" 
-                      colorScheme="purple" 
                       size="lg" 
                       w="full"
+                      bg="linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)"
+                      color="white"
+                      shadow="lg"
+                      fontWeight="600"
                       _hover={{
-                        transform: "translateY(-1px)",
-                        shadow: "lg"
+                        transform: "translateY(-2px)",
+                        shadow: "xl",
+                        bg: "linear-gradient(135deg, #6d28d9 0%, #4c1d95 100%)"
                       }}
-                      transition="all 0.2s"
+                      transition="all 0.3s ease-in-out"
                     >
                       Create Coordination Set
                     </Button>
@@ -302,12 +394,18 @@ export default async function DashboardPage() {
         {/* Recent Events */}
         <Box w="full" px={{ base: 4, md: 0 }}>
           <Box 
-            bg="white" 
+            bg="linear-gradient(145deg, rgba(255,255,255,0.9), rgba(248,250,252,0.9))"
             p={8} 
             borderRadius="2xl" 
             shadow="lg"
             border="1px solid"
             borderColor="gray.100"
+            backdropFilter="blur(10px)"
+            _hover={{
+              shadow: "xl",
+              transform: "translateY(-2px)",
+              transition: "all 0.3s ease-in-out"
+            }}
           >
             <HStack 
               justify="space-between" 
@@ -326,14 +424,18 @@ export default async function DashboardPage() {
               <Button 
                 as={Link} 
                 href="/dashboard/events/new" 
-                colorScheme="teal" 
                 size="lg" 
                 px={8}
+                bg="linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)"
+                color="white"
+                shadow="lg"
+                fontWeight="600"
                 _hover={{
-                  transform: "translateY(-1px)",
-                  shadow: "lg"
+                  transform: "translateY(-2px)",
+                  shadow: "xl",
+                  bg: "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)"
                 }}
-                transition="all 0.2s"
+                transition="all 0.3s ease-in-out"
               >
                 Create New Event
               </Button>
@@ -347,15 +449,19 @@ export default async function DashboardPage() {
                 <Button 
                   as={Link} 
                   href="/dashboard/events/new" 
-                  colorScheme="teal" 
                   size="lg" 
                   px={10}
                   py={6}
+                  bg="linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)"
+                  color="white"
+                  shadow="xl"
+                  fontWeight="600"
                   _hover={{
-                    transform: "translateY(-1px)",
-                    shadow: "lg"
+                    transform: "translateY(-3px) scale(1.05)",
+                    shadow: "2xl",
+                    bg: "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)"
                   }}
-                  transition="all 0.2s"
+                  transition="all 0.3s ease-in-out"
                 >
                   Create Your First Event
                 </Button>

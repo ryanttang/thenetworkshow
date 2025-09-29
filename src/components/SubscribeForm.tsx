@@ -104,20 +104,24 @@ export default function SubscribeForm() {
               />
               <Button
                 type="submit"
-                colorScheme="blue"
                 size="md"
                 px={6}
+                bg="linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)"
+                color="white"
+                shadow="md"
+                fontWeight="600"
                 isLoading={isLoading}
                 loadingText="Subscribing..."
                 leftIcon={<EmailIcon />}
                 _hover={{
-                  transform: "translateY(-1px)",
+                  bg: "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)",
+                  transform: "translateY(-2px)",
                   shadow: "lg",
                 }}
                 _active={{
                   transform: "translateY(0px)",
                 }}
-                transition="all 0.2s ease"
+                transition="all 0.3s ease-in-out"
               >
                 Subscribe
               </Button>

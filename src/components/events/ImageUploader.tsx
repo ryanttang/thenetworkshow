@@ -53,15 +53,43 @@ export default function ImageUploader({
     }
   }, [initialImageId, onUploaded]);
 
+  const FILE_SIZE_LIMIT = 10 * 1024 * 1024; // 10MB limit to match server
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
-    setFiles(prev => [...prev, ...selectedFiles]);
+    const validFiles = selectedFiles.filter(file => {
+      if (file.size > FILE_SIZE_LIMIT) {
+        toast({
+          title: `File too large: ${file.name}`,
+          description: `Please reduce file size to under ${formatFileSize(FILE_SIZE_LIMIT)}. Current size: ${formatFileSize(file.size)}`,
+          status: "warning",
+          duration: 5000,
+        });
+        return false;
+      }
+      return true;
+    });
+    setFiles(prev => [...prev, ...validFiles]);
   };
 
   const handleFolderSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
-    // Filter for image files only
-    const imageFiles = selectedFiles.filter(file => file.type.startsWith('image/'));
+    // Filter for image files only and check size limits
+    const imageFiles = selectedFiles.filter(file => {
+      if (!file.type.startsWith('image/')) {
+        return false;
+      }
+      if (file.size > FILE_SIZE_LIMIT) {
+        toast({
+          title: `File too large: ${file.name}`,
+          description: `Please reduce file size to under ${formatFileSize(FILE_SIZE_LIMIT)}. Current size: ${formatFileSize(file.size)}`,
+          status: "warning",
+          duration: 5000,
+        });
+        return false;
+      }
+      return true;
+    });
     setFiles(prev => [...prev, ...imageFiles]);
   };
 
@@ -83,13 +111,22 @@ export default function ImageUploader({
     
     if (!res.ok) {
       let errorMessage = "Upload failed";
-      try {
-        const json = await res.json();
-        errorMessage = json.error || json.details || "Upload failed";
-      } catch (e) {
-        // If response is not JSON, use status text
-        errorMessage = res.statusText || "Upload failed";
+      
+      // Handle specific HTTP status codes
+      if (res.status === 413) {
+        errorMessage = `File "${file.name}" is too large (${formatFileSize(file.size)}). Please reduce the file size to under ${formatFileSize(FILE_SIZE_LIMIT)}.`;
+      } else if (res.status === 429) {
+        errorMessage = "Upload limit exceeded. Please wait before uploading again.";
+      } else {
+        try {
+          const json = await res.json();
+          errorMessage = json.error || json.details || "Upload failed";
+        } catch (e) {
+          // If response is not JSON, use status text
+          errorMessage = res.statusText || "Upload failed";
+        }
       }
+      
       throw new Error(errorMessage);
     }
     
@@ -315,9 +352,14 @@ export default function ImageUploader({
       )}
       
       {files.length === 0 && !currentImage && (
-        <Text color="gray.500" fontSize="sm">
-          Select images or a folder to upload (JPG, PNG, WebP, HEIC supported)
-        </Text>
+        <VStack spacing={2} align="stretch">
+          <Text color="gray.500" fontSize="sm">
+            Select images or a folder to upload (JPG, PNG, WebP, HEIC supported)
+          </Text>
+          <Text color="gray.400" fontSize="xs">
+            Maximum file size: {formatFileSize(FILE_SIZE_LIMIT)} per file
+          </Text>
+        </VStack>
       )}
 
       {/* Uploaded Images */}

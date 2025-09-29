@@ -176,7 +176,21 @@ export default function EventForm({ initial, mode = "create", eventId }: {
           />
         </Box>
         
-        <Button type="submit" colorScheme="teal" isLoading={isSubmitting} size="lg">
+        <Button 
+          type="submit" 
+          isLoading={isSubmitting} 
+          size="lg"
+          bg="linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)"
+          color="white"
+          shadow="lg"
+          fontWeight="600"
+          _hover={{
+            bg: "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)",
+            transform: "translateY(-2px)",
+            shadow: "xl"
+          }}
+          transition="all 0.3s ease-in-out"
+        >
           {mode === "edit" ? "Update Event" : "Save Event"}
         </Button>
         

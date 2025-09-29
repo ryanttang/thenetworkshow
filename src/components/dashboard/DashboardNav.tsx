@@ -84,23 +84,29 @@ export default function DashboardNav() {
         as={NextLink}
         href={item.href}
         size={isCompact ? "sm" : buttonSize}
-        variant={isActive ? "solid" : "ghost"}
-        colorScheme={isActive ? "blue" : "gray"}
+        variant={isActive ? "solid" : "outline"}
+        bg={isActive ? "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)" : "rgba(255, 255, 255, 0.8)"}
+        color={isActive ? "white" : "gray.700"}
+        borderWidth={isActive ? "0px" : "2px"}
+        backdropFilter={isActive ? "none" : "blur(8px)"}
         leftIcon={<Text fontSize="sm">{item.icon}</Text>}
         px={isCompact ? 3 : 2}
         py={1.5}
-        fontWeight="500"
+        fontWeight={isActive ? "600" : "500"}
         fontSize={isCompact ? "sm" : "sm"}
         minW={isCompact ? "auto" : "80px"}
         h="auto"
         _hover={{
-          bg: isActive ? "blue.600" : "gray.100",
-          transform: "translateY(-1px)",
+          bg: isActive ? "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)" : "gray.50",
+          borderColor: isActive ? "transparent" : "gray.400",
+          transform: "translateY(-2px)",
+          shadow: isActive ? "lg" : "sm",
+          color: isActive ? "white" : "gray.800"
         }}
         _active={{
           transform: "translateY(0px)",
         }}
-        transition="all 0.2s ease"
+        transition="all 0.3s ease-in-out"
       >
         {item.label}
       </Button>

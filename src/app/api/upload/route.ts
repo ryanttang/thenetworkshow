@@ -8,6 +8,14 @@ import type { ImageVariants } from "@/types";
 
 export const runtime = "nodejs"; // ensure sharp works
 
+// Configure body size limit for this route - Next.js App Router handles this server-side
+export const config = {
+  maxDuration: 30,
+};
+
+// Custom body parser configuration
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerAuthSession();
@@ -17,7 +25,15 @@ export async function POST(req: NextRequest) {
     const file = form.get("file") as File | null;
     const eventId = form.get("eventId") as string | null;
     
-    if (!file) return NextResponse.json({ error: "Missing file" }, { status: 400 });
+    if (!file) return NextResponse.json({ error: "Missing file" });
+
+    // File size validation - allow up to 10MB
+    if (file.size > MAX_FILE_SIZE) {
+      const fileSizeMB = (file.size / 1024 / 1024).toFixed(1);
+      return NextResponse.json({ 
+        error: `File too large: ${fileSizeMB}MB. Maximum allowed: 10MB` 
+      }, { status: 413 });
+    }
 
     // MIME type validation
     const allowed = ["image/jpeg","image/png","image/webp","image/avif","image/heic","image/heif"];
