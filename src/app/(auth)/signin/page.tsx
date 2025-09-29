@@ -143,11 +143,6 @@ export default function SignInPage() {
             </VStack>
           </Box>
 
-          <Text fontSize="sm" color="gray.600" textAlign="center">
-            Demo accounts:<br />
-            admin@example.com / admin123!<br />
-            organizer@example.com / organizer123!
-          </Text>
         </VStack>
       </Box>
     </Box>
