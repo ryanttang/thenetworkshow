@@ -8,10 +8,8 @@ import type { ImageVariants } from "@/types";
 
 export const runtime = "nodejs"; // ensure sharp works
 
-// Configure body size limit for this route - Next.js App Router handles this server-side
-export const config = {
-  maxDuration: 30,
-};
+// Configure route segment - new Next.js App Router format
+export const maxDuration = 30;
 
 // Custom body parser configuration
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
