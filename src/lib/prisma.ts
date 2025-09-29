@@ -11,22 +11,15 @@ const createPrismaClient = () => {
         url: process.env.DATABASE_URL,
       },
     },
-    // Configure for Supabase pooler
-    ...(process.env.DATABASE_URL?.includes('pooler.supabase.com') && {
-      log: ['error'],
-    }),
-    // Fix prepared statement issues with connection pooling
-    ...(process.env.NODE_ENV === 'production' && {
-      log: ['error'],
-    }),
+    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
   });
 };
 
-export const prisma = process.env.NODE_ENV === 'production' 
-  ? createPrismaClient()
-  : (globalForPrisma.prisma || createPrismaClient());
+// Always create a new client to avoid prepared statement conflicts
+export const prisma = createPrismaClient();
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+// Don't cache in global for now to avoid prepared statement issues
+// if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 // Helper function to set user context for RLS
 export async function setUserContext(userId: string | null) {
