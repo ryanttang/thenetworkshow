@@ -48,6 +48,7 @@ export default function DashboardNav() {
   const btnRef = useRef<HTMLButtonElement>(null);
   
   const [isMobile, setIsMobile] = useState(false);
+  const [isNarrow, setIsNarrow] = useState(false);
   const [buttonSize, setButtonSize] = useState<"sm" | "md">("md");
   const [isOpen, setIsOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
@@ -59,6 +60,7 @@ export default function DashboardNav() {
     const checkBreakpoints = () => {
       const width = window.innerWidth;
       setIsMobile(width < 1024); // lg breakpoint
+      setIsNarrow(width < 1400); // Narrow enough to warrant two rows
       setButtonSize(width < 768 ? "sm" : "md"); // md breakpoint
     };
     
@@ -85,11 +87,12 @@ export default function DashboardNav() {
         variant={isActive ? "solid" : "ghost"}
         colorScheme={isActive ? "blue" : "gray"}
         leftIcon={<Text fontSize="sm">{item.icon}</Text>}
-        px={isCompact ? 3 : 4}
-        py={2}
+        px={isCompact ? 3 : 2}
+        py={1.5}
         fontWeight="500"
-        fontSize={isCompact ? "sm" : "md"}
-        minW={isCompact ? "auto" : "120px"}
+        fontSize={isCompact ? "sm" : "sm"}
+        minW={isCompact ? "auto" : "80px"}
+        h="auto"
         _hover={{
           bg: isActive ? "blue.600" : "gray.100",
           transform: "translateY(-1px)",
@@ -209,71 +212,142 @@ export default function DashboardNav() {
       zIndex={10}
       shadow="sm"
     >
-      <Container maxW="7xl" px={{ base: 4, md: 6, lg: 8 }}>
-        <Flex justify="space-between" align="center" gap={6}>
-          {/* Logo/Title */}
-          <Text 
-            fontSize="xl" 
-            fontWeight="700" 
-            color="blue.600"
-            letterSpacing="tight"
-            flexShrink={0}
-          >
-            Admin Panel
-          </Text>
-
-          {/* Navigation Groups - Hide on mobile until client-side */}
-          {(!isClient || !isMobile) && (
-            <Flex align="center" gap={6} flex={1} justify="center">
+      <Container maxW={isNarrow ? "4xl" : "7xl"} px={{ base: 3, md: 4, lg: 6 }}>
+        {isNarrow && (!isClient || !isMobile) ? (
+          // Two-row layout for narrower screens
+          <VStack spacing={3} align="stretch">
+            {/* Header Row */}
+            <Flex justify="space-between" align="center">
+              <Text 
+                fontSize="sm" 
+                fontWeight="700" 
+                color="blue.600"
+                letterSpacing="tight"
+                flexShrink={0}
+              >
+                Admin Panel
+              </Text>
+              <Tooltip label="Preview Homepage" placement="bottom">
+                <IconButton
+                  as={NextLink}
+                  href="/"
+                  aria-label="Preview homepage from user view"
+                  icon={<ViewIcon />}
+                  size="sm"
+                  variant="ghost"
+                  colorScheme="blue"
+                  _hover={{
+                    bg: "blue.50",
+                    transform: "translateY(-1px)",
+                  }}
+                  _active={{
+                    transform: "translateY(0px)",
+                  }}
+                  transition="all 0.2s ease"
+                  flexShrink={0}
+                />
+              </Tooltip>
+            </Flex>
+            
+            {/* Navigation Row */}
+            <Flex justify="center" gap={2} wrap="wrap">
               {/* Main */}
-              <HStack spacing={2}>
+              <HStack spacing={1} wrap="wrap">
                 {groupedItems.main?.map((item) => (
                   <NavButton key={item.href} item={item} />
                 ))}
               </HStack>
 
-              <Divider orientation="vertical" height="24px" />
+              {groupedItems.main?.length > 0 && groupedItems.content?.length > 0 && (
+                <Divider orientation="vertical" height="20px" />
+              )}
 
               {/* Content */}
-              <HStack spacing={2}>
+              <HStack spacing={1} wrap="wrap">
                 {groupedItems.content?.map((item) => (
                   <NavButton key={item.href} item={item} />
                 ))}
               </HStack>
 
-              <Divider orientation="vertical" height="24px" />
+              {groupedItems.content?.length > 0 && groupedItems.management?.length > 0 && (
+                <Divider orientation="vertical" height="20px" />
+              )}
 
               {/* Management */}
-              <HStack spacing={2}>
+              <HStack spacing={1} wrap="wrap">
                 {groupedItems.management?.map((item) => (
                   <NavButton key={item.href} item={item} />
                 ))}
               </HStack>
             </Flex>
-          )}
-
-          {/* Preview Button */}
-          <Tooltip label="Preview Homepage" placement="bottom">
-            <IconButton
-              as={NextLink}
-              href="/"
-              aria-label="Preview homepage from user view"
-              icon={<ViewIcon />}
-              size="sm"
-              variant="ghost"
-              colorScheme="blue"
-              _hover={{
-                bg: "blue.50",
-                transform: "translateY(-1px)",
-              }}
-              _active={{
-                transform: "translateY(0px)",
-              }}
-              transition="all 0.2s ease"
+          </VStack>
+        ) : (
+          // Original single-row layout for wider screens
+          <Flex justify="space-between" align="center" gap={4}>
+            {/* Logo/Title */}
+            <Text 
+              fontSize="lg" 
+              fontWeight="700" 
+              color="blue.600"
+              letterSpacing="tight"
               flexShrink={0}
-            />
-          </Tooltip>
-        </Flex>
+            >
+              Admin Panel
+            </Text>
+
+            {/* Navigation Groups - Hide on mobile until client-side */}
+            {(!isClient || !isMobile) && (
+              <Flex align="center" gap={3} flex={1} justify="center">
+                {/* Main */}
+                <HStack spacing={1}>
+                  {groupedItems.main?.map((item) => (
+                    <NavButton key={item.href} item={item} />
+                  ))}
+                </HStack>
+
+                <Divider orientation="vertical" height="20px" />
+
+                {/* Content */}
+                <HStack spacing={1}>
+                  {groupedItems.content?.map((item) => (
+                    <NavButton key={item.href} item={item} />
+                  ))}
+                </HStack>
+
+                <Divider orientation="vertical" height="20px" />
+
+                {/* Management */}
+                <HStack spacing={1}>
+                  {groupedItems.management?.map((item) => (
+                    <NavButton key={item.href} item={item} />
+                  ))}
+                </HStack>
+              </Flex>
+            )}
+
+            {/* Preview Button */}
+            <Tooltip label="Preview Homepage" placement="bottom">
+              <IconButton
+                as={NextLink}
+                href="/"
+                aria-label="Preview homepage from user view"
+                icon={<ViewIcon />}
+                size="sm"
+                variant="ghost"
+                colorScheme="blue"
+                _hover={{
+                  bg: "blue.50",
+                  transform: "translateY(-1px)",
+                }}
+                _active={{
+                  transform: "translateY(0px)",
+                }}
+                transition="all 0.2s ease"
+                flexShrink={0}
+              />
+            </Tooltip>
+          </Flex>
+        )}
       </Container>
     </Box>
   );
