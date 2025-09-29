@@ -1,24 +1,14 @@
-"use client";
-import { Box, Container, Text, VStack, useColorModeValue } from "@chakra-ui/react";
+import { Box, Container, Text, VStack } from "@chakra-ui/react";
 
 export default function Footer() {
-  const bgGradient = useColorModeValue(
-    "linear-gradient(145deg, rgba(248,250,252,0.95), rgba(255,255,255,0.95))",
-    "linear-gradient(145deg, rgba(26,32,44,0.95), rgba(45,55,72,0.95))"
-  );
-  
-  const borderColor = useColorModeValue("rgba(255, 255, 255, 0.2)", "rgba(255, 255, 255, 0.1)");
-  const boxBg = useColorModeValue("rgba(255, 255, 255, 0.5)", "rgba(255, 255, 255, 0.05)");
-  const innerBorderColor = useColorModeValue("rgba(255, 255, 255, 0.2)", "rgba(255, 255, 255, 0.1)");
-  const textColor = useColorModeValue("gray.700", "gray.300");
   
   return (
     <Box 
       as="footer" 
-      bg={bgGradient}
+      bg="linear-gradient(145deg, rgba(248,250,252,0.95), rgba(255,255,255,0.95))"
       backdropFilter="blur(12px)"
       borderTop="1px solid"
-      borderColor={borderColor}
+      borderColor="rgba(255, 255, 255, 0.2)"
       py={12} 
       mt={24}
       position="relative"
@@ -38,15 +28,15 @@ export default function Footer() {
           <Box
             p={4}
             borderRadius="xl"
-            bg={boxBg}
+            bg="rgba(255, 255, 255, 0.5)"
             backdropFilter="blur(8px)"
             border="1px solid"
-            borderColor={innerBorderColor}
+            borderColor="rgba(255, 255, 255, 0.2)"
             maxW="md"
             mx="auto"
           >
             <Text 
-              color={textColor} 
+              color="gray.700" 
               textAlign="center" 
               fontWeight="500"
               fontSize="md"
