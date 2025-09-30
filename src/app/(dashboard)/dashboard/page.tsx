@@ -26,20 +26,6 @@ export default async function DashboardPage() {
       orderBy: { startAt: "desc" }
     });
 
-    const galleries = await prisma.gallery.findMany({
-      where: {
-        OR: [
-          ...(canManageAllEvents ? [] : [{ event: { ownerId: me.id } }]), // Galleries from user's events (or all for admins)
-          { eventId: null }, // Standalone galleries (accessible to all users)
-          ...(canManageAllEvents ? [{ id: { not: undefined } }] : []) // All galleries for admins
-        ].filter(Boolean)
-      },
-      include: { 
-        _count: { select: { images: true } },
-        event: { select: { ownerId: true, title: true } }
-      },
-      orderBy: { createdAt: "desc" }
-    });
 
     // Note: Coordinations query temporarily commented out to focus on Events
     // TODO: Fix coordination access for admins/organizers
@@ -86,8 +72,8 @@ export default async function DashboardPage() {
         </Box>
 
         {/* Quick Actions */}
-        <Box px={{ base: 4, md: 0 }}>
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={10} w="full">
+        <Box px={{ base: 4, md: 0 }} display="flex" justifyContent="center">
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8} w="full" maxW="4xl">
             {/* Events Card */}
             <Card 
               shadow="lg" 
@@ -193,110 +179,6 @@ export default async function DashboardPage() {
               </CardBody>
             </Card>
 
-            {/* Gallery Card */}
-            <Card 
-              shadow="lg" 
-              borderRadius="2xl" 
-              overflow="hidden"
-              border="1px solid"
-              borderColor="gray.100"
-              bg="linear-gradient(145deg, rgba(255,255,255,0.9), rgba(248,250,252,0.9))"
-              backdropFilter="blur(10px)"
-              _hover={{
-                shadow: "xl",
-                transform: "translateY(-8px) scale(1.02)",
-                transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-                bg: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(248,250,252,0.95))"
-              }}
-              transition="all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)"
-              position="relative"
-              _before={{
-                content: '""',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                height: '4px',
-                background: 'linear-gradient(135deg, #a8e6cf 0%, #88d8a3 100%)',
-                borderRadius: '2xl 2xl 0 0'
-              }}
-            >
-              <CardHeader pb={6} px={8} pt={8}>
-                <VStack align="flex-start" spacing={4}>
-                  <HStack spacing={4}>
-                    <Box 
-                      p={4} 
-                      bg="linear-gradient(135deg, #a8e6cf 0%, #88d8a3 100%)" 
-                      borderRadius="xl"
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                      shadow="md"
-                      _hover={{
-                        transform: "scale(1.1) rotate(-5deg)",
-                        transition: "all 0.3s ease-in-out"
-                      }}
-                    >
-                      <Text fontSize="2xl" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.1))">🖼️</Text>
-                    </Box>
-                    <VStack align="flex-start" spacing={1}>
-                      <Heading size="lg" color="gray.800">Gallery</Heading>
-                      <Badge colorScheme="green" variant="subtle" px={3} py={1} borderRadius="full">
-                        {galleries.length} {galleries.length === 1 ? 'Gallery' : 'Galleries'}
-                      </Badge>
-                    </VStack>
-                  </HStack>
-                </VStack>
-              </CardHeader>
-              <CardBody pt={0} px={8} pb={8}>
-                <VStack align="stretch" spacing={8}>
-                  <Text color="gray.600" fontSize="md" lineHeight="1.6">
-                    You have {galleries.length} gallery{galleries.length !== 1 ? 'ies' : ''} with photos
-                  </Text>
-                  <VStack spacing={4} w="full">
-                    <Button 
-                      as={Link} 
-                      href="/dashboard/gallery" 
-                      variant="outline" 
-                      size="lg" 
-                      w="full"
-                      colorScheme="black"
-                      bg="rgba(255, 255, 255, 0.8)"
-                      backdropFilter="blur(8px)"
-                      borderWidth="2px"
-                      _hover={{
-                        bg: "green.50",
-                        borderColor: "green.400",
-                        transform: "translateY(-2px)",
-                        shadow: "xl",
-                        color: "green.700"
-                      }}
-                      transition="all 0.3s ease-in-out"
-                    >
-                      Manage Galleries
-                    </Button>
-                    <Button 
-                      as={Link} 
-                      href="/dashboard/gallery" 
-                      size="lg" 
-                      w="full"
-                      bg="linear-gradient(135deg, #22c55e 0%, #16a34a 100%)"
-                      color="white"
-                      shadow="lg"
-                      fontWeight="600"
-                      _hover={{
-                        transform: "translateY(-2px)",
-                        shadow: "xl",
-                        bg: "linear-gradient(135deg, #15803d 0%, #166534 100%)"
-                      }}
-                      transition="all 0.3s ease-in-out"
-                    >
-                      Create Gallery
-                    </Button>
-                  </VStack>
-                </VStack>
-              </CardBody>
-            </Card>
 
             {/* Coordination Card */}
             <Card 

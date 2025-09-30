@@ -225,19 +225,26 @@ export default function EventCard({
         flexDirection="column"
       >
         {img && (
-          <CImage
-            src={img}
-            alt={title}
-            w="100%"
-            h="220px"
-            objectFit="cover"
-            loading="lazy"
-            fallbackSrc="/placeholder-image.svg"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = "/placeholder-image.svg";
-            }}
-          />
+          <NextLink href={isAdminView ? `/events/${id}` : `/events/${slug}`}>
+            <CImage
+              src={img}
+              alt={title}
+              w="100%"
+              h="220px"
+              objectFit="cover"
+              loading="lazy"
+              fallbackSrc="/placeholder-image.svg"
+              cursor="pointer"
+              _hover={{
+                transform: "scale(1.02)",
+                transition: "transform 0.3s ease-in-out"
+              }}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = "/placeholder-image.svg";
+              }}
+            />
+          </NextLink>
         )}
         <Stack p={6} spacing={4} flex={1} display="flex" flexDirection="column">
           <Box flex={1}>
