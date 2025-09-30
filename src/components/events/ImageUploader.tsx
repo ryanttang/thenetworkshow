@@ -32,6 +32,7 @@ export default function ImageUploader({
   const [uploadedImages, setUploadedImages] = useState<Array<{id: string, variants: any, fileName: string}>>([]);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
   const [currentImage, setCurrentImage] = useState<{id: string, variants: any} | null>(null);
+  const [lastUploadedImage, setLastUploadedImage] = useState<{id: string, variants: any, fileName: string} | null>(null);
   const toast = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
@@ -55,7 +56,7 @@ export default function ImageUploader({
 
   const FILE_SIZE_LIMIT = 10 * 1024 * 1024; // 10MB limit to match server
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
     const validFiles = selectedFiles.filter(file => {
       if (file.size > FILE_SIZE_LIMIT) {
@@ -69,10 +70,75 @@ export default function ImageUploader({
       }
       return true;
     });
+    
+    if (validFiles.length === 0) return;
+    
+    // Add files to state for display
     setFiles(prev => [...prev, ...validFiles]);
+    
+    // Automatically start upload for each valid file
+    setBusy(true);
+    
+    try {
+      const results = [];
+      
+      for (let i = 0; i < validFiles.length; i++) {
+        const file = validFiles[i];
+        setUploadProgress(prev => ({ ...prev, [file.name]: 0 }));
+        
+        try {
+          const result = await uploadFile(file);
+          const newImage = { 
+            id: result.imageId, 
+            variants: result.variants, 
+            fileName: file.name 
+          };
+          setUploadedImages(prev => [...prev, newImage]);
+          setUploadProgress(prev => ({ ...prev, [file.name]: 100 }));
+          setLastUploadedImage(newImage); // Set as the last uploaded image for preview
+          results.push(result);
+          
+          // Call onUploaded for each successfully uploaded image
+          onUploaded(result.imageId, result.variants);
+        } catch (error) {
+          console.error(`Failed to upload ${file.name}:`, error);
+          toast({
+            title: `Failed to upload ${file.name}`,
+            description: error instanceof Error ? error.message : "Unknown error",
+            status: "error",
+            duration: 5000,
+          });
+        }
+      }
+      
+      if (results.length > 0) {
+        toast({
+          title: "Upload successful",
+          description: `Successfully uploaded ${results.length} image${results.length !== 1 ? 's' : ''}`,
+          status: "success",
+          duration: 3000,
+        });
+        // Clear files after successful upload
+        setFiles([]);
+        setUploadProgress({});
+      }
+    } catch (error) {
+      toast({
+        title: "Upload failed",
+        description: error instanceof Error ? error.message : "Unknown error",
+        status: "error",
+        duration: 5000,
+      });
+    } finally {
+      setBusy(false);
+      // Clear the input so the same file can be selected again
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
   };
 
-  const handleFolderSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFolderSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
     // Filter for image files only and check size limits
     const imageFiles = selectedFiles.filter(file => {
@@ -90,7 +156,72 @@ export default function ImageUploader({
       }
       return true;
     });
+    
+    if (imageFiles.length === 0) return;
+    
+    // Add files to state for display
     setFiles(prev => [...prev, ...imageFiles]);
+    
+    // Automatically start upload for each valid file
+    setBusy(true);
+    
+    try {
+      const results = [];
+      
+      for (let i = 0; i < imageFiles.length; i++) {
+        const file = imageFiles[i];
+        setUploadProgress(prev => ({ ...prev, [file.name]: 0 }));
+        
+        try {
+          const result = await uploadFile(file);
+          const newImage = { 
+            id: result.imageId, 
+            variants: result.variants, 
+            fileName: file.name 
+          };
+          setUploadedImages(prev => [...prev, newImage]);
+          setUploadProgress(prev => ({ ...prev, [file.name]: 100 }));
+          setLastUploadedImage(newImage); // Set as the last uploaded image for preview
+          results.push(result);
+          
+          // Call onUploaded for each successfully uploaded image
+          onUploaded(result.imageId, result.variants);
+        } catch (error) {
+          console.error(`Failed to upload ${file.name}:`, error);
+          toast({
+            title: `Failed to upload ${file.name}`,
+            description: error instanceof Error ? error.message : "Unknown error",
+            status: "error",
+            duration: 5000,
+          });
+        }
+      }
+      
+      if (results.length > 0) {
+        toast({
+          title: "Upload successful",
+          description: `Successfully uploaded ${results.length} image${results.length !== 1 ? 's' : ''}`,
+          status: "success",
+          duration: 3000,
+        });
+        // Clear files after successful upload
+        setFiles([]);
+        setUploadProgress({});
+      }
+    } catch (error) {
+      toast({
+        title: "Upload failed",
+        description: error instanceof Error ? error.message : "Unknown error",
+        status: "error",
+        duration: 5000,
+      });
+    } finally {
+      setBusy(false);
+      // Clear the input so the same folder can be selected again
+      if (folderInputRef.current) {
+        folderInputRef.current.value = '';
+      }
+    }
   };
 
   const removeFile = (index: number) => {
@@ -116,7 +247,10 @@ export default function ImageUploader({
       if (res.status === 413) {
         errorMessage = `File "${file.name}" is too large (${formatFileSize(file.size)}). Please reduce the file size to under ${formatFileSize(FILE_SIZE_LIMIT)}.`;
       } else if (res.status === 429) {
-        errorMessage = "Upload limit exceeded. Please wait before uploading again.";
+        const retryAfter = res.headers.get('Retry-After');
+        const retrySeconds = retryAfter ? parseInt(retryAfter) : 900; // Default to 15 minutes
+        const retryMinutes = Math.ceil(retrySeconds / 60);
+        errorMessage = `Upload limit exceeded. Please wait ${retryMinutes} minute${retryMinutes !== 1 ? 's' : ''} before uploading again.`;
       } else {
         try {
           const json = await res.json();
@@ -275,6 +409,54 @@ export default function ImageUploader({
         </Box>
       )}
 
+      {/* Last Uploaded Image Preview */}
+      {lastUploadedImage && !currentImage && (
+        <Box p={3} bg="green.50" borderRadius="md" position="relative" border="1px solid" borderColor="green.200">
+          <HStack spacing={3} align="center">
+            <Box w="16" h="16" borderRadius="md" overflow="hidden" flexShrink={0}>
+              <Image 
+                src={getImageUrl(lastUploadedImage)} 
+                alt="Uploaded image preview"
+                w="full"
+                h="full"
+                objectFit="cover"
+                fallbackSrc="/placeholder-image.svg"
+              />
+            </Box>
+            <VStack spacing={1} align="start" flex={1}>
+              <Text fontSize="sm" fontWeight="medium" color="green.700">
+                ✓ Upload Successful
+              </Text>
+              <Text fontSize="xs" color="green.600" noOfLines={1}>
+                {lastUploadedImage.fileName}
+              </Text>
+            </VStack>
+            <HStack spacing={1}>
+              <Button
+                size="xs"
+                colorScheme="green"
+                variant="solid"
+                onClick={() => {
+                  setCurrentImage(lastUploadedImage);
+                  onUploaded(lastUploadedImage.id, lastUploadedImage.variants);
+                  setLastUploadedImage(null);
+                }}
+              >
+                Use as Hero
+              </Button>
+              <IconButton
+                aria-label="Dismiss preview"
+                icon={<span>✕</span>}
+                size="xs"
+                variant="ghost"
+                colorScheme="green"
+                onClick={() => setLastUploadedImage(null)}
+              />
+            </HStack>
+          </HStack>
+        </Box>
+      )}
+
       {/* File Selection */}
       <VStack spacing={3} align="stretch">
         <HStack spacing={3}>
@@ -300,26 +482,21 @@ export default function ImageUploader({
           />
         </HStack>
         
-        <HStack spacing={3}>
-          <Button 
-            onClick={onUpload} 
-            isLoading={busy} 
-            colorScheme="teal"
-            disabled={files.length === 0}
-            size="sm"
-          >
-            Upload {files.length > 0 ? `(${files.length})` : ''}
-          </Button>
-          {files.length > 0 && (
+        {busy && (
+          <HStack spacing={3}>
+            <Text fontSize="sm" color="blue.600">
+              Uploading images...
+            </Text>
             <Button 
               onClick={clearAllFiles} 
               variant="outline" 
               size="sm"
+              disabled={busy}
             >
-              Clear All
+              Cancel
             </Button>
-          )}
-        </HStack>
+          </HStack>
+        )}
       </VStack>
       
       {/* File Info */}
@@ -351,10 +528,10 @@ export default function ImageUploader({
         </Box>
       )}
       
-      {files.length === 0 && !currentImage && (
+      {files.length === 0 && !currentImage && !busy && (
         <VStack spacing={2} align="stretch">
           <Text color="gray.500" fontSize="sm">
-            Select images or a folder to upload (JPG, PNG, WebP, HEIC supported)
+            Select images or a folder to automatically upload (JPG, PNG, WebP, HEIC supported)
           </Text>
           <Text color="gray.400" fontSize="xs">
             Maximum file size: {formatFileSize(FILE_SIZE_LIMIT)} per file

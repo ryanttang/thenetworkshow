@@ -94,8 +94,8 @@ export const apiRateLimit = rateLimit({
 });
 
 export const uploadRateLimit = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 10, // 10 uploads per hour
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50, // 50 uploads per 15 minutes (more generous for development)
 });
 
 export const contactRateLimit = rateLimit({

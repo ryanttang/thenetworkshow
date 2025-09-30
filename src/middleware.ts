@@ -4,9 +4,12 @@ import { authRateLimit, apiRateLimit, uploadRateLimit, contactRateLimit } from '
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Skip rate limiting in development mode
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  
   // Apply rate limiting based on route
   if (pathname.startsWith('/api/auth/')) {
-    const result = authRateLimit(request);
+    const result = isDevelopment ? { success: true, limit: 1000, remaining: 999, reset: Date.now() + 60000 } : authRateLimit(request);
     if (!result.success) {
       return new NextResponse(
         JSON.stringify({ 
@@ -28,7 +31,7 @@ export function middleware(request: NextRequest) {
   }
 
   if (pathname.startsWith('/api/upload')) {
-    const result = uploadRateLimit(request);
+    const result = isDevelopment ? { success: true, limit: 1000, remaining: 999, reset: Date.now() + 60000 } : uploadRateLimit(request);
     if (!result.success) {
       return new NextResponse(
         JSON.stringify({ 
@@ -50,7 +53,7 @@ export function middleware(request: NextRequest) {
   }
 
   if (pathname.startsWith('/api/contact')) {
-    const result = contactRateLimit(request);
+    const result = isDevelopment ? { success: true, limit: 1000, remaining: 999, reset: Date.now() + 60000 } : contactRateLimit(request);
     if (!result.success) {
       return new NextResponse(
         JSON.stringify({ 
@@ -72,7 +75,7 @@ export function middleware(request: NextRequest) {
   }
 
   if (pathname.startsWith('/api/')) {
-    const result = apiRateLimit(request);
+    const result = isDevelopment ? { success: true, limit: 1000, remaining: 999, reset: Date.now() + 60000 } : apiRateLimit(request);
     if (!result.success) {
       return new NextResponse(
         JSON.stringify({ 
