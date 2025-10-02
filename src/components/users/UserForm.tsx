@@ -17,7 +17,11 @@ import {
   VStack,
   useToast,
   Text,
+  Flex,
+  InputGroup,
+  InputRightElement,
 } from "@chakra-ui/react";
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { Role, User } from "@prisma/client";
 
 interface UserFormProps {
@@ -43,6 +47,7 @@ export function UserForm({ isOpen, onClose, user, onSuccess }: UserFormProps) {
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showPassword, setShowPassword] = useState(false);
   const toast = useToast();
 
   const isEditing = !!user;
@@ -66,6 +71,7 @@ export function UserForm({ isOpen, onClose, user, onSuccess }: UserFormProps) {
         });
       }
       setErrors({});
+      setShowPassword(false); // Reset password visibility when modal opens
     }
   }, [isOpen, user]);
 
@@ -163,7 +169,12 @@ export function UserForm({ isOpen, onClose, user, onSuccess }: UserFormProps) {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="md">
+    <Modal 
+      isOpen={isOpen} 
+      onClose={onClose} 
+      size={{ base: "sm", md: "md" }}
+      scrollBehavior="inside"
+    >
       <ModalOverlay />
       <ModalContent>
         <form onSubmit={handleSubmit}>
@@ -207,12 +218,26 @@ export function UserForm({ isOpen, onClose, user, onSuccess }: UserFormProps) {
                 <FormLabel>
                   Password {isEditing && "(leave blank to keep current)"}
                 </FormLabel>
-                <Input
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => handleInputChange("password", e.target.value)}
-                  placeholder={isEditing ? "Enter new password (optional)" : "Enter password"}
-                />
+                <InputGroup>
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={(e) => handleInputChange("password", e.target.value)}
+                    placeholder={isEditing ? "Enter new password (optional)" : "Enter password"}
+                    pr="4.5rem"
+                  />
+                  <InputRightElement width="4.5rem">
+                    <Button
+                      h="1.75rem"
+                      size="sm"
+                      onClick={() => setShowPassword(!showPassword)}
+                      variant="ghost"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? <ViewOffIcon /> : <ViewIcon />}
+                    </Button>
+                  </InputRightElement>
+                </InputGroup>
                 {errors.password && <Text color="red.500" fontSize="sm">{errors.password}</Text>}
               </FormControl>
 
@@ -231,17 +256,29 @@ export function UserForm({ isOpen, onClose, user, onSuccess }: UserFormProps) {
             </VStack>
           </ModalBody>
           <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={onClose}>
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              colorScheme="blue"
-              isLoading={loading}
-              loadingText={isEditing ? "Updating..." : "Creating..."}
+            <Flex 
+              width="100%" 
+              gap={3} 
+              direction={{ base: "column", sm: "row" }}
+              justify="end"
             >
-              {isEditing ? "Update User" : "Create User"}
-            </Button>
+              <Button 
+                variant="ghost" 
+                onClick={onClose}
+                width={{ base: "100%", sm: "auto" }}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                colorScheme="blue"
+                isLoading={loading}
+                loadingText={isEditing ? "Updating..." : "Creating..."}
+                width={{ base: "100%", sm: "auto" }}
+              >
+                {isEditing ? "Update User" : "Create User"}
+              </Button>
+            </Flex>
           </ModalFooter>
         </form>
       </ModalContent>
