@@ -92,7 +92,7 @@ export default async function HomePage() {
       {/* Upcoming Events Section */}
       <Box 
         bg="white"
-        py={{ base: 12, md: 20 }}
+        py={{ base: 8, md: 12 }}
         position="relative"
       >
         <Container maxW="7xl" position="relative" zIndex={1}>
@@ -159,7 +159,7 @@ export default async function HomePage() {
       {/* Recent Events Video Section */}
       <Box 
         bg="gray.50" 
-        py={{ base: 12, md: 20 }}
+        py={{ base: 8, md: 12 }}
         position="relative"
         _before={{
           content: '""',
@@ -184,7 +184,7 @@ export default async function HomePage() {
       {/* Gallery Section */}
       <Box 
         bgGradient="linear(135deg, purple.50, pink.50, white)"
-        py={{ base: 12, md: 20 }}
+        py={{ base: 8, md: 12 }}
         position="relative"
         _before={{
           content: '""',
@@ -205,7 +205,7 @@ export default async function HomePage() {
       {/* Subscribe Section */}
       <Box 
         bg="white"
-        py={{ base: 16, md: 24 }}
+        py={{ base: 4, md: 6 }}
       >
         <Suspense fallback={<SubscribeFormSkeleton />}>
           <SubscribeForm />

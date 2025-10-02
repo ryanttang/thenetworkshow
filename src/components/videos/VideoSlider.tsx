@@ -81,49 +81,16 @@ export default function VideoSlider({ videos }: VideoSliderProps) {
   return (
     <Container maxW="7xl" py={8}>
       <VStack spacing={8} align="stretch">
-        <Box textAlign="center">
-          <Box
-            position="relative"
-            display="inline-block"
-            px={8}
-            py={4}
-            borderRadius="3xl"
-            border="3px solid"
-            borderColor="transparent"
-            bgGradient="linear(135deg, blue.100, purple.100, blue.50)"
-            _before={{
-              content: '""',
-              position: "absolute",
-              top: "-3px",
-              left: "-3px",
-              right: "-3px",
-              bottom: "-3px",
-              borderRadius: "3xl",
-              bgGradient: "linear(135deg, blue.500, purple.500, blue.400)",
-              zIndex: -1
-            }}
-            _after={{
-              content: '""',
-              position: "absolute",
-              top: "0px",
-              left: "0px",
-              right: "0px",
-              bottom: "0px",
-              borderRadius: "3xl",
-              bg: "white",
-              zIndex: -1
-            }}
+        <Box textAlign="left">
+          <Heading 
+            size={{ base: "md", md: "xl" }} 
+            color="black"
+            fontWeight="600"
+            letterSpacing="tight"
+            fontFamily="'SUSE Mono', monospace"
           >
-            <Heading 
-              size={{ base: "md", md: "xl" }} 
-              color="black"
-              fontWeight="600"
-              letterSpacing="tight"
-              fontFamily="'SUSE Mono', monospace"
-            >
-              Recent Events
-            </Heading>
-          </Box>
+            Recent Events
+          </Heading>
         </Box>
 
         <Box position="relative">
