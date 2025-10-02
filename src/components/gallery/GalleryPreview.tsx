@@ -146,26 +146,50 @@ export default function GalleryPreview({ images }: GalleryPreviewProps) {
       <VStack spacing={8} align="stretch">
         {/* Header */}
         <Box textAlign="center">
-          <Heading 
-            size="3xl" 
-            mb={6} 
-            bgGradient="linear(to-r, purple.600, purple.500)"
-            bgClip="text"
-            fontWeight="bold"
-            letterSpacing="tight"
+          <Box
+            position="relative"
+            display="inline-block"
+            px={8}
+            py={4}
+            borderRadius="3xl"
+            border="3px solid"
+            borderColor="transparent"
+            bgGradient="linear(135deg, purple.100, pink.100, purple.50)"
+            _before={{
+              content: '""',
+              position: "absolute",
+              top: "-3px",
+              left: "-3px",
+              right: "-3px",
+              bottom: "-3px",
+              borderRadius: "3xl",
+              bgGradient: "linear(135deg, purple.500, pink.500, purple.400)",
+              zIndex: -1
+            }}
+            _after={{
+              content: '""',
+              position: "absolute",
+              top: "0px",
+              left: "0px",
+              right: "0px",
+              bottom: "0px",
+              borderRadius: "3xl",
+              bg: "white",
+              zIndex: -1
+            }}
           >
-            Gallery
-          </Heading>
-          <Text 
-            fontSize={{ base: "sm", md: "md" }} 
-            color="gray.600"
-            maxW="2xl"
-            mx="auto"
-            lineHeight="1.4"
-            noOfLines={1}
-          >
-            A glimpse into our amazing events and community
-          </Text>
+            <Heading 
+              size="3xl" 
+              bgGradient="linear(135deg, purple.600, purple.500, pink.500)"
+              bgClip="text"
+              fontWeight="bold"
+              letterSpacing="tight"
+              position="relative"
+              zIndex={1}
+            >
+              Gallery
+            </Heading>
+          </Box>
         </Box>
 
         {/* 3x3 Masonry Grid */}
@@ -186,8 +210,42 @@ export default function GalleryPreview({ images }: GalleryPreviewProps) {
                   borderRadius="lg"
                   overflow="hidden"
                   shadow="md"
-                  _hover={{ shadow: "lg", transform: "scale(1.02)" }}
-                  transition="all 0.2s"
+                  border="2px solid"
+                  borderColor="transparent"
+                  position="relative"
+                  _before={{
+                    content: '""',
+                    position: "absolute",
+                    top: "-2px",
+                    left: "-2px",
+                    right: "-2px",
+                    bottom: "-2px",
+                    borderRadius: "lg",
+                    bgGradient: "linear(135deg, purple.300, pink.300, purple.200)",
+                    zIndex: -1
+                  }}
+                  _after={{
+                    content: '""',
+                    position: "absolute",
+                    top: "0px",
+                    left: "0px",
+                    right: "0px",
+                    bottom: "0px",
+                    borderRadius: "lg",
+                    bgGradient: "linear(135deg, purple.50, pink.50, white)",
+                    zIndex: -1
+                  }}
+                  _hover={{ 
+                    shadow: "lg", 
+                    transform: "scale(1.02)",
+                    _before: {
+                      bgGradient: "linear(135deg, purple.400, pink.400, purple.300)"
+                    },
+                    _after: {
+                      bgGradient: "linear(135deg, purple.100, pink.100, white)"
+                    }
+                  }}
+                  transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                   bg="white"
                 >
                   <Image
@@ -202,7 +260,12 @@ export default function GalleryPreview({ images }: GalleryPreviewProps) {
                   {(img.title || img.caption || img.tags.length > 0) && (
                     <Box p={3}>
                       {img.title && (
-                        <Text fontWeight="semibold" fontSize="sm" mb={1}>
+                        <Text 
+                          fontWeight="600" 
+                          fontSize="sm" 
+                          mb={1}
+                          fontFamily="'SUSE Mono', monospace"
+                        >
                           {img.title}
                         </Text>
                       )}
@@ -277,7 +340,14 @@ export default function GalleryPreview({ images }: GalleryPreviewProps) {
                 />
                 <Box textAlign="center">
                   {selectedImage.title && (
-                    <Heading size="md" mb={2}>{selectedImage.title}</Heading>
+                    <Heading 
+                      size="md" 
+                      mb={2}
+                      fontFamily="'SUSE Mono', monospace"
+                      fontWeight="600"
+                    >
+                      {selectedImage.title}
+                    </Heading>
                   )}
                   {selectedImage.caption && (
                     <Text color="gray.600" mb={3}>{selectedImage.caption}</Text>

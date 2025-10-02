@@ -82,26 +82,50 @@ export default function VideoSlider({ videos }: VideoSliderProps) {
     <Container maxW="7xl" py={8}>
       <VStack spacing={8} align="stretch">
         <Box textAlign="center">
-          <Heading 
-            size="3xl" 
-            mb={6} 
-            bgGradient="linear(to-r, blue.600, blue.500)"
-            bgClip="text"
-            fontWeight="bold"
-            letterSpacing="tight"
+          <Box
+            position="relative"
+            display="inline-block"
+            px={8}
+            py={4}
+            borderRadius="3xl"
+            border="3px solid"
+            borderColor="transparent"
+            bgGradient="linear(135deg, blue.100, purple.100, blue.50)"
+            _before={{
+              content: '""',
+              position: "absolute",
+              top: "-3px",
+              left: "-3px",
+              right: "-3px",
+              bottom: "-3px",
+              borderRadius: "3xl",
+              bgGradient: "linear(135deg, blue.500, purple.500, blue.400)",
+              zIndex: -1
+            }}
+            _after={{
+              content: '""',
+              position: "absolute",
+              top: "0px",
+              left: "0px",
+              right: "0px",
+              bottom: "0px",
+              borderRadius: "3xl",
+              bg: "white",
+              zIndex: -1
+            }}
           >
-            Recent Events
-          </Heading>
-          <Text 
-            color="gray.600" 
-            fontSize={{ base: "sm", md: "md" }}
-            maxW="2xl"
-            mx="auto"
-            lineHeight="1.4"
-            noOfLines={1}
-          >
-            Relive the best moments from our recent events
-          </Text>
+            <Heading 
+              size="3xl" 
+              bgGradient="linear(135deg, blue.600, blue.500, purple.500)"
+              bgClip="text"
+              fontWeight="bold"
+              letterSpacing="tight"
+              position="relative"
+              zIndex={1}
+            >
+              Recent Events
+            </Heading>
+          </Box>
         </Box>
 
         <Box position="relative">
@@ -117,8 +141,41 @@ export default function VideoSlider({ videos }: VideoSliderProps) {
                   borderRadius="lg"
                   boxShadow="md"
                   overflow="hidden"
-                  transition="transform 0.2s"
-                  _hover={{ transform: "translateY(-4px)" }}
+                  border="2px solid"
+                  borderColor="transparent"
+                  position="relative"
+                  _before={{
+                    content: '""',
+                    position: "absolute",
+                    top: "-2px",
+                    left: "-2px",
+                    right: "-2px",
+                    bottom: "-2px",
+                    borderRadius: "lg",
+                    bgGradient: "linear(135deg, blue.300, purple.300, blue.200)",
+                    zIndex: -1
+                  }}
+                  _after={{
+                    content: '""',
+                    position: "absolute",
+                    top: "0px",
+                    left: "0px",
+                    right: "0px",
+                    bottom: "0px",
+                    borderRadius: "lg",
+                    bgGradient: "linear(135deg, blue.50, purple.50, white)",
+                    zIndex: -1
+                  }}
+                  transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                  _hover={{ 
+                    transform: "translateY(-4px)",
+                    _before: {
+                      bgGradient: "linear(135deg, blue.400, purple.400, blue.300)"
+                    },
+                    _after: {
+                      bgGradient: "linear(135deg, blue.100, purple.100, white)"
+                    }
+                  }}
                 >
                   <VStack spacing={0} align="stretch">
                     <Box position="relative">
@@ -168,7 +225,12 @@ export default function VideoSlider({ videos }: VideoSliderProps) {
                     </Box>
 
                     <VStack spacing={2} p={4} align="stretch">
-                      <Heading size="md" noOfLines={2}>
+                      <Heading 
+                        size="md" 
+                        noOfLines={2}
+                        fontFamily="'SUSE Mono', monospace"
+                        fontWeight="600"
+                      >
                         {video.title}
                       </Heading>
                       {video.caption && (

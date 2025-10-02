@@ -166,7 +166,12 @@ export default function UsersPage() {
       <VStack spacing={6} align="stretch">
         {/* Header */}
         <HStack justify="space-between" align="center">
-          <Heading size="lg" color="gray.800">
+          <Heading 
+            size="lg" 
+            color="gray.800"
+            fontFamily="'SUSE Mono', monospace"
+            fontWeight="600"
+          >
             User Management
           </Heading>
           <Button

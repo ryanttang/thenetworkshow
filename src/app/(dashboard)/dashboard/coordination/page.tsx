@@ -89,6 +89,7 @@ export default async function CoordinationPage() {
             color="gray.800"
             fontWeight="700"
             lineHeight="1.2"
+            fontFamily="'SUSE Mono', monospace"
           >
             Event Coordination
           </Heading>
@@ -147,7 +148,14 @@ export default async function CoordinationPage() {
         <Box px={{ base: 4, md: 0 }}>
           <HStack justify="space-between" align="center" mb={8}>
             <Box>
-              <Heading size="lg" color="gray.800">Coordination Sets</Heading>
+              <Heading 
+                size="lg" 
+                color="gray.800"
+                fontFamily="'SUSE Mono', monospace"
+                fontWeight="600"
+              >
+                Coordination Sets
+              </Heading>
               <Text color="gray.600" fontSize="md">
                 Manage documents and shareable links for event coordination
               </Text>

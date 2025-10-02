@@ -38,7 +38,12 @@ export default async function DashboardEventsPage() {
     <VStack align="stretch" spacing={6}>
       <VStack spacing={6} align="center" mb={8}>
         <Box textAlign="center">
-          <Heading size="xl" mb={3}>
+          <Heading 
+            size="xl" 
+            mb={3}
+            fontFamily="'SUSE Mono', monospace"
+            fontWeight="600"
+          >
             {canManageAllEvents ? "All Events" : "My Events"}
           </Heading>
           <Text color="gray.600">

@@ -339,7 +339,12 @@ export default function ContactDashboard() {
     <Container maxW="7xl">
       <VStack spacing={8} align="stretch">
         <Box>
-          <Heading size="xl" mb={2}>
+          <Heading 
+            size="xl" 
+            mb={2}
+            fontFamily="'SUSE Mono', monospace"
+            fontWeight="600"
+          >
             Contact Messages
           </Heading>
           <Text color="gray.600">

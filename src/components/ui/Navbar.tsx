@@ -144,7 +144,13 @@ export default function Navbar() {
                   filter="brightness(1.1)"
                 />
               </Box>
-              <Box fontWeight="bold" fontSize="md" display={{ base: "none", sm: "block" }} className="gradient-text">
+              <Box 
+                fontWeight="bold" 
+                fontSize="md" 
+                display={{ base: "none", sm: "block" }} 
+                className="gradient-text"
+                fontFamily="'SUSE Mono', monospace"
+              >
                 THC Members Only Club
               </Box>
             </Link>
@@ -294,7 +300,12 @@ export default function Navbar() {
                 filter="brightness(1.1)"
               />
             </Box>
-            <Box fontWeight="bold" fontSize="xl" className="gradient-text">
+            <Box 
+              fontWeight="bold" 
+              fontSize="xl" 
+              className="gradient-text"
+              fontFamily="'SUSE Mono', monospace"
+            >
               THC Members Only Club
             </Box>
           </Link>

@@ -83,29 +83,86 @@ export default function SubscribeForm() {
       <Container maxW="3xl">
         <VStack spacing={8} textAlign="center">
           <Box>
-            <Heading 
-              size="2xl" 
-              mb={4} 
-              bgGradient="linear(to-r, green.600, green.500)"
-              bgClip="text"
-              fontWeight="bold"
-              letterSpacing="tight"
-            >
-              Stay Connected
-            </Heading>
-            <Text 
-              fontSize={{ base: "sm", md: "md" }} 
-              color="gray.600"
-              maxW="2xl"
-              mx="auto"
-              lineHeight="1.4"
-              noOfLines={1}
-            >
-              Get exclusive access to member-only events, early ticket releases, and cannabis community updates
-            </Text>
+        <Box
+          position="relative"
+          display="inline-block"
+          px={8}
+          py={4}
+          borderRadius="3xl"
+          border="3px solid"
+          borderColor="transparent"
+          bgGradient="linear(135deg, green.100, teal.100, green.50)"
+          _before={{
+            content: '""',
+            position: "absolute",
+            top: "-3px",
+            left: "-3px",
+            right: "-3px",
+            bottom: "-3px",
+            borderRadius: "3xl",
+            bgGradient: "linear(135deg, green.500, teal.500, green.400)",
+            zIndex: -1
+          }}
+          _after={{
+            content: '""',
+            position: "absolute",
+            top: "0px",
+            left: "0px",
+            right: "0px",
+            bottom: "0px",
+            borderRadius: "3xl",
+            bg: "white",
+            zIndex: -1
+          }}
+        >
+          <Heading 
+            size="2xl" 
+            bgGradient="linear(135deg, green.600, green.500, teal.500)"
+            bgClip="text"
+            fontWeight="bold"
+            letterSpacing="tight"
+            position="relative"
+            zIndex={1}
+          >
+            Stay Connected
+          </Heading>
+        </Box>
           </Box>
           
-          <Box as="form" onSubmit={handleSubmit} w="full" maxW="md" mx="auto">
+          <Box 
+            as="form" 
+            onSubmit={handleSubmit} 
+            w="full" 
+            maxW="md" 
+            mx="auto"
+            p={6}
+            borderRadius="2xl"
+            border="2px solid"
+            borderColor="transparent"
+            position="relative"
+            _before={{
+              content: '""',
+              position: "absolute",
+              top: "-2px",
+              left: "-2px",
+              right: "-2px",
+              bottom: "-2px",
+              borderRadius: "2xl",
+              bgGradient: "linear(135deg, green.300, teal.300, green.200)",
+              zIndex: -1
+            }}
+            _after={{
+              content: '""',
+              position: "absolute",
+              top: "0px",
+              left: "0px",
+              right: "0px",
+              bottom: "0px",
+              borderRadius: "2xl",
+              bgGradient: "linear(135deg, green.50, teal.50, white)",
+              zIndex: -1
+            }}
+          >
             <Flex gap={3} align="stretch" direction={{ base: "column", sm: "row" }}>
               <Input
                 type="email"

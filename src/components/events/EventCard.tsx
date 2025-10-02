@@ -212,12 +212,40 @@ export default function EventCard({
         borderRadius="2xl" 
         overflow="hidden" 
         boxShadow="lg" 
-        border="1px solid"
-        borderColor="gray.100"
+        border="2px solid"
+        borderColor="transparent"
+        position="relative"
+        _before={{
+          content: '""',
+          position: "absolute",
+          top: "-2px",
+          left: "-2px",
+          right: "-2px",
+          bottom: "-2px",
+          borderRadius: "2xl",
+          bgGradient: "linear(135deg, green.300, blue.300, green.200)",
+          zIndex: -1
+        }}
+        _after={{
+          content: '""',
+          position: "absolute",
+          top: "0px",
+          left: "0px",
+          right: "0px",
+          bottom: "0px",
+          borderRadius: "2xl",
+          bgGradient: "linear(135deg, green.50, blue.50, white)",
+          zIndex: -1
+        }}
         _hover={{ 
           boxShadow: "2xl", 
           transform: "translateY(-4px) scale(1.02)",
-          borderColor: "green.200",
+          _before: {
+            bgGradient: "linear(135deg, green.400, blue.400, green.300)"
+          },
+          _after: {
+            bgGradient: "linear(135deg, green.100, blue.100, white)"
+          },
           transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
         }} 
         _active={{
@@ -228,24 +256,6 @@ export default function EventCard({
         h="full"
         display="flex"
         flexDirection="column"
-        position="relative"
-        _before={{
-          content: '""',
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          bgGradient: "linear(135deg, green.50, blue.50)",
-          opacity: 0,
-          transition: "opacity 0.3s ease",
-          zIndex: 0
-        }}
-        _hover={{
-          _before: {
-            opacity: 0.1
-          }
-        }}
       >
         {img && (
           <NextLink href={isAdminView ? `/events/${id}` : `/events/${slug}`}>
@@ -280,6 +290,8 @@ export default function EventCard({
                 flex={1}
                 color="gray.800"
                 lineHeight="1.3"
+                fontFamily="'SUSE Mono', monospace"
+                fontWeight="600"
               >
                 {title}
               </Heading>

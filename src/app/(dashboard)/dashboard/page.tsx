@@ -121,7 +121,14 @@ export default async function DashboardPage() {
                       <Text fontSize="2xl" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.1))">📅</Text>
                     </Box>
                     <VStack align="flex-start" spacing={1}>
-                      <Heading size="lg" color="gray.800">Events</Heading>
+                      <Heading 
+                        size="lg" 
+                        color="gray.800"
+                        fontFamily="'SUSE Mono', monospace"
+                        fontWeight="600"
+                      >
+                        Events
+                      </Heading>
                       <Badge colorScheme="blue" variant="subtle" px={3} py={1} borderRadius="full">
                         {items.length} {items.length === 1 ? 'Event' : 'Events'}
                       </Badge>
@@ -227,7 +234,14 @@ export default async function DashboardPage() {
                       <Text fontSize="2xl" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.1))">📋</Text>
                     </Box>
                     <VStack align="flex-start" spacing={1}>
-                      <Heading size="lg" color="gray.800">Coordination</Heading>
+                      <Heading 
+                        size="lg" 
+                        color="gray.800"
+                        fontFamily="'SUSE Mono', monospace"
+                        fontWeight="600"
+                      >
+                        Coordination
+                      </Heading>
                       <Badge colorScheme="purple" variant="subtle" px={3} py={1} borderRadius="full">
                         {coordinations.length} {coordinations.length === 1 ? 'Set' : 'Sets'}
                       </Badge>
@@ -314,7 +328,15 @@ export default async function DashboardPage() {
               borderColor="gray.100"
             >
               <Box>
-                <Heading size="lg" mb={3} color="gray.800">Recent Events</Heading>
+                <Heading 
+                  size="lg" 
+                  mb={3} 
+                  color="gray.800"
+                  fontFamily="'SUSE Mono', monospace"
+                  fontWeight="600"
+                >
+                  Recent Events
+                </Heading>
                 <Text color="gray.600" fontSize="md">Your latest event creations</Text>
               </Box>
               <Button 

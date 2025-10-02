@@ -156,7 +156,13 @@ export default function CoordinationCard({ coordination, events }: CoordinationC
           <VStack align="flex-start" spacing={3}>
             <HStack justify="space-between" w="full">
               <VStack align="flex-start" spacing={1} flex={1}>
-                <Heading size="md" color="gray.800" noOfLines={2}>
+                <Heading 
+                  size="md" 
+                  color="gray.800" 
+                  noOfLines={2}
+                  fontFamily="'SUSE Mono', monospace"
+                  fontWeight="600"
+                >
                   {coordination.title}
                 </Heading>
                 <Text fontSize="sm" color="gray.500">

@@ -352,7 +352,14 @@ export default function GalleryManagement({ events, galleries, onRefresh }: Gall
         {/* Header */}
         <HStack justify="space-between" align="center">
           <Box>
-                    <Heading size="xl" textAlign="center">Gallery Management</Heading>
+                    <Heading 
+                      size="xl" 
+                      textAlign="center"
+                      fontFamily="'SUSE Mono', monospace"
+                      fontWeight="600"
+                    >
+                      Gallery Management
+                    </Heading>
         <Text color="gray.600" textAlign="center">Create and manage photo galleries for your events</Text>
           </Box>
           <Button

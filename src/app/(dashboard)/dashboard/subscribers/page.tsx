@@ -234,7 +234,12 @@ export default function SubscribersPage() {
       <VStack spacing={8} align="stretch">
         {/* Header */}
         <Box>
-          <Heading size="xl" mb={2}>
+          <Heading 
+            size="xl" 
+            mb={2}
+            fontFamily="'SUSE Mono', monospace"
+            fontWeight="600"
+          >
             Event Subscribers
           </Heading>
           <Text color="gray.600">

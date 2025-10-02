@@ -79,6 +79,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <head>
         <ColorModeScript />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Changa+One:ital@0;1&family=SUSE+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet" />
         <link rel="icon" href="/thc-logo.png" />
         <link rel="apple-touch-icon" href="/thc-logo.png" />
         <meta name="theme-color" content="#2D3748" />

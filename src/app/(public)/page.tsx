@@ -90,42 +90,64 @@ export default async function HomePage() {
     <VStack spacing={0} align="stretch">
       {/* Upcoming Events Section */}
       <Box 
-        bg="white" 
+        bg="white"
         py={{ base: 12, md: 20 }}
         position="relative"
-        _before={{
-          content: '""',
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: "linear-gradient(135deg, rgba(34, 197, 94, 0.02) 0%, rgba(59, 130, 246, 0.02) 100%)",
-          zIndex: 0
-        }}
       >
         <Container maxW="7xl" position="relative" zIndex={1}>
           <Box mb={{ base: 8, md: 12 }} textAlign="center">
-            <Heading 
-              size={{ base: "2xl", md: "3xl" }} 
-              mb={{ base: 4, md: 6 }} 
-              bgGradient="linear(to-r, green.600, green.500)"
-              bgClip="text"
-              fontWeight="bold"
-              letterSpacing="tight"
+            <Box
+              position="relative"
+              display="inline-block"
+              px={8}
+              py={4}
+              borderRadius="3xl"
+              border="3px solid"
+              borderColor="transparent"
+              bgGradient="linear(135deg, green.100, blue.100, green.50)"
+              _before={{
+                content: '""',
+                position: "absolute",
+                top: "-3px",
+                left: "-3px",
+                right: "-3px",
+                bottom: "-3px",
+                borderRadius: "3xl",
+                bgGradient: "linear(135deg, green.500, blue.500, green.400)",
+                zIndex: -1
+              }}
+              _after={{
+                content: '""',
+                position: "absolute",
+                top: "0px",
+                left: "0px",
+                right: "0px",
+                bottom: "0px",
+                borderRadius: "3xl",
+                bg: "white",
+                zIndex: -1
+              }}
             >
-              Upcoming Events
-            </Heading>
+              <Heading 
+                size={{ base: "2xl", md: "3xl" }} 
+                bgGradient="linear(135deg, green.600, green.500, blue.500)"
+                bgClip="text"
+                fontWeight="bold"
+                letterSpacing="tight"
+                position="relative"
+                zIndex={1}
+              >
+                Upcoming Events
+              </Heading>
+            </Box>
             <Text 
-              fontSize={{ base: "sm", md: "md" }} 
+              fontSize={{ base: "lg", md: "xl" }} 
               color="gray.600" 
-              mb={{ base: 6, md: 8 }}
-              maxW="2xl"
-              mx="auto"
-              lineHeight="1.4"
-              noOfLines={1}
+              mt={4}
+              fontFamily="'SUSE Mono', monospace"
+              fontWeight="500"
             >
-              Amazing cannabis events in SoCal and beyond
+              {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
             </Text>
           </Box>
           <Suspense fallback={<EventGridSkeleton />}>
@@ -184,7 +206,7 @@ export default async function HomePage() {
 
       {/* Gallery Section */}
       <Box 
-        bg="white" 
+        bgGradient="linear(135deg, purple.50, pink.50, white)"
         py={{ base: 12, md: 20 }}
         position="relative"
         _before={{
@@ -194,7 +216,7 @@ export default async function HomePage() {
           left: 0,
           right: 0,
           bottom: 0,
-          background: "linear-gradient(135deg, rgba(147, 51, 234, 0.02) 0%, rgba(34, 197, 94, 0.02) 100%)",
+          background: "linear-gradient(135deg, rgba(147, 51, 234, 0.05) 0%, rgba(236, 72, 153, 0.05) 100%)",
           zIndex: 0
         }}
       >

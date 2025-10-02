@@ -187,7 +187,12 @@ export default function VideosPage() {
       <VStack spacing={8} align="stretch">
         <Flex justify="space-between" align="center">
           <Box>
-            <Heading size="2xl" mb={2}>
+            <Heading 
+              size="2xl" 
+              mb={2}
+              fontFamily="'SUSE Mono', monospace"
+              fontWeight="600"
+            >
               Recent Event Videos
             </Heading>
             <Text color="gray.600">
@@ -220,7 +225,11 @@ export default function VideosPage() {
                 <CardHeader pb={2}>
                   <HStack justify="space-between" align="start">
                     <VStack align="start" spacing={1} flex={1}>
-                      <Text fontWeight="bold" noOfLines={2}>
+                      <Text 
+                        fontWeight="600" 
+                        noOfLines={2}
+                        fontFamily="'SUSE Mono', monospace"
+                      >
                         {video.title}
                       </Text>
                       <HStack spacing={2}>
