@@ -4,9 +4,11 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
 const updateCoordinationSchema = z.object({
+  eventId: z.string().min(1).optional(),
   title: z.string().min(1).optional(),
   description: z.string().optional(),
   notes: z.string().optional(),
+  specialMessage: z.string().optional(),
   isActive: z.boolean().optional(),
 });
 
@@ -96,6 +98,22 @@ export async function PUT(
 
     if (!existingCoordination) {
       return NextResponse.json({ error: "Coordination not found" }, { status: 404 });
+    }
+
+    // If eventId is being updated, verify the new event exists and user has permission
+    if (updateData.eventId && updateData.eventId !== existingCoordination.eventId) {
+      const canManageAllEvents = user.role === "ADMIN" || user.role === "ORGANIZER";
+      
+      const newEvent = await prisma.event.findFirst({
+        where: {
+          id: updateData.eventId,
+          ...(canManageAllEvents ? {} : { ownerId: user.id }),
+        },
+      });
+
+      if (!newEvent) {
+        return NextResponse.json({ error: "Event not found or permission denied" }, { status: 404 });
+      }
     }
 
     const coordination = await prisma.coordination.update({

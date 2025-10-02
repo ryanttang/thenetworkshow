@@ -38,6 +38,7 @@ interface Event {
 interface CoordinationCardProps {
   coordination: {
     id: string;
+    eventId: string;
     title: string;
     description?: string | null;
     notes?: string | null;

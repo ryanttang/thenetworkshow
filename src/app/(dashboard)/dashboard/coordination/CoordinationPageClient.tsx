@@ -22,6 +22,7 @@ interface Event {
 
 interface Coordination {
   id: string;
+  eventId: string;
   title: string;
   description?: string | null;
   notes?: string | null;

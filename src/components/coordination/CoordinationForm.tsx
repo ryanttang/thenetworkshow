@@ -53,6 +53,7 @@ export default function CoordinationForm({
     title: coordination?.title || "",
     description: coordination?.description || "",
     notes: coordination?.notes || "",
+    specialMessage: coordination?.specialMessage || "",
   });
   const toast = useToast();
 
@@ -108,6 +109,7 @@ export default function CoordinationForm({
           title: "",
           description: "",
           notes: "",
+          specialMessage: "",
         });
       }
     } catch (error) {
@@ -201,6 +203,16 @@ export default function CoordinationForm({
                       value={formData.description}
                       onChange={(e) => handleInputChange("description", e.target.value)}
                       placeholder="Brief description of this coordination set"
+                      rows={3}
+                    />
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel>Special Message (Optional)</FormLabel>
+                    <Textarea
+                      value={formData.specialMessage}
+                      onChange={(e) => handleInputChange("specialMessage", e.target.value)}
+                      placeholder="Optional highlighted text for important reminders"
                       rows={3}
                     />
                   </FormControl>

@@ -150,6 +150,7 @@ model Coordination {
   title       String
   description String?
   notes       String?
+  specialMessage String?
   
   shareToken  String   @unique @default(cuid())
   isActive    Boolean  @default(true)

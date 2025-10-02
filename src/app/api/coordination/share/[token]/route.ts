@@ -11,7 +11,15 @@ export async function GET(
         shareToken: params.token,
         isActive: true,
       },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        notes: true,
+        specialMessage: true,
+        shareToken: true,
+        isActive: true,
+        createdAt: true,
         event: {
           select: {
             id: true,
