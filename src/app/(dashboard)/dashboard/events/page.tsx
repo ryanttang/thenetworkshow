@@ -24,8 +24,8 @@ export default async function DashboardEventsPage() {
     orderBy: { startAt: "desc" }
   });
 
-  const draftEvents = allActiveEvents.filter(e => e.status === "DRAFT");
-  const publishedEvents = allActiveEvents.filter(e => e.status === "PUBLISHED");
+  const draftEvents = allActiveEvents.filter((e: any) => e.status === "DRAFT");
+  const publishedEvents = allActiveEvents.filter((e: any) => e.status === "PUBLISHED");
 
   const archivedCount = await prisma.event.count({
     where: {
