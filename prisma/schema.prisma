@@ -154,6 +154,7 @@ model Coordination {
   pointOfContacts Json? // Array of {name, number, email} objects
   
   shareToken  String   @unique @default(cuid())
+  slug        String?  @unique
   isActive    Boolean  @default(true)
   isArchived  Boolean  @default(false)
   
@@ -163,6 +164,7 @@ model Coordination {
   
   @@index([eventId])
   @@index([shareToken])
+  @@index([slug])
 }
 
 model CoordinationDocument {

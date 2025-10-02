@@ -157,7 +157,9 @@ export default function CoordinationCard({ coordination, events }: CoordinationC
   };
 
   const copyShareLink = async () => {
-    const shareUrl = `${window.location.origin}/coordination/${coordination.shareToken}`;
+    // Use slug if available, otherwise fall back to shareToken
+    const urlToken = coordination.slug || coordination.shareToken;
+    const shareUrl = `${window.location.origin}/coordination/${urlToken}`;
     try {
       await navigator.clipboard.writeText(shareUrl);
       toast({

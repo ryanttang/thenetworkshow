@@ -116,6 +116,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Event not found or permission denied" }, { status: 404 });
     }
 
+    // Create slug from event title
+    const createSlug = (text: string) => {
+      return text
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+        .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+    };
+
+    const baseSlug = createSlug(event.title);
+    let slug = baseSlug;
+    let counter = 1;
+
+    // Ensure slug is unique by appending numbers if needed
+    while (true) {
+      const existing = await prisma.coordination.findFirst({
+        where: { slug: slug }
+      });
+      
+      if (!existing) {
+        break;
+      }
+      
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+
     const coordination = await prisma.coordination.create({
       data: {
         eventId,
@@ -124,6 +152,7 @@ export async function POST(request: NextRequest) {
         notes,
         specialMessage,
         pointOfContacts: pointOfContacts || [],
+        slug,
       },
       include: {
         event: {

@@ -186,7 +186,7 @@ export default function CoordinationForm({
         py={{ base: 3, md: 5 }}
         minW={{ base: "100%", md: "220px" }}
         w={{ base: "100%", md: "auto" }}
-        fontSize={{ base: "sm", md: "md" }}
+        fontSize={{ base: "0.95em", md: "md" }}
         whiteSpace="nowrap"
         _hover={{
           transform: "translateY(-1px)",

@@ -6,23 +6,17 @@ export async function GET(
   { params }: { params: { token: string } }
 ) {
   try {
-    const coordination = await prisma.coordination.findUnique({
+    // Try to find by slug first, then fall back to shareToken
+    let coordination = await prisma.coordination.findFirst({
       where: {
-        shareToken: params.token,
+        OR: [
+          { slug: params.token },
+          { shareToken: params.token }
+        ],
         isActive: true,
         isArchived: false,
       },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        notes: true,
-        specialMessage: true,
-        pointOfContacts: true,
-        shareToken: true,
-        isActive: true,
-        isArchived: true,
-        createdAt: true,
+      include: {
         event: {
           select: {
             id: true,

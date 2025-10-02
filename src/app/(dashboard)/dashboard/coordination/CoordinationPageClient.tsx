@@ -32,6 +32,7 @@ interface Coordination {
   description?: string | null;
   notes?: string | null;
   shareToken: string;
+  slug?: string | null;
   isActive: boolean;
   isArchived: boolean;
   createdAt: Date;
@@ -126,35 +127,35 @@ export default function CoordinationPageClient({
         </Box>
 
         {/* Quick Stats */}
-        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} px={{ base: 4, md: 0 }}>
+        <SimpleGrid columns={{ base: 3, md: 3 }} spacing={{ base: 2, md: 4 }} px={{ base: 4, md: 0 }}>
           <Card shadow="sm" borderRadius="lg">
-            <CardBody textAlign="center" py={6}>
-              <Text fontSize={{ base: "2xl", md: "3xl" }} fontWeight="bold" color="blue.600" mb={2}>
+            <CardBody textAlign="center" py={{ base: 3, md: 6 }}>
+              <Text fontSize={{ base: "lg", md: "3xl" }} fontWeight="bold" color="blue.600" mb={{ base: 1, md: 2 }}>
                 {filteredCoordinations.length}
               </Text>
-              <Text color="gray.600" fontWeight="medium" fontSize="sm">
+              <Text color="gray.600" fontWeight="medium" fontSize={{ base: "xs", md: "sm" }}>
                 Coordination Sets
               </Text>
             </CardBody>
           </Card>
           
           <Card shadow="sm" borderRadius="lg">
-            <CardBody textAlign="center" py={6}>
-              <Text fontSize={{ base: "2xl", md: "3xl" }} fontWeight="bold" color="green.600" mb={2}>
+            <CardBody textAlign="center" py={{ base: 3, md: 6 }}>
+              <Text fontSize={{ base: "lg", md: "3xl" }} fontWeight="bold" color="green.600" mb={{ base: 1, md: 2 }}>
                 {filteredCoordinations.reduce((sum: number, c: any) => sum + c._count.documents, 0)}
               </Text>
-              <Text color="gray.600" fontWeight="medium" fontSize="sm">
+              <Text color="gray.600" fontWeight="medium" fontSize={{ base: "xs", md: "sm" }}>
                 Total Documents
               </Text>
             </CardBody>
           </Card>
           
           <Card shadow="sm" borderRadius="lg">
-            <CardBody textAlign="center" py={6}>
-              <Text fontSize={{ base: "2xl", md: "3xl" }} fontWeight="bold" color="purple.600" mb={2}>
+            <CardBody textAlign="center" py={{ base: 3, md: 6 }}>
+              <Text fontSize={{ base: "lg", md: "3xl" }} fontWeight="bold" color="purple.600" mb={{ base: 1, md: 2 }}>
                 {events.length}
               </Text>
-              <Text color="gray.600" fontWeight="medium" fontSize="sm">
+              <Text color="gray.600" fontWeight="medium" fontSize={{ base: "xs", md: "sm" }}>
                 Available Events
               </Text>
             </CardBody>

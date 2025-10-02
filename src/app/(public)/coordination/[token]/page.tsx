@@ -306,6 +306,7 @@ export default function CoordinationPage({ params }: CoordinationPageProps) {
   useEffect(() => {
     const fetchCoordination = async () => {
       try {
+        // Try slug first, then fall back to shareToken
         const response = await fetch(`/api/coordination/share/${params.token}`);
         if (response.ok) {
           const data = await response.json();
