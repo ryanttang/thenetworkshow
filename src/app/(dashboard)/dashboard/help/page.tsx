@@ -226,7 +226,7 @@ export default function HelpGuidesPage() {
                   <List spacing={2}>
                     <ListItem>
                       <ListIcon as={MdInfo} color="green.500" />
-                      You'll get a unique <Badge colorScheme="purple">Share Link</Badge>
+                      You&apos;ll get a unique <Badge colorScheme="purple">Share Link</Badge>
                     </ListItem>
                     <ListItem>
                       <ListIcon as={MdArrowForward} color="blue.500" />
@@ -390,7 +390,7 @@ export default function HelpGuidesPage() {
                     </ListItem>
                     <ListItem>
                       <ListIcon as={MdArrowForward} color="orange.500" />
-                      Add <strong>Gallery Name</strong> (e.g., "Summer Events 2024")
+                      Add <strong>Gallery Name</strong> (e.g., &quot;Summer Events 2024&quot;)
                     </ListItem>
                     <ListItem>
                       <ListIcon as={MdArrowForward} color="orange.500" />
@@ -402,7 +402,7 @@ export default function HelpGuidesPage() {
                     </ListItem>
                     <ListItem>
                       <ListIcon as={MdArrowForward} color="orange.500" />
-                      Add <strong>Tags</strong> for easy filtering (e.g., "summer", "2024", "outdoor")
+                      Add <strong>Tags</strong> for easy filtering (e.g., &quot;summer&quot;, &quot;2024&quot;, &quot;outdoor&quot;)
                     </ListItem>
                   </List>
                 </Box>
@@ -495,7 +495,7 @@ export default function HelpGuidesPage() {
 
                 <Box bg="orange.50" p={4} borderRadius="md" borderLeft="4px" borderLeftColor="orange.400">
                   <Text fontSize="sm" color="orange.800">
-                    <strong>Pro Tip:</strong> Create separate galleries for different themes - "Venue Tours", "Member Photos", "Event Highlights", etc. This helps visitors easily find what they're interested in.
+                    <strong>Pro Tip:</strong> Create separate galleries for different themes - &quot;Venue Tours&quot;, &quot;Member Photos&quot;, &quot;Event Highlights&quot;, etc. This helps visitors easily find what they&apos;re interested in.
                   </Text>
                 </Box>
               </VStack>

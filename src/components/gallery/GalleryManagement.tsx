@@ -518,7 +518,7 @@ export default function GalleryManagement({ events, galleries, onRefresh }: Gall
               {galleries.length === 0 && (
                 <Box textAlign="center" py={12}>
                   <Text fontSize="lg" color="gray.500" mb={4}>
-                    You haven't created any galleries yet
+                    You haven&apos;t created any galleries yet
                   </Text>
                   <Button onClick={handleCreateGallery} colorScheme="teal">
                     Create Your First Gallery

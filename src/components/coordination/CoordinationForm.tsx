@@ -323,7 +323,7 @@ export default function CoordinationForm({
                         📄 Next Step: Document Upload
                       </Text>
                       <Text fontSize="sm" color="blue.600">
-                        After creating this coordination set, you'll have the option to upload documents in the next step.
+                        After creating this coordination set, you&apos;ll have the option to upload documents in the next step.
                       </Text>
                     </Box>
                   )}

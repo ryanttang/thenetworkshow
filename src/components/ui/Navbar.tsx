@@ -268,7 +268,7 @@ export default function Navbar() {
                           target: "_blank", 
                           rel: "noopener noreferrer" 
                         })}
-                        fontSize="lg"
+                        fontSize="md"
                         fontWeight="600"
                         color={drawerTextColor}
                         textAlign="center"
@@ -283,8 +283,6 @@ export default function Navbar() {
                         }}
                         transition="all 0.3s ease-in-out"
                         width="full"
-                        fontSize="md"
-                        fontWeight="500"
                       >
                         {link.label}
                       </Link>

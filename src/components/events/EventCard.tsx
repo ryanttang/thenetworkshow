@@ -483,7 +483,7 @@ export default function EventCard({
               </AlertDialogHeader>
 
               <AlertDialogBody>
-                Are you sure you want to delete "{title}"? This action cannot be undone.
+                Are you sure you want to delete &quot;{title}&quot;? This action cannot be undone.
               </AlertDialogBody>
 
               <AlertDialogFooter>

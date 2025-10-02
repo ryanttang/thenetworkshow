@@ -13,8 +13,9 @@ import {
   Badge,
   Flex,
   Spacer,
-  Image
+  Image as ChakraImage
 } from "@chakra-ui/react";
+import Image from "next/image";
 
 export default function ImageUploader({ 
   eventId, 
@@ -388,14 +389,16 @@ export default function ImageUploader({
           <Text fontSize="sm" fontWeight="medium" mb={2}>
             Current Hero Image:
           </Text>
-          <Box w="full" h="32" borderRadius="md" overflow="hidden" mb={2}>
+          <Box w="full" h="32" borderRadius="md" overflow="hidden" mb={2} position="relative">
             <Image 
               src={getImageUrl(currentImage)} 
               alt="Current hero image"
-              w="full"
-              h="full"
-              objectFit="cover"
-              fallbackSrc="/placeholder-image.svg"
+              fill
+              style={{ objectFit: 'cover', borderRadius: '6px' }}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = "/placeholder-image.svg";
+              }}
             />
           </Box>
           <IconButton
@@ -416,14 +419,16 @@ export default function ImageUploader({
       {lastUploadedImage && !currentImage && (
         <Box p={3} bg="green.50" borderRadius="md" position="relative" border="1px solid" borderColor="green.200">
           <HStack spacing={3} align="center">
-            <Box w="16" h="16" borderRadius="md" overflow="hidden" flexShrink={0}>
+            <Box w="16" h="16" borderRadius="md" overflow="hidden" flexShrink={0} position="relative">
               <Image 
                 src={getImageUrl(lastUploadedImage)} 
                 alt="Uploaded image preview"
-                w="full"
-                h="full"
-                objectFit="cover"
-                fallbackSrc="/placeholder-image.svg"
+                fill
+                style={{ objectFit: 'cover', borderRadius: '6px' }}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "/placeholder-image.svg";
+                }}
               />
             </Box>
             <VStack spacing={1} align="start" flex={1}>
@@ -552,10 +557,12 @@ export default function ImageUploader({
             {uploadedImages.map((img) => (
               <Box key={img.id} p={2} bg="gray.50" borderRadius="md" position="relative">
                 <Box w="full" h="24" borderRadius="md" overflow="hidden" mb={2}>
-                  <img 
+                  <Image 
                     src={getImageUrl(img)} 
                     alt={img.fileName || "Uploaded image"}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    width={100}
+                    height={96}
+                    style={{ objectFit: 'cover' }}
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.src = "/placeholder-image.svg";

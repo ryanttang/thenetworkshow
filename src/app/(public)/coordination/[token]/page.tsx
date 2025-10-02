@@ -342,7 +342,7 @@ export default function CoordinationPage({ params }: CoordinationPageProps) {
       <Container maxW="4xl" py={12}>
         <VStack spacing={8} align="center">
           <Heading size="lg" color="red.500">Coordination not found</Heading>
-          <Text>The coordination link you're looking for doesn't exist or has been deactivated.</Text>
+          <Text>The coordination link you&apos;re looking for doesn&apos;t exist or has been deactivated.</Text>
         </VStack>
       </Container>
     );

@@ -107,7 +107,7 @@ export default async function EventsPage() {
             </Heading>
             <Text color="gray.700">
               Our events calendar features the most exclusive and educational cannabis experiences in Southern California. 
-              Whether you're a seasoned cannabis enthusiast or new to the community, our events offer something for everyone.
+              Whether you&apos;re a seasoned cannabis enthusiast or new to the community, our events offer something for everyone.
             </Text>
             <Box>
               <Heading size="md" mb={2} color="green.600" fontFamily="'SUSE Mono', monospace" fontWeight="600">
@@ -144,7 +144,7 @@ export default async function EventsPage() {
       {/* Call to Action */}
       <Box textAlign="center" mt={16} p={8} bg="green.50" borderRadius="xl">
         <Heading size="lg" mb={4} color="green.600" fontFamily="'SUSE Mono', monospace" fontWeight="600">
-          Don't Miss Out on Exclusive Events
+          Don&apos;t Miss Out on Exclusive Events
         </Heading>
         <Text fontSize="lg" color="gray.700" mb={6}>
           Join the THC Members Only Club to get early access to events, member-only gatherings, and exclusive perks.

@@ -127,7 +127,7 @@ export default function ContactPage() {
             <Box>
               <AlertTitle>Message sent successfully!</AlertTitle>
               <AlertDescription>
-                Thank you for reaching out. We'll get back to you as soon as possible.
+                Thank you for reaching out. We&apos;ll get back to you as soon as possible.
               </AlertDescription>
             </Box>
           </Alert>
@@ -156,7 +156,7 @@ export default function ContactPage() {
             Contact Us
           </Heading>
           <Text fontSize="lg" color="gray.600">
-            Have a question, comment, or suggestion? We'd love to hear from you!
+            Have a question, comment, or suggestion? We&apos;d love to hear from you!
           </Text>
         </Box>
 

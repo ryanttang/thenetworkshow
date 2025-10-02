@@ -11,8 +11,9 @@ import {
   IconButton,
   SimpleGrid,
   Badge,
-  Image
+  Image as ChakraImage
 } from "@chakra-ui/react";
+import Image from "next/image";
 
 export default function DetailImagesUploader({ 
   eventId, 
@@ -382,10 +383,12 @@ export default function DetailImagesUploader({
             {uploadedImages.map((img) => (
               <Box key={img.id} p={2} bg="gray.50" borderRadius="md" position="relative">
                 <Box w="full" h="24" borderRadius="md" overflow="hidden" mb={2}>
-                  <img 
+                  <Image 
                     src={getImageUrl(img)} 
                     alt={img.fileName || "Detail image"}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    width={100}
+                    height={96}
+                    style={{ objectFit: 'cover' }}
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.src = "/placeholder-image.svg";
