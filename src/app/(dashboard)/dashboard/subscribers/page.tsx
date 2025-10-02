@@ -34,7 +34,7 @@ import {
   Textarea,
 } from "@chakra-ui/react";
 import { SearchIcon, DownloadIcon, EmailIcon } from "@chakra-ui/icons";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface Subscriber {
   id: string;
@@ -70,7 +70,7 @@ export default function SubscribersPage() {
   
   const toast = useToast();
 
-  const fetchSubscribers = async () => {
+  const fetchSubscribers = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams({
@@ -107,11 +107,11 @@ export default function SubscribersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, search, activeOnly, toast]);
 
   useEffect(() => {
     fetchSubscribers();
-  }, [page, search, activeOnly]);
+  }, [fetchSubscribers]);
 
   const handleSearch = (value: string) => {
     setSearch(value);

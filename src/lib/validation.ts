@@ -15,7 +15,8 @@ export const createEventSchema = z.object({
   endAt: z.string().optional().or(z.literal("")),
   timezone: z.string(),
   status: z.enum(["DRAFT","PUBLISHED","ARCHIVED"]),
-  heroImageId: z.string().optional().or(z.literal(""))
+  heroImageId: z.string().optional().or(z.literal("")),
+  slug: z.string().optional()
 });
 
 export const updateEventSchema = createEventSchema.partial();

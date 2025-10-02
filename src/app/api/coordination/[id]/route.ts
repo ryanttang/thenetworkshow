@@ -16,6 +16,7 @@ const updateCoordinationSchema = z.object({
   })).optional(),
   isActive: z.boolean().optional(),
   isArchived: z.boolean().optional(),
+  slug: z.string().optional(),
 });
 
 export async function GET(

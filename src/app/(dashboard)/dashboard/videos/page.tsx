@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Button,
@@ -47,7 +47,7 @@ export default function VideosPage() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
 
-  const fetchVideos = async () => {
+  const fetchVideos = useCallback(async () => {
     try {
       const response = await fetch("/api/videos?published=false", {
         credentials: "include",
@@ -66,11 +66,11 @@ export default function VideosPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchVideos();
-  }, []);
+  }, [fetchVideos]);
 
   const handleCreate = () => {
     setSelectedVideo(null);

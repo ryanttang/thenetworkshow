@@ -14,7 +14,7 @@ import {
   FormLabel,
   useToast
 } from "@chakra-ui/react";
-import { useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import CoordinationForm from "@/components/coordination/CoordinationForm";
 import CoordinationCard from "@/components/coordination/CoordinationCard";
 
@@ -64,16 +64,7 @@ export default function CoordinationPageClient({
   const [filteredCoordinations, setFilteredCoordinations] = useState(coordinations);
   const toast = useToast();
 
-  useEffect(() => {
-    if (showArchived) {
-      // Fetch all coordinations including archived ones
-      fetchCoordinations(true);
-    } else {
-      setFilteredCoordinations(coordinations);
-    }
-  }, [showArchived, coordinations]);
-
-  const fetchCoordinations = async (includeArchived: boolean) => {
+  const fetchCoordinations = useCallback(async (includeArchived: boolean) => {
     try {
       const response = await fetch(`/api/coordination?includeArchived=${includeArchived}`);
       if (response.ok) {
@@ -89,7 +80,16 @@ export default function CoordinationPageClient({
         duration: 3000,
       });
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    if (showArchived) {
+      // Fetch all coordinations including archived ones
+      fetchCoordinations(true);
+    } else {
+      setFilteredCoordinations(coordinations);
+    }
+  }, [showArchived, coordinations, fetchCoordinations]);
 
   const handleRefresh = () => {
     // Refresh the page to show the new coordination set

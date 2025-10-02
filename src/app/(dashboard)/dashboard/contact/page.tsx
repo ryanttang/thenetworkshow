@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Container,
@@ -90,15 +90,7 @@ export default function ContactDashboard() {
   const cancelRef = useRef<HTMLButtonElement>(null);
   const toast = useToast();
 
-  useEffect(() => {
-    fetchMessages();
-  }, []);
-
-  useEffect(() => {
-    applyFilters();
-  }, [messages, filters]);
-
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     try {
       const response = await fetch("/api/admin/contact");
       if (response.ok) {
@@ -119,9 +111,9 @@ export default function ContactDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = [...messages];
 
     // Search filter
@@ -151,7 +143,15 @@ export default function ContactDashboard() {
     }
 
     setFilteredMessages(filtered);
-  };
+  }, [messages, filters]);
+
+  useEffect(() => {
+    fetchMessages();
+  }, [fetchMessages]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [applyFilters]);
 
   const markAsRead = async (messageId: string) => {
     try {
