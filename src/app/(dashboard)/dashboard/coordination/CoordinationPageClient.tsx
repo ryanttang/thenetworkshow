@@ -164,7 +164,7 @@ export default function CoordinationPageClient({
         {/* Coordination List */}
         <Box px={{ base: 4, md: 0 }}>
           <VStack spacing={4} align="stretch" mb={6}>
-            <HStack justify="space-between" align={{ base: "flex-start", md: "center" }} flexWrap="wrap" gap={4}>
+            <HStack justify={{ base: "flex-start", md: "space-between" }} align={{ base: "flex-start", md: "center" }} flexWrap="wrap" gap={4}>
               <Box>
                 <Heading 
                   size={{ base: "md", md: "lg" }} 

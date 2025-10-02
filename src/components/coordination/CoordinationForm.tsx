@@ -181,7 +181,13 @@ export default function CoordinationForm({
       <Button 
         onClick={onOpen}
         colorScheme="blue"
-        size="lg"
+        size={{ base: "md", md: "lg" }}
+        px={{ base: 4, md: 10 }}
+        py={{ base: 3, md: 5 }}
+        minW={{ base: "100%", md: "220px" }}
+        w={{ base: "100%", md: "auto" }}
+        fontSize={{ base: "sm", md: "md" }}
+        whiteSpace="nowrap"
         _hover={{
           transform: "translateY(-1px)",
           shadow: "lg"

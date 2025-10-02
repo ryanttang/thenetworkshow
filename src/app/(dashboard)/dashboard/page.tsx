@@ -278,6 +278,8 @@ export default async function DashboardPage() {
                       href="/dashboard/coordination" 
                       size={{ base: "md", md: "lg" }} 
                       w="full"
+                      px={{ base: 6, md: 8 }}
+                      py={{ base: 4, md: 5 }}
                       bg="linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)"
                       color="white"
                       shadow="lg"

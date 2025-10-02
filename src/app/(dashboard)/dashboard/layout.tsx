@@ -1,7 +1,6 @@
 import { getServerAuthSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import DashboardNav from "@/components/dashboard/DashboardNav";
-import { Box } from "@chakra-ui/react";
 
 // Force dynamic rendering for dashboard
 export const dynamic = 'force-dynamic';
@@ -18,11 +17,11 @@ export default async function DashboardLayout({
   }
 
   return (
-    <Box minH="100vh" bg="gray.50">
+    <div className="min-h-screen bg-gray-50">
       <DashboardNav />
-      <Box maxW="7xl" mx="auto" py={{ base: 4, md: 6, lg: 8 }} px={{ base: 4, md: 6, lg: 8, xl: 12 }}>
+      <div className="max-w-7xl mx-auto py-4 md:py-6 lg:py-8 px-4 md:px-6 lg:px-8 xl:px-12">
         {children}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
