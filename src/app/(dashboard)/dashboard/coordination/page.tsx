@@ -124,7 +124,7 @@ export default async function CoordinationPage() {
           <Card shadow="md" borderRadius="xl">
             <CardBody textAlign="center" py={8}>
               <Text fontSize="3xl" fontWeight="bold" color="green.600" mb={2}>
-                {coordinations.reduce((sum: number, c) => sum + c._count.documents, 0)}
+                {coordinations.reduce((sum: number, c: any) => sum + c._count.documents, 0)}
               </Text>
               <Text color="gray.600" fontWeight="medium">
                 Total Documents
