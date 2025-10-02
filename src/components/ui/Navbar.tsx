@@ -155,61 +155,23 @@ export default function Navbar() {
               </Box>
             </Link>
             
-            <HStack spacing={3}>
-              {session ? (
-                <Button 
-                  size="sm" 
-                  onClick={() => signOut()}
-                  bg="linear-gradient(135deg, #ef4444 0%, #dc2626 100%)"
-                  color="white"
-                  shadow="md"
-                  fontWeight="600"
-                  _hover={{
-                    bg: "linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)",
-                    transform: "translateY(-1px) scale(1.05)",
-                    shadow: "md"
-                  }}
-                  transition="all 0.3s ease-in-out"
-                >
-                  Sign Out
-                </Button>
-              ) : (
-                <Button 
-                  as={NextLink} 
-                  href="/signin" 
-                  size="sm" 
-                  bg="linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)"
-                  color="white"
-                  shadow="lg"
-                  fontWeight="600"
-                  _hover={{
-                    bg: "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)",
-                    transform: "translateY(-1px)",
-                    shadow: "xl"
-                  }}
-                  transition="all 0.3s ease-in-out"
-                >
-                  Sign In
-              </Button>
-              )}
-              <IconButton
-                ref={btnRef}
-                aria-label="Open menu"
-                icon={<HamburgerIcon />}
-                size="md"
-                bg="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"
-                color="white"
-                shadow="md"
-                fontWeight="600"
-                onClick={() => setIsOpen(true)}
-                _hover={{
-                  bg: "linear-gradient(135deg, #43a3f7 0%, #00e6f7 100%)",
-                  transform: "scale(1.1)",
-                  shadow: "lg"
-                }}
-                transition="all 0.3s ease-in-out"
-              />
-            </HStack>
+            <IconButton
+              ref={btnRef}
+              aria-label="Open menu"
+              icon={<HamburgerIcon />}
+              size="md"
+              bg="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"
+              color="white"
+              shadow="md"
+              fontWeight="600"
+              onClick={() => setIsOpen(true)}
+              _hover={{
+                bg: "linear-gradient(135deg, #43a3f7 0%, #00e6f7 100%)",
+                transform: "scale(1.1)",
+                shadow: "lg"
+              }}
+              transition="all 0.3s ease-in-out"
+            />
           </Flex>
         </Box>
 
@@ -252,6 +214,77 @@ export default function Navbar() {
             <DrawerBody pt={6}>
               <VStack spacing={6} align="stretch">
                 <NavLinks />
+                <Box pt={4} borderTop="1px" borderColor={drawerBorderColor} mt={4}>
+                  {session ? (
+                    <Button 
+                      size="lg" 
+                      onClick={() => signOut()}
+                      bg="linear-gradient(135deg, #ef4444 0%, #dc2626 100%)"
+                      color="white"
+                      shadow="md"
+                      fontWeight="600"
+                      width="full"
+                      _hover={{
+                        bg: "linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)",
+                        transform: "translateY(-1px) scale(1.02)",
+                        shadow: "lg"
+                      }}
+                      transition="all 0.3s ease-in-out"
+                    >
+                      Sign Out
+                    </Button>
+                  ) : (
+                    <Button 
+                      as={NextLink} 
+                      href="/signin" 
+                      size="lg" 
+                      bg="linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)"
+                      color="white"
+                      shadow="lg"
+                      fontWeight="600"
+                      width="full"
+                      _hover={{
+                        bg: "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)",
+                        transform: "translateY(-1px) scale(1.02)",
+                        shadow: "xl"
+                      }}
+                      transition="all 0.3s ease-in-out"
+                    >
+                      Sign In
+                    </Button>
+                  )}
+                  <Text 
+                    fontSize="xs" 
+                    color="gray.500" 
+                    textAlign="center" 
+                    mt={2}
+                    fontStyle="italic"
+                  >
+                    Staff Use Only
+                  </Text>
+                </Box>
+                
+                {/* THC Logo Footer */}
+                <Box 
+                  pt={4} 
+                  mt={6} 
+                  textAlign="center" 
+                  borderTop="1px" 
+                  borderColor={drawerBorderColor}
+                >
+                  <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
+                    <Image 
+                      src="/thc-logo.png" 
+                      alt="THC Members Only Club" 
+                      height="32px" 
+                      width="auto"
+                      filter="brightness(0.8)"
+                    />
+                    <Text fontSize="xs" color={drawerTextColor} fontWeight="500">
+                      THC Members Only Club
+                    </Text>
+                  </Box>
+                </Box>
               </VStack>
             </DrawerBody>
           </DrawerContent>
