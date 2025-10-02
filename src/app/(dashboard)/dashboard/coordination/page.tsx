@@ -177,7 +177,7 @@ export default async function CoordinationPage() {
             </Card>
           ) : (
             <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-              {coordinations.map((coordination) => (
+              {coordinations.map((coordination: any) => (
                 <CoordinationCard 
                   key={coordination.id} 
                   coordination={coordination}
