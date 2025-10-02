@@ -31,6 +31,8 @@ import {
   TabPanels,
   Tab,
   TabPanel,
+  IconButton,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { useState, useEffect } from "react";
@@ -137,6 +139,9 @@ const formatTime = (date: Date) => {
 };
 
 function DocumentPreview({ document }: { document: any }) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const modalSize = useBreakpointValue({ base: "full", md: "6xl", lg: "7xl" });
+  
   if (!document) {
     return null;
   }
@@ -145,66 +150,152 @@ function DocumentPreview({ document }: { document: any }) {
   const isPdf = document.mimeType === 'application/pdf';
   
   return (
-    <Box mt={4} p={4} bg="gray.50" borderRadius="md" border="1px solid" borderColor="gray.200">
-      <VStack spacing={4} align="stretch">
-        <HStack justify="space-between" align="center">
-          <Text fontSize="sm" fontWeight="medium" color="gray.700">
-            Preview: {document.title}
-          </Text>
-          <Button
-            size="xs"
-            variant="ghost"
-            colorScheme="gray"
-            onClick={() => window.open(document.fileUrl, '_blank')}
-          >
-            Open in New Tab
-          </Button>
-        </HStack>
-        
-        {isImage ? (
-          <Box textAlign="center">
-            <Image
-              src={document.fileUrl}
-              alt={document.title}
-              maxW="100%"
-              maxH="400px"
-              objectFit="contain"
-              borderRadius="md"
-              fallbackSrc="/placeholder-image.svg"
-            />
-          </Box>
-        ) : isPdf ? (
-          <Box h="400px" borderRadius="md" overflow="hidden" border="1px solid" borderColor="gray.300">
-            <iframe
-              src={document.fileUrl}
-              width="100%"
-              height="100%"
-              style={{ border: 'none' }}
-              title={document.title}
-            />
-          </Box>
-        ) : (
-          <VStack spacing={3} py={6}>
-            <Text fontSize="md" color="gray.600">
-              Preview not available for this file type
-            </Text>
-            <Text fontSize="sm" color="gray.500">
-              {document.mimeType}
+    <>
+      <Box mt={4} p={4} bg="gray.50" borderRadius="md" border="1px solid" borderColor="gray.200">
+        <VStack spacing={4} align="stretch">
+          <HStack justify="space-between" align="center">
+            <Text fontSize="sm" fontWeight="medium" color="gray.700">
+              Preview: {document.title}
             </Text>
             <Button
-              as={Link}
-              href={document.fileUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              colorScheme="blue"
-              leftIcon={<span>⬇️</span>}
+              size="xs"
+              variant="ghost"
+              colorScheme="gray"
+              onClick={() => window.open(document.fileUrl, '_blank')}
             >
-              Download to View
+              Open in New Tab
             </Button>
-          </VStack>
-        )}
-      </VStack>
-    </Box>
+          </HStack>
+          
+          {isImage ? (
+            <Box 
+              textAlign="center" 
+              position="relative" 
+              cursor="pointer"
+              onClick={onOpen}
+              _hover={{
+                transform: "scale(1.02)",
+                transition: "all 0.2s ease",
+                "& .hover-overlay": {
+                  opacity: 1
+                }
+              }}
+              transition="all 0.2s ease"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onOpen();
+                }
+              }}
+              aria-label={`Click to enlarge ${document.title}`}
+            >
+              <Image
+                src={document.fileUrl}
+                alt={document.title}
+                maxW="100%"
+                maxH="400px"
+                objectFit="contain"
+                borderRadius="md"
+                fallbackSrc="/placeholder-image.svg"
+              />
+              <Box
+                className="hover-overlay"
+                position="absolute"
+                top="50%"
+                left="50%"
+                transform="translate(-50%, -50%)"
+                bg="blackAlpha.700"
+                color="white"
+                px={3}
+                py={1}
+                borderRadius="md"
+                fontSize="xs"
+                fontWeight="medium"
+                pointerEvents="none"
+                opacity={0}
+                transition="opacity 0.2s ease"
+              >
+                🔍 Click to enlarge
+              </Box>
+            </Box>
+          ) : isPdf ? (
+            <Box h="400px" borderRadius="md" overflow="hidden" border="1px solid" borderColor="gray.300">
+              <iframe
+                src={document.fileUrl}
+                width="100%"
+                height="100%"
+                style={{ border: 'none' }}
+                title={document.title}
+              />
+            </Box>
+          ) : (
+            <VStack spacing={3} py={6}>
+              <Text fontSize="md" color="gray.600">
+                Preview not available for this file type
+              </Text>
+              <Text fontSize="sm" color="gray.500">
+                {document.mimeType}
+              </Text>
+              <Button
+                as={Link}
+                href={document.fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                colorScheme="blue"
+                leftIcon={<span>⬇️</span>}
+              >
+                Download to View
+              </Button>
+            </VStack>
+          )}
+        </VStack>
+      </Box>
+
+      {/* Image Preview Modal */}
+      {isImage && (
+        <Modal isOpen={isOpen} onClose={onClose} size={modalSize} isCentered>
+          <ModalOverlay bg="blackAlpha.800" />
+          <ModalContent 
+            maxW="95vw" 
+            maxH="95vh" 
+            bg="transparent" 
+            boxShadow="none"
+            mx={{ base: 2, md: 4 }}
+          >
+            <ModalCloseButton 
+              color="white" 
+              bg="blackAlpha.600" 
+              borderRadius="full"
+              size="lg"
+              _hover={{ bg: "blackAlpha.700" }}
+              zIndex={10}
+            />
+            <ModalBody p={0} display="flex" alignItems="center" justifyContent="center">
+              <Box
+                position="relative"
+                maxW="100%"
+                maxH="100%"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Image
+                  src={document.fileUrl}
+                  alt={document.title}
+                  maxW="100%"
+                  maxH="100%"
+                  objectFit="contain"
+                  borderRadius="md"
+                  fallbackSrc="/placeholder-image.svg"
+                />
+              </Box>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+      )}
+    </>
   );
 }
 
@@ -390,6 +481,45 @@ export default function CoordinationPage({ params }: CoordinationPageProps) {
               <Text color="gray.600" whiteSpace="pre-wrap">
                 {coordination.notes}
               </Text>
+            </CardBody>
+          </Card>
+        )}
+
+        {/* Point of Contacts */}
+        {coordination.pointOfContacts && coordination.pointOfContacts.length > 0 && (
+          <Card shadow="md" borderRadius="xl">
+            <CardHeader>
+              <Heading size="md" color="gray.800" fontFamily="'SUSE Mono', monospace" fontWeight="600">
+                📞 Point of Contacts
+              </Heading>
+            </CardHeader>
+            <CardBody pt={0}>
+              <VStack spacing={4} align="stretch">
+                {coordination.pointOfContacts.map((contact: any, index: number) => (
+                  <Box key={index} p={4} bg="gray.50" borderRadius="md" border="1px solid" borderColor="gray.200">
+                    <VStack spacing={2} align="stretch">
+                      {contact.name && (
+                        <HStack spacing={2}>
+                          <Text fontSize="sm" color="gray.600" fontWeight="medium" minW="60px">Name:</Text>
+                          <Text fontSize="sm" color="gray.800">{contact.name}</Text>
+                        </HStack>
+                      )}
+                      {contact.number && (
+                        <HStack spacing={2}>
+                          <Text fontSize="sm" color="gray.600" fontWeight="medium" minW="60px">Phone:</Text>
+                          <Text fontSize="sm" color="gray.800">{contact.number}</Text>
+                        </HStack>
+                      )}
+                      {contact.email && (
+                        <HStack spacing={2}>
+                          <Text fontSize="sm" color="gray.600" fontWeight="medium" minW="60px">Email:</Text>
+                          <Text fontSize="sm" color="gray.800">{contact.email}</Text>
+                        </HStack>
+                      )}
+                    </VStack>
+                  </Box>
+                ))}
+              </VStack>
             </CardBody>
           </Card>
         )}

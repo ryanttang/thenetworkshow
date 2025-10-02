@@ -10,6 +10,7 @@ import {
   ModalBody,
   ModalCloseButton,
   VStack,
+  HStack,
   FormControl,
   FormLabel,
   Input,
@@ -54,6 +55,7 @@ export default function CoordinationForm({
     description: coordination?.description || "",
     notes: coordination?.notes || "",
     specialMessage: coordination?.specialMessage || "",
+    pointOfContacts: coordination?.pointOfContacts || [],
   });
   const toast = useToast();
 
@@ -68,12 +70,20 @@ export default function CoordinationForm({
       
       const method = coordination ? "PUT" : "POST";
 
+      // Filter out empty contacts before sending
+      const submitData = {
+        ...formData,
+        pointOfContacts: formData.pointOfContacts.filter((contact: any) => 
+          contact.name.trim() || contact.number.trim() || contact.email.trim()
+        )
+      };
+
       const response = await fetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(submitData),
       });
 
       if (!response.ok) {
@@ -110,6 +120,7 @@ export default function CoordinationForm({
           description: "",
           notes: "",
           specialMessage: "",
+          pointOfContacts: [],
         });
       }
     } catch (error) {
@@ -126,6 +137,29 @@ export default function CoordinationForm({
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const addContact = () => {
+    setFormData(prev => ({
+      ...prev,
+      pointOfContacts: [...prev.pointOfContacts, { name: "", number: "", email: "" }]
+    }));
+  };
+
+  const removeContact = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      pointOfContacts: prev.pointOfContacts.filter((_: any, i: number) => i !== index)
+    }));
+  };
+
+  const updateContact = (index: number, field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      pointOfContacts: prev.pointOfContacts.map((contact: any, i: number) => 
+        i === index ? { ...contact, [field]: value } : contact
+      )
+    }));
   };
 
   const handleDocumentUploadSuccess = () => {
@@ -225,6 +259,56 @@ export default function CoordinationForm({
                       placeholder="Additional notes for team members"
                       rows={4}
                     />
+                  </FormControl>
+
+                  {/* Point of Contacts */}
+                  <FormControl>
+                    <FormLabel>Point of Contacts</FormLabel>
+                    <VStack spacing={3} align="stretch">
+                      {formData.pointOfContacts.map((contact: any, index: number) => (
+                        <Box key={index} p={4} border="1px solid" borderColor="gray.200" borderRadius="md">
+                          <HStack justify="space-between" align="center" mb={3}>
+                            <Text fontSize="sm" fontWeight="medium" color="gray.700">
+                              Contact {index + 1}
+                            </Text>
+                            <Button
+                              size="xs"
+                              variant="ghost"
+                              colorScheme="red"
+                              onClick={() => removeContact(index)}
+                            >
+                              Remove
+                            </Button>
+                          </HStack>
+                          <VStack spacing={3}>
+                            <Input
+                              value={contact.name}
+                              onChange={(e) => updateContact(index, "name", e.target.value)}
+                              placeholder="Contact Name"
+                            />
+                            <Input
+                              value={contact.number}
+                              onChange={(e) => updateContact(index, "number", e.target.value)}
+                              placeholder="Phone Number"
+                            />
+                            <Input
+                              value={contact.email}
+                              onChange={(e) => updateContact(index, "email", e.target.value)}
+                              placeholder="Email Address"
+                              type="email"
+                            />
+                          </VStack>
+                        </Box>
+                      ))}
+                      <Button
+                        variant="outline"
+                        colorScheme="blue"
+                        onClick={addContact}
+                        leftIcon={<span>+</span>}
+                      >
+                        Add Contact
+                      </Button>
+                    </VStack>
                   </FormControl>
 
                   <Button

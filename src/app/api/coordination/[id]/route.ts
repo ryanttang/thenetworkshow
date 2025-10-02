@@ -9,6 +9,11 @@ const updateCoordinationSchema = z.object({
   description: z.string().optional(),
   notes: z.string().optional(),
   specialMessage: z.string().optional(),
+  pointOfContacts: z.array(z.object({
+    name: z.string().optional().or(z.literal("")),
+    number: z.string().optional().or(z.literal("")),
+    email: z.string().email().optional().or(z.literal("")),
+  })).optional(),
   isActive: z.boolean().optional(),
 });
 

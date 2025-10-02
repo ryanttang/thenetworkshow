@@ -9,6 +9,11 @@ const createCoordinationSchema = z.object({
   description: z.string().optional(),
   notes: z.string().optional(),
   specialMessage: z.string().optional(),
+  pointOfContacts: z.array(z.object({
+    name: z.string().optional().or(z.literal("")),
+    number: z.string().optional().or(z.literal("")),
+    email: z.string().email().optional().or(z.literal("")),
+  })).optional(),
 });
 
 export async function GET(request: NextRequest) {
@@ -88,7 +93,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { eventId, title, description, notes, specialMessage } = createCoordinationSchema.parse(body);
+    const { eventId, title, description, notes, specialMessage, pointOfContacts } = createCoordinationSchema.parse(body);
 
     // Admins and Organizers can create coordinations for any event
     const canManageAllEvents = user.role === "ADMIN" || user.role === "ORGANIZER";
@@ -112,6 +117,7 @@ export async function POST(request: NextRequest) {
         description,
         notes,
         specialMessage,
+        pointOfContacts: pointOfContacts || [],
       },
       include: {
         event: {

@@ -27,13 +27,10 @@ export default async function DashboardPage() {
     });
 
 
-    // Note: Coordinations query temporarily commented out to focus on Events
-    // TODO: Fix coordination access for admins/organizers
-    const coordinations: any[] = [];
-    /*
+    // Get coordinations - admins and organizers can see all, others only their own
     const coordinations = await prisma.coordination.findMany({
       where: { 
-        event: { ownerId: me.id }
+        ...(canManageAllEvents ? {} : { event: { ownerId: me.id } })
       },
       include: { 
         _count: { select: { documents: true } },
@@ -41,7 +38,6 @@ export default async function DashboardPage() {
       },
       orderBy: { createdAt: "desc" }
     });
-    */
 
   return (
     <Container maxW="full" px={0}>
@@ -363,7 +359,7 @@ export default async function DashboardPage() {
             {items.length === 0 ? (
               <Box textAlign="center" py={{ base: 12, md: 16, lg: 20 }} px={{ base: 4, md: 6, lg: 8 }}>
                 <Text fontSize={{ base: "lg", md: "xl" }} color="gray.500" mb={{ base: 6, md: 8 }} fontWeight="500">
-                  You haven't created any events yet
+                  You haven&apos;t created any events yet
                 </Text>
                 <Button 
                   as={Link} 
