@@ -59,8 +59,23 @@ function validateEnv() {
   }
 }
 
-// Export validated environment variables
-export const env = validateEnv();
+// Lazy validation - only validate when actually needed
+let validatedEnv: z.infer<typeof envSchema> | null = null;
+
+function getValidatedEnv() {
+  if (validatedEnv === null) {
+    validatedEnv = validateEnv();
+  }
+  return validatedEnv;
+}
+
+// Export validated environment variables with lazy loading
+export const env = new Proxy({} as z.infer<typeof envSchema>, {
+  get(target, prop) {
+    const validated = getValidatedEnv();
+    return validated[prop as keyof typeof validated];
+  }
+});
 
 // Type-safe environment variables
 export type Env = z.infer<typeof envSchema>;
@@ -93,4 +108,14 @@ export function validateProductionEnv(): boolean {
   }
   
   return true;
+}
+
+// Safe environment variable access for build time
+export function getEnvVar(key: string, defaultValue?: string): string | undefined {
+  return process.env[key] || defaultValue;
+}
+
+// Check if we're in build mode (when environment variables might not be available)
+export function isBuildTime(): boolean {
+  return process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL;
 }

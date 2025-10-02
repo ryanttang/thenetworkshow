@@ -49,8 +49,9 @@ export default async function EventsPage() {
   
   let eventsData = { items: [] };
   
-  // Only fetch data if we're not in build mode
-  if (process.env.DATABASE_URL) {
+  // Only fetch data if we're not in build mode and have database connection
+  const isBuildTime = process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL;
+  if (!isBuildTime && process.env.DATABASE_URL) {
     try {
       const eventsRes = await fetch(`${baseUrl}/api/events?status=PUBLISHED&limit=50`, { 
         next: { revalidate: 60 } 

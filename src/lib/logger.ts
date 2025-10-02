@@ -1,4 +1,4 @@
-import { env } from './env';
+import { env, getEnvVar, isBuildTime } from './env';
 
 export enum LogLevel {
   ERROR = 'error',
@@ -28,7 +28,12 @@ class Logger {
 
   constructor(service: string = 'thc-members') {
     this.service = service;
-    this.isDevelopment = env.NODE_ENV === 'development';
+    // Use safe access during build time
+    if (isBuildTime()) {
+      this.isDevelopment = getEnvVar('NODE_ENV', 'development') === 'development';
+    } else {
+      this.isDevelopment = env.NODE_ENV === 'development';
+    }
   }
 
   private formatLog(level: LogLevel, message: string, metadata?: Record<string, any>, error?: Error): LogEntry {
@@ -157,7 +162,8 @@ export function trackError(error: Error, context?: Record<string, any>): void {
   logger.error('Error tracked', error, context);
   
   // TODO: Integrate with Sentry when available
-  if (env.SENTRY_DSN) {
+  const sentryDsn = isBuildTime() ? getEnvVar('SENTRY_DSN') : env.SENTRY_DSN;
+  if (sentryDsn) {
     // Sentry.captureException(error, { extra: context });
   }
 }

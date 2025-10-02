@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
-const s3Client = new S3Client({
+// Check if we're in build mode
+const isBuildTime = process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL;
+
+const s3Client = isBuildTime ? null : new S3Client({
   region: process.env.AWS_REGION || "us-east-1",
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
@@ -15,6 +18,11 @@ export async function GET(
   { params }: { params: { key: string } }
 ) {
   try {
+    // Return error during build time
+    if (isBuildTime) {
+      return NextResponse.json({ error: "Service unavailable during build" }, { status: 503 });
+    }
+    
     const { key } = params;
     
     if (!key) {

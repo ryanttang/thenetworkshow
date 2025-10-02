@@ -1,4 +1,4 @@
-import { env } from './env';
+// Cache doesn't need environment variables, so we can remove the import
 
 // Simple in-memory cache implementation
 // In production, replace with Redis or similar

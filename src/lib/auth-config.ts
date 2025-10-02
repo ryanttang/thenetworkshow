@@ -21,6 +21,13 @@ export const authOptions: NextAuthOptions = {
           console.error("DATABASE_URL not configured");
           return null;
         }
+        
+        // Check if we're in build mode
+        const isBuildTime = process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL;
+        if (isBuildTime) {
+          console.log("Build time detected, skipping authentication");
+          return null;
+        }
 
         try {
           const user = await prisma.user.findUnique({ 

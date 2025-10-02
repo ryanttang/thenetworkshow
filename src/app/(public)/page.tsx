@@ -57,8 +57,9 @@ export default async function HomePage() {
   let videosData = { videos: [] };
   let galleryData = { allImages: [] };
   
-  // Only fetch data if we're not in build mode
-  if (process.env.DATABASE_URL) {
+  // Only fetch data if we're not in build mode and have database connection
+  const isBuildTime = process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL;
+  if (!isBuildTime && process.env.DATABASE_URL) {
     try {
       const [eventsRes, videosRes, galleryRes] = await Promise.all([
         fetch(`${baseUrl}/api/events?status=PUBLISHED&limit=30`, { 

@@ -11,6 +11,12 @@ export const dynamic = 'force-dynamic';
 async function getEvent(id: string): Promise<Event | null> {
   const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
   
+  // Check if we're in build mode
+  const isBuildTime = process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL;
+  if (isBuildTime) {
+    return null;
+  }
+  
   try {
     // Check if it's a UUID (ID) or slug
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);

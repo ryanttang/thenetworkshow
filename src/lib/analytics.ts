@@ -1,4 +1,4 @@
-import { env } from './env';
+import { env, getEnvVar, isBuildTime } from './env';
 
 // Google Analytics 4 integration
 export class Analytics {
@@ -6,8 +6,14 @@ export class Analytics {
   private isEnabled: boolean;
 
   constructor() {
-    this.measurementId = env.GOOGLE_ANALYTICS_ID || null;
-    this.isEnabled = !!this.measurementId && env.NODE_ENV === 'production';
+    // Use safe access during build time
+    if (isBuildTime()) {
+      this.measurementId = getEnvVar('GOOGLE_ANALYTICS_ID') || null;
+      this.isEnabled = false; // Disable during build
+    } else {
+      this.measurementId = env.GOOGLE_ANALYTICS_ID || null;
+      this.isEnabled = !!this.measurementId && env.NODE_ENV === 'production';
+    }
   }
 
   // Track page views
