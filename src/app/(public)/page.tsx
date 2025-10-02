@@ -2,7 +2,48 @@ import EventGrid from "@/components/events/EventGrid";
 import VideoSlider from "@/components/videos/VideoSlider";
 import GalleryPreview from "@/components/gallery/GalleryPreview";
 import SubscribeForm from "@/components/SubscribeForm";
+import { EventGridSkeleton, VideoSliderSkeleton, GalleryPreviewSkeleton, SubscribeFormSkeleton } from "@/components/ui/SkeletonLoader";
 import { Box, Heading, Container, VStack, Text } from "@chakra-ui/react";
+import { Metadata } from "next";
+import Link from "next/link";
+import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "THC Members Only Club - Premiere Cannabis Social Club",
+  description: "Join the premiere cannabis social club in Southern California. Discover exclusive events, connect with like-minded members, and experience the finest cannabis culture. Upcoming events, member benefits, and community coordination.",
+  keywords: [
+    "cannabis social club",
+    "THC members only",
+    "cannabis events",
+    "marijuana social club",
+    "cannabis community",
+    "Southern California cannabis",
+    "cannabis events calendar",
+    "marijuana events",
+    "cannabis networking",
+    "weed social club"
+  ],
+  openGraph: {
+    title: "THC Members Only Club - Premiere Cannabis Social Club",
+    description: "Join the premiere cannabis social club in Southern California. Discover exclusive events, connect with like-minded members, and experience the finest cannabis culture.",
+    url: 'https://thcmembersonlyclub.com',
+    images: [
+      {
+        url: '/thcmembers-banner.png',
+        width: 1200,
+        height: 630,
+        alt: 'THC Members Only Club - Premiere Cannabis Social Club',
+      },
+    ],
+  },
+  twitter: {
+    title: "THC Members Only Club - Premiere Cannabis Social Club",
+    description: "Join the premiere cannabis social club in Southern California. Discover exclusive events, connect with like-minded members, and experience the finest cannabis culture.",
+  },
+  alternates: {
+    canonical: '/',
+  },
+};
 
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = 'force-dynamic';
@@ -47,29 +88,141 @@ export default async function HomePage() {
   
   return (
     <VStack spacing={0} align="stretch">
-      {/* Subscribe Section */}
-      <SubscribeForm />
-
       {/* Upcoming Events Section */}
-      <Container maxW="7xl" py={16}>
-        <Box mb={8}>
-          <Heading size="2xl" textAlign="center" mb={4}>
-            Upcoming Events
-          </Heading>
-          <Box textAlign="center" color="gray.600">
-            Discover amazing events happening in Southern California and beyond
+      <Box 
+        bg="white" 
+        py={{ base: 12, md: 20 }}
+        position="relative"
+        _before={{
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "linear-gradient(135deg, rgba(34, 197, 94, 0.02) 0%, rgba(59, 130, 246, 0.02) 100%)",
+          zIndex: 0
+        }}
+      >
+        <Container maxW="7xl" position="relative" zIndex={1}>
+          <Box mb={{ base: 8, md: 12 }} textAlign="center">
+            <Heading 
+              size={{ base: "2xl", md: "3xl" }} 
+              mb={{ base: 4, md: 6 }} 
+              bgGradient="linear(to-r, green.600, green.500)"
+              bgClip="text"
+              fontWeight="bold"
+              letterSpacing="tight"
+            >
+              Upcoming Events
+            </Heading>
+            <Text 
+              fontSize={{ base: "sm", md: "md" }} 
+              color="gray.600" 
+              mb={{ base: 6, md: 8 }}
+              maxW="2xl"
+              mx="auto"
+              lineHeight="1.4"
+              noOfLines={1}
+            >
+              Amazing cannabis events in SoCal and beyond
+            </Text>
           </Box>
-        </Box>
-        <EventGrid items={eventsData.items || []} />
-      </Container>
+          <Suspense fallback={<EventGridSkeleton />}>
+            <EventGrid items={eventsData.items || []} />
+          </Suspense>
+          <Box textAlign="center" mt={8}>
+            <Link href="/events">
+              <Box
+                as="button"
+                bgGradient="linear(135deg, green.500, green.600)"
+                color="white"
+                px={{ base: 6, md: 8 }}
+                py={{ base: 3, md: 4 }}
+                borderRadius="xl"
+                fontSize={{ base: "md", md: "lg" }}
+                fontWeight="semibold"
+                shadow="lg"
+                _hover={{
+                  bgGradient: "linear(135deg, green.600, green.700)",
+                  transform: "translateY(-2px)",
+                  shadow: "xl"
+                }}
+                transition="all 0.3s ease"
+              >
+                View All Events
+              </Box>
+            </Link>
+          </Box>
+        </Container>
+      </Box>
 
       {/* Recent Events Video Section */}
-      {videosData.videos && videosData.videos.length > 0 && (
-        <VideoSlider videos={videosData.videos} />
-      )}
+      <Box 
+        bg="gray.50" 
+        py={{ base: 12, md: 20 }}
+        position="relative"
+        _before={{
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "linear-gradient(135deg, rgba(59, 130, 246, 0.03) 0%, rgba(147, 51, 234, 0.03) 100%)",
+          zIndex: 0
+        }}
+      >
+        <Suspense fallback={<VideoSliderSkeleton />}>
+          {videosData.videos && videosData.videos.length > 0 ? (
+            <VideoSlider videos={videosData.videos} />
+          ) : (
+            <VideoSliderSkeleton />
+          )}
+        </Suspense>
+      </Box>
 
       {/* Gallery Section */}
-      <GalleryPreview images={galleryData.allImages || []} />
+      <Box 
+        bg="white" 
+        py={{ base: 12, md: 20 }}
+        position="relative"
+        _before={{
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "linear-gradient(135deg, rgba(147, 51, 234, 0.02) 0%, rgba(34, 197, 94, 0.02) 100%)",
+          zIndex: 0
+        }}
+      >
+        <Suspense fallback={<GalleryPreviewSkeleton />}>
+          <GalleryPreview images={galleryData.allImages || []} />
+        </Suspense>
+      </Box>
+
+      {/* Subscribe Section */}
+      <Box 
+        bg="green.50" 
+        py={{ base: 12, md: 20 }}
+        position="relative"
+        _before={{
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%)",
+          zIndex: 0
+        }}
+      >
+        <Suspense fallback={<SubscribeFormSkeleton />}>
+          <SubscribeForm />
+        </Suspense>
+      </Box>
     </VStack>
   );
 }

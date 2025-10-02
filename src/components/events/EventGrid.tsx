@@ -52,8 +52,8 @@ export default function EventGrid({
   return (
     <Box>
       <SimpleGrid 
-        columns={{ base: 1, sm: 2, md: 3 }} 
-        gap={8}
+        columns={{ base: 2, md: 3 }} 
+        gap={{ base: 4, md: 8 }}
         spacing={0}
       >
         {items.map(e => (

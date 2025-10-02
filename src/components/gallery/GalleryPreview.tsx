@@ -146,8 +146,24 @@ export default function GalleryPreview({ images }: GalleryPreviewProps) {
       <VStack spacing={8} align="stretch">
         {/* Header */}
         <Box textAlign="center">
-          <Heading size="2xl" mb={4}>Gallery</Heading>
-          <Text fontSize="lg" color="gray.600">
+          <Heading 
+            size="3xl" 
+            mb={6} 
+            bgGradient="linear(to-r, purple.600, purple.500)"
+            bgClip="text"
+            fontWeight="bold"
+            letterSpacing="tight"
+          >
+            Gallery
+          </Heading>
+          <Text 
+            fontSize={{ base: "sm", md: "md" }} 
+            color="gray.600"
+            maxW="2xl"
+            mx="auto"
+            lineHeight="1.4"
+            noOfLines={1}
+          >
             A glimpse into our amazing events and community
           </Text>
         </Box>
@@ -220,15 +236,20 @@ export default function GalleryPreview({ images }: GalleryPreviewProps) {
             <Box
               as="button"
               display="inline-block"
-              px={6}
-              py={3}
-              bg="blue.500"
+              px={8}
+              py={4}
+              bgGradient="linear(135deg, purple.500, purple.600)"
               color="white"
-              borderRadius="lg"
+              borderRadius="xl"
               fontWeight="semibold"
-              _hover={{ bg: "blue.600", transform: "translateY(-2px)" }}
-              transition="all 0.2s"
-              shadow="md"
+              fontSize="lg"
+              _hover={{ 
+                bgGradient: "linear(135deg, purple.600, purple.700)", 
+                transform: "translateY(-2px)",
+                shadow: "xl"
+              }}
+              transition="all 0.3s ease"
+              shadow="lg"
               cursor="pointer"
             >
               View All Photos
@@ -298,7 +319,7 @@ export default function GalleryPreview({ images }: GalleryPreviewProps) {
         
         @media (max-width: 480px) {
           .masonry-grid-preview {
-            column-count: 1;
+            column-count: 2;
           }
         }
         

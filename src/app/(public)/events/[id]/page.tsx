@@ -1,60 +1,109 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { Box, Button, Heading, Image as CImage, Text, Container, HStack, VStack } from "@chakra-ui/react";
+import { Metadata } from "next";
+import { Box, Button, Heading, Image as CImage, Text, Container, HStack, VStack, Breadcrumb, BreadcrumbItem, BreadcrumbLink } from "@chakra-ui/react";
 import { format } from "date-fns";
 import Link from "next/link";
 import { Event } from "@/types";
+import { EventStructuredData, BreadcrumbStructuredData } from "@/components/seo/StructuredData";
 
-export default function EventDetail({ params }: { params: { id: string }}) {
-  const [event, setEvent] = useState<Event | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic';
 
-  useEffect(() => {
-    const fetchEvent = async () => {
-      try {
-        // Check if it's a UUID (ID) or slug
-        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.id);
-        
-        if (isUUID) {
-          // Look up by ID
-          const res = await fetch(`/api/events/${params.id}`);
-          if (!res.ok) {
-            throw new Error('Event not found');
-          }
-          const eventData = await res.json();
-          setEvent(eventData);
-        } else {
-          // Look up by slug (for public access, published events only)
-          const res = await fetch(`/api/events/slug/${params.id}`);
-          if (!res.ok) {
-            throw new Error('Event not found');
-          }
-          const eventData = await res.json();
-          setEvent(eventData);
-        }
-      } catch (err) {
-        setError(true);
-      } finally {
-        setLoading(false);
+async function getEvent(id: string): Promise<Event | null> {
+  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+  
+  try {
+    // Check if it's a UUID (ID) or slug
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    
+    if (isUUID) {
+      // Look up by ID
+      const res = await fetch(`${baseUrl}/api/events/${id}`, { 
+        next: { revalidate: 60 } 
+      });
+      if (!res.ok) {
+        return null;
       }
+      return await res.json();
+    } else {
+      // Look up by slug (for public access, published events only)
+      const res = await fetch(`${baseUrl}/api/events/slug/${id}`, { 
+        next: { revalidate: 60 } 
+      });
+      if (!res.ok) {
+        return null;
+      }
+      return await res.json();
+    }
+  } catch (error) {
+    console.log('Error fetching event:', error);
+    return null;
+  }
+}
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const event = await getEvent(params.id);
+  
+  if (!event) {
+    return {
+      title: "Event Not Found",
+      description: "The requested event could not be found.",
     };
-
-    fetchEvent();
-  }, [params.id]);
-
-  if (loading) {
-    return (
-      <Container maxW="4xl" py={8}>
-        <Box textAlign="center" py={20}>
-          <Text fontSize="xl" color="gray.500">Loading event...</Text>
-        </Box>
-      </Container>
-    );
   }
 
-  if (error || !event) {
+  const eventDate = format(new Date(event.startAt), "EEEE, MMMM d, yyyy 'at' p");
+  const location = event.locationName ? 
+    `${event.locationName}${event.city ? `, ${event.city}` : ''}${event.state ? `, ${event.state}` : ''}` : 
+    'Location TBD';
+
+  return {
+    title: `${event.title} - Cannabis Event`,
+    description: `${event.description || `Join us for ${event.title} on ${eventDate} at ${location}.`} Don't miss this exclusive cannabis event.`,
+    keywords: [
+      "cannabis event",
+      "marijuana event",
+      "cannabis social gathering",
+      "weed event",
+      "cannabis meetup",
+      event.title.toLowerCase(),
+      event.city?.toLowerCase() || "",
+      event.state?.toLowerCase() || "",
+    ].filter(Boolean),
+    openGraph: {
+      title: `${event.title} - Cannabis Event | THC Members Only Club`,
+      description: `${event.description || `Join us for ${event.title} on ${eventDate} at ${location}.`} Don't miss this exclusive cannabis event.`,
+      url: `https://thcmembersonlyclub.com/events/${event.slug}`,
+      type: 'event',
+      images: event.heroImage?.variants?.hero?.webpUrl ? [
+        {
+          url: event.heroImage.variants.hero.webpUrl,
+          width: 1200,
+          height: 630,
+          alt: event.title,
+        },
+      ] : [
+        {
+          url: '/thcmembers-banner.png',
+          width: 1200,
+          height: 630,
+          alt: event.title,
+        },
+      ],
+    },
+    twitter: {
+      title: `${event.title} - Cannabis Event | THC Members Only Club`,
+      description: `${event.description || `Join us for ${event.title} on ${eventDate} at ${location}.`} Don't miss this exclusive cannabis event.`,
+      images: event.heroImage?.variants?.hero?.webpUrl ? [event.heroImage.variants.hero.webpUrl] : ['/thcmembers-banner.png'],
+    },
+    alternates: {
+      canonical: `/events/${event.slug}`,
+    },
+  };
+}
+
+export default async function EventDetail({ params }: { params: { id: string }}) {
+  const event = await getEvent(params.id);
+
+  if (!event) {
     return (
       <Container maxW="4xl" py={8}>
         <Box textAlign="center" py={20}>
@@ -73,24 +122,32 @@ export default function EventDetail({ params }: { params: { id: string }}) {
 
   return (
     <Container maxW="4xl" py={8}>
-      {/* Back to Home Button */}
-      <Box mb={6}>
-        <Button 
-          as={Link} 
-          href="/" 
-          colorScheme="gray" 
-          variant="outline" 
-          size="md"
-          leftIcon={<Text fontSize="sm">←</Text>}
-          _hover={{
-            transform: "translateY(-1px)",
-            shadow: "md"
-          }}
-          transition="all 0.2s"
-        >
-          Back to Home
-        </Button>
-      </Box>
+      {/* Structured Data */}
+      <EventStructuredData event={event} />
+      <BreadcrumbStructuredData 
+        items={[
+          { name: "Home", url: "https://thcmembersonlyclub.com" },
+          { name: "Events", url: "https://thcmembersonlyclub.com/events" },
+          { name: event.title, url: `https://thcmembersonlyclub.com/events/${event.slug}` },
+        ]}
+      />
+      
+      {/* Breadcrumb Navigation */}
+      <Breadcrumb mb={6} fontSize="sm">
+        <BreadcrumbItem>
+          <BreadcrumbLink as={Link} href="/">
+            Home
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbItem>
+          <BreadcrumbLink as={Link} href="/events">
+            Events
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbItem isCurrentPage>
+          <BreadcrumbLink>{event.title}</BreadcrumbLink>
+        </BreadcrumbItem>
+      </Breadcrumb>
 
       <Box bg="white" borderRadius="xl" overflow="hidden" boxShadow="lg">
         {img && (

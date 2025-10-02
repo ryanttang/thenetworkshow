@@ -215,30 +215,55 @@ export default function EventCard({
         border="1px solid"
         borderColor="gray.100"
         _hover={{ 
-          boxShadow: "xl", 
-          transform: "translateY(-2px)",
-          transition: "all 0.3s ease"
+          boxShadow: "2xl", 
+          transform: "translateY(-4px) scale(1.02)",
+          borderColor: "green.200",
+          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
         }} 
-        transition="all 0.3s ease"
+        _active={{
+          transform: "translateY(-2px) scale(1.01)",
+          boxShadow: "xl"
+        }}
+        transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
         h="full"
         display="flex"
         flexDirection="column"
+        position="relative"
+        _before={{
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          bgGradient: "linear(135deg, green.50, blue.50)",
+          opacity: 0,
+          transition: "opacity 0.3s ease",
+          zIndex: 0
+        }}
+        _hover={{
+          _before: {
+            opacity: 0.1
+          }
+        }}
       >
         {img && (
           <NextLink href={isAdminView ? `/events/${id}` : `/events/${slug}`}>
-            <CImage
+              <CImage
               src={img}
               alt={title}
               w="100%"
-              h="220px"
+              h={{ base: "180px", md: "280px" }}
               objectFit="cover"
               loading="lazy"
               fallbackSrc="/placeholder-image.svg"
               cursor="pointer"
               _hover={{
-                transform: "scale(1.02)",
-                transition: "transform 0.3s ease-in-out"
+                transform: "scale(1.05)",
+                filter: "brightness(1.1) saturate(1.1)",
+                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
               }}
+              transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.src = "/placeholder-image.svg";
@@ -246,9 +271,9 @@ export default function EventCard({
             />
           </NextLink>
         )}
-        <Stack p={6} spacing={4} flex={1} display="flex" flexDirection="column">
+        <Stack p={{ base: 3, md: 4 }} spacing={3} flex={1} display="flex" flexDirection="column" position="relative" zIndex={1}>
           <Box flex={1}>
-            <HStack justify="space-between" align="start" mb={3}>
+            <HStack justify="space-between" align="start" mb={2}>
               <Heading 
                 size="md" 
                 noOfLines={2} 
@@ -262,9 +287,9 @@ export default function EventCard({
             </HStack>
             <Text 
               color="gray.600" 
-              fontSize="sm" 
+              fontSize="xs" 
               fontWeight="500"
-              mb={2}
+              mb={1}
             >
               {formatStartAt(startAt)}
             </Text>
@@ -276,27 +301,31 @@ export default function EventCard({
               {locationName ?? `${city ?? ""}${state ? `, ${state}` : ""}`}
             </Text>
           </Box>
-          <HStack pt={2} justify="space-between" align="center">
+          <HStack pt={1} justify="space-between" align="center" spacing={2} flexWrap="wrap">
             {buttonType === 'BUY_TICKETS' && ticketUrl ? (
               <Button 
                 as="a"
                 href={ticketUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                size="md"
-                px={6}
+                size={{ base: "sm", md: "md" }}
+                px={{ base: 3, md: 4 }}
                 bg="linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)"
                 color="white"
                 shadow="md"
                 fontWeight="600"
+                flex={1}
                 _hover={{
-                  transform: "translateY(-2px)",
-                  shadow: "lg",
+                  transform: "translateY(-3px) scale(1.05)",
+                  shadow: "xl",
                   bg: "linear-gradient(135deg, #2563eb 0.2%, #1e40af 100%)"
                 }}
-                transition="all 0.3s ease-in-out"
+                _active={{
+                  transform: "translateY(-1px) scale(1.02)"
+                }}
+                transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
               >
-                Buy Tickets
+                Tickets
               </Button>
             ) : buttonType === 'RSVP' && ticketUrl ? (
               <Button 
@@ -304,18 +333,22 @@ export default function EventCard({
                 href={ticketUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                size="md"
-                px={6}
+                size={{ base: "sm", md: "md" }}
+                px={{ base: 3, md: 4 }}
                 bg="linear-gradient(135deg, #22c55e 0%, #16a34a 100%)"
                 color="white"
                 shadow="md"
                 fontWeight="600"
+                flex={1}
                 _hover={{
-                  transform: "translateY(-2px)",
-                  shadow: "lg",
+                  transform: "translateY(-3px) scale(1.05)",
+                  shadow: "xl",
                   bg: "linear-gradient(135deg, #15803d 0%, #166534 100%)"
                 }}
-                transition="all 0.3s ease-in-out"
+                _active={{
+                  transform: "translateY(-1px) scale(1.02)"
+                }}
+                transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
               >
                 RSVP
               </Button>
@@ -325,23 +358,27 @@ export default function EventCard({
               as={NextLink} 
               href={isAdminView ? `/events/${id}` : `/events/${slug}`} 
               variant="outline" 
-              size="md"
-              px={6}
+              size={{ base: "sm", md: "md" }}
+              px={{ base: 3, md: 4 }}
               colorScheme="black"
               bg="rgba(255, 255, 255, 0.8)"
               backdropFilter="blur(8px)"
               borderWidth="2px"
               fontWeight="500"
+              flex={1}
               _hover={{
                 bg: "gray.50",
                 borderColor: "gray.400",
-                transform: "translateY(-2px)",
-                shadow: "md",
+                transform: "translateY(-3px) scale(1.05)",
+                shadow: "lg",
                 color: "gray.700"
               }}
-              transition="all 0.3s ease-in-out"
+              _active={{
+                transform: "translateY(-1px) scale(1.02)"
+              }}
+              transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
             >
-              View Details
+              Details
             </Button>
           </HStack>
           

@@ -5,7 +5,17 @@ const nextConfig = {
     // Increase body size limit for API routes
     ...(process.env.NODE_ENV === 'production' && {
       // Production-specific configuration
-    })
+    }),
+    optimizeCss: true,
+    optimizePackageImports: ['@chakra-ui/react', '@chakra-ui/icons'],
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
   },
   serverExternalPackages: ['sharp'], // Ensure Sharp is externalized for better performance
   // Disable static optimization for dynamic pages
@@ -19,6 +29,10 @@ const nextConfig = {
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // Performance optimizations
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    unoptimized: false,
   },
   // Production optimizations
   compress: true,

@@ -82,10 +82,24 @@ export default function VideoSlider({ videos }: VideoSliderProps) {
     <Container maxW="7xl" py={8}>
       <VStack spacing={8} align="stretch">
         <Box textAlign="center">
-          <Heading size="2xl" mb={4}>
+          <Heading 
+            size="3xl" 
+            mb={6} 
+            bgGradient="linear(to-r, blue.600, blue.500)"
+            bgClip="text"
+            fontWeight="bold"
+            letterSpacing="tight"
+          >
             Recent Events
           </Heading>
-          <Text color="gray.600" fontSize="lg">
+          <Text 
+            color="gray.600" 
+            fontSize={{ base: "sm", md: "md" }}
+            maxW="2xl"
+            mx="auto"
+            lineHeight="1.4"
+            noOfLines={1}
+          >
             Relive the best moments from our recent events
           </Text>
         </Box>

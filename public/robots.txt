@@ -1,0 +1,29 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://thcmembersonlyclub.com/sitemap.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
+
+# Block admin and private areas
+Disallow: /dashboard/
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /signin/
+
+# Allow important pages
+Allow: /events/
+Allow: /gallery/
+Allow: /contact/
+Allow: /coordination/
+Allow: /faq/
+Allow: /instagram/
+
+# Block sensitive files
+Disallow: /*.json$
+Disallow: /*.env$
+Disallow: /scripts/
+Disallow: /database/
