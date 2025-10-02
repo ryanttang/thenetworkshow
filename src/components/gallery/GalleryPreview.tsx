@@ -179,13 +179,10 @@ export default function GalleryPreview({ images }: GalleryPreviewProps) {
             }}
           >
             <Heading 
-              size="3xl" 
-              bgGradient="linear(135deg, purple.600, purple.500, pink.500)"
-              bgClip="text"
+              size={{ base: "md", md: "xl" }} 
+              color="black"
               fontWeight="600"
               letterSpacing="tight"
-              position="relative"
-              zIndex={1}
               fontFamily="'SUSE Mono', monospace"
             >
               Gallery

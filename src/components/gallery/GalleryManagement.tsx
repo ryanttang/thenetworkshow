@@ -48,7 +48,7 @@ import {
   TabPanel,
 } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
-import ImageUploader from "@/components/events/ImageUploader";
+import DetailImagesUploader from "@/components/events/DetailImagesUploader";
 
 interface Event {
   id: string;
@@ -270,7 +270,8 @@ export default function GalleryManagement({ events, galleries, onRefresh }: Gall
     }
   };
 
-  const handleImageUpload = (imageId: string, variants: any) => {
+  const handleImageUpload = (imageId: string | undefined, variants: any) => {
+    if (!imageId) return; // Skip if no image ID provided
     const newImage = { id: imageId, variants };
     setUploadedImages(prev => [...prev, newImage]);
     setSelectedImages(prev => [...prev, newImage]);
@@ -690,9 +691,10 @@ export default function GalleryManagement({ events, galleries, onRefresh }: Gall
                   <Divider />
                   <Box>
                     <FormLabel>Upload Images</FormLabel>
-                    <ImageUploader
-                      onUploaded={handleImageUpload}
-                      showUploadedImages={true}
+                    <DetailImagesUploader
+                      onImagesUploaded={(images) => {
+                        images.forEach(img => handleImageUpload(img.id, img.variants));
+                      }}
                     />
                   </Box>
                 </>

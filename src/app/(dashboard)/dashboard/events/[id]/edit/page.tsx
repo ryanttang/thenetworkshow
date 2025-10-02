@@ -16,7 +16,7 @@ export default async function EditEventPage({ params }: { params: { id: string }
   
   const event = await prisma.event.findUnique({ 
     where: { id: params.id }, 
-    include: { heroImage: true }
+    include: { heroImage: true, images: true }
   });
   
   if (!event) redirect("/dashboard/events");
@@ -56,7 +56,16 @@ export default async function EditEventPage({ params }: { params: { id: string }
         <Text color="gray.600" fontSize="sm">Update your event details</Text>
       </Box>
       
-      <EventForm initial={initialData} mode="edit" eventId={event.id} />
+      <EventForm 
+        initial={initialData} 
+        mode="edit" 
+        eventId={event.id} 
+        existingImages={event.images?.map(img => ({
+          id: img.id,
+          variants: img.variants,
+          fileName: `image-${img.id.slice(-8)}` // Generate a filename since we don't store original names
+        })) || []}
+      />
     </Box>
   );
 }

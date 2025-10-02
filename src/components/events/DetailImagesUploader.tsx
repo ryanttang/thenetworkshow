@@ -11,53 +11,32 @@ import {
   IconButton,
   SimpleGrid,
   Badge,
-  Flex,
-  Spacer,
   Image
 } from "@chakra-ui/react";
 
-export default function ImageUploader({ 
+export default function DetailImagesUploader({ 
   eventId, 
-  onUploaded,
-  showUploadedImages = false,
-  initialImageId
+  onImagesUploaded,
+  initialImages = []
 }: { 
   eventId?: string; 
-  onUploaded: (imageId: string | undefined, variants?: any) => void;
-  showUploadedImages?: boolean;
-  initialImageId?: string;
+  onImagesUploaded: (images: Array<{id: string, variants: any, fileName: string}>) => void;
+  initialImages?: Array<{id: string, variants: any, fileName: string}>;
 }) {
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
-  const [uploadedImages, setUploadedImages] = useState<Array<{id: string, variants: any, fileName: string}>>([]);
+  const [uploadedImages, setUploadedImages] = useState<Array<{id: string, variants: any, fileName: string}>>(initialImages);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
-  const [currentImage, setCurrentImage] = useState<{id: string, variants: any} | null>(null);
-  const [lastUploadedImage, setLastUploadedImage] = useState<{id: string, variants: any, fileName: string} | null>(null);
   const toast = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
 
-  // Load initial image if provided, or clear if undefined
+  // Update parent when images change
   useEffect(() => {
-    if (initialImageId) {
-      fetch(`/api/images/metadata/${initialImageId}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.id) {
-            setCurrentImage(data);
-            onUploaded(data.id, data.variants);
-          }
-        })
-        .catch(error => {
-          console.error("Failed to load initial image:", error);
-        });
-    } else {
-      // Clear current image if initialImageId is undefined/null
-      setCurrentImage(null);
-    }
-  }, [initialImageId, onUploaded]);
+    onImagesUploaded(uploadedImages);
+  }, [uploadedImages, onImagesUploaded]);
 
-  const FILE_SIZE_LIMIT = 10 * 1024 * 1024; // 10MB limit to match server
+  const FILE_SIZE_LIMIT = 10 * 1024 * 1024; // 10MB limit
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
@@ -98,11 +77,7 @@ export default function ImageUploader({
           };
           setUploadedImages(prev => [...prev, newImage]);
           setUploadProgress(prev => ({ ...prev, [file.name]: 100 }));
-          setLastUploadedImage(newImage); // Set as the last uploaded image for preview
           results.push(result);
-          
-          // Call onUploaded for each successfully uploaded image
-          onUploaded(result.imageId, result.variants);
         } catch (error) {
           console.error(`Failed to upload ${file.name}:`, error);
           toast({
@@ -116,8 +91,8 @@ export default function ImageUploader({
       
       if (results.length > 0) {
         toast({
-          title: "Upload successful",
-          description: `Successfully uploaded ${results.length} image${results.length !== 1 ? 's' : ''}`,
+          title: "Detail images uploaded successfully",
+          description: `Successfully uploaded ${results.length} image${results.length !== 1 ? 's' : ''} for event details`,
           status: "success",
           duration: 3000,
         });
@@ -184,11 +159,7 @@ export default function ImageUploader({
           };
           setUploadedImages(prev => [...prev, newImage]);
           setUploadProgress(prev => ({ ...prev, [file.name]: 100 }));
-          setLastUploadedImage(newImage); // Set as the last uploaded image for preview
           results.push(result);
-          
-          // Call onUploaded for each successfully uploaded image
-          onUploaded(result.imageId, result.variants);
         } catch (error) {
           console.error(`Failed to upload ${file.name}:`, error);
           toast({
@@ -202,8 +173,8 @@ export default function ImageUploader({
       
       if (results.length > 0) {
         toast({
-          title: "Upload successful",
-          description: `Successfully uploaded ${results.length} image${results.length !== 1 ? 's' : ''}`,
+          title: "Detail images uploaded successfully",
+          description: `Successfully uploaded ${results.length} image${results.length !== 1 ? 's' : ''} for event details`,
           status: "success",
           duration: 3000,
         });
@@ -246,12 +217,11 @@ export default function ImageUploader({
     if (!res.ok) {
       let errorMessage = "Upload failed";
       
-      // Handle specific HTTP status codes
       if (res.status === 413) {
         errorMessage = `File "${file.name}" is too large (${formatFileSize(file.size)}). Please reduce the file size to under ${formatFileSize(FILE_SIZE_LIMIT)}.`;
       } else if (res.status === 429) {
         const retryAfter = res.headers.get('Retry-After');
-        const retrySeconds = retryAfter ? parseInt(retryAfter) : 900; // Default to 15 minutes
+        const retrySeconds = retryAfter ? parseInt(retryAfter) : 900;
         const retryMinutes = Math.ceil(retrySeconds / 60);
         errorMessage = `Upload limit exceeded. Please wait ${retryMinutes} minute${retryMinutes !== 1 ? 's' : ''} before uploading again.`;
       } else {
@@ -259,7 +229,6 @@ export default function ImageUploader({
           const json = await res.json();
           errorMessage = json.error || json.details || "Upload failed";
         } catch (e) {
-          // If response is not JSON, use status text
           errorMessage = res.statusText || "Upload failed";
         }
       }
@@ -271,71 +240,8 @@ export default function ImageUploader({
     return { imageId: json.imageId, variants: json.variants };
   };
 
-  const onUpload = async () => {
-    if (files.length === 0) return;
-    setBusy(true);
-    
-    try {
-      const results = [];
-      
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        setUploadProgress(prev => ({ ...prev, [file.name]: 0 }));
-        
-        try {
-          const result = await uploadFile(file);
-          const newImage = { 
-            id: result.imageId, 
-            variants: result.variants, 
-            fileName: file.name 
-          };
-          setUploadedImages(prev => [...prev, newImage]);
-          setUploadProgress(prev => ({ ...prev, [file.name]: 100 }));
-          results.push(result);
-        } catch (error) {
-          console.error(`Failed to upload ${file.name}:`, error);
-          toast({
-            title: `Failed to upload ${file.name}`,
-            description: error instanceof Error ? error.message : "Unknown error",
-            status: "error",
-            duration: 5000,
-          });
-        }
-      }
-      
-      if (results.length > 0) {
-        // Call onUploaded for each successfully uploaded image
-        results.forEach(result => {
-          onUploaded(result.imageId, result.variants);
-        });
-        
-        toast({
-          title: "Upload successful",
-          description: `Successfully uploaded ${results.length} image${results.length !== 1 ? 's' : ''}`,
-          status: "success",
-          duration: 3000,
-        });
-        clearAllFiles();
-      }
-    } catch (error) {
-      toast({
-        title: "Upload failed",
-        description: error instanceof Error ? error.message : "Unknown error",
-        status: "error",
-        duration: 5000,
-      });
-    } finally {
-      setBusy(false);
-    }
-  };
-
   const removeImage = (imageId: string) => {
     setUploadedImages(prev => prev.filter(img => img.id !== imageId));
-  };
-
-  const removeCurrentImage = () => {
-    setCurrentImage(null);
-    onUploaded(undefined); // Clear the image ID - pass undefined to properly remove
   };
 
   const getImageUrl = (image: any) => {
@@ -382,84 +288,6 @@ export default function ImageUploader({
 
   return (
     <VStack spacing={4} align="stretch">
-      {/* Current Image Display */}
-      {currentImage && (
-        <Box p={4} bg="gray.50" borderRadius="md" position="relative">
-          <Text fontSize="sm" fontWeight="medium" mb={2}>
-            Current Hero Image:
-          </Text>
-          <Box w="full" h="32" borderRadius="md" overflow="hidden" mb={2}>
-            <Image 
-              src={getImageUrl(currentImage)} 
-              alt="Current hero image"
-              w="full"
-              h="full"
-              objectFit="cover"
-              fallbackSrc="/placeholder-image.svg"
-            />
-          </Box>
-          <IconButton
-            aria-label="Remove current image"
-            icon={<span>✕</span>}
-            size="sm"
-            variant="ghost"
-            colorScheme="red"
-            position="absolute"
-            top={2}
-            right={2}
-            onClick={removeCurrentImage}
-          />
-        </Box>
-      )}
-
-      {/* Last Uploaded Image Preview */}
-      {lastUploadedImage && !currentImage && (
-        <Box p={3} bg="green.50" borderRadius="md" position="relative" border="1px solid" borderColor="green.200">
-          <HStack spacing={3} align="center">
-            <Box w="16" h="16" borderRadius="md" overflow="hidden" flexShrink={0}>
-              <Image 
-                src={getImageUrl(lastUploadedImage)} 
-                alt="Uploaded image preview"
-                w="full"
-                h="full"
-                objectFit="cover"
-                fallbackSrc="/placeholder-image.svg"
-              />
-            </Box>
-            <VStack spacing={1} align="start" flex={1}>
-              <Text fontSize="sm" fontWeight="medium" color="green.700">
-                ✓ Upload Successful
-              </Text>
-              <Text fontSize="xs" color="green.600" noOfLines={1}>
-                {lastUploadedImage.fileName}
-              </Text>
-            </VStack>
-            <HStack spacing={1}>
-              <Button
-                size="xs"
-                colorScheme="green"
-                variant="solid"
-                onClick={() => {
-                  setCurrentImage(lastUploadedImage);
-                  onUploaded(lastUploadedImage.id, lastUploadedImage.variants);
-                  setLastUploadedImage(null);
-                }}
-              >
-                Use as Hero
-              </Button>
-              <IconButton
-                aria-label="Dismiss preview"
-                icon={<span>✕</span>}
-                size="xs"
-                variant="ghost"
-                colorScheme="green"
-                onClick={() => setLastUploadedImage(null)}
-              />
-            </HStack>
-          </HStack>
-        </Box>
-      )}
-
       {/* File Selection */}
       <VStack spacing={3} align="stretch">
         <HStack spacing={3}>
@@ -471,6 +299,7 @@ export default function ImageUploader({
             onChange={handleFileSelect}
             p={1}
             flex={1}
+            disabled={busy}
           />
           <Input 
             ref={folderInputRef}
@@ -480,6 +309,7 @@ export default function ImageUploader({
             p={1}
             flex={1}
             placeholder="Select folder"
+            disabled={busy}
             // @ts-ignore - webkitdirectory is a valid HTML attribute for folder selection
             webkitdirectory=""
           />
@@ -488,7 +318,7 @@ export default function ImageUploader({
         {busy && (
           <HStack spacing={3}>
             <Text fontSize="sm" color="blue.600">
-              Uploading images...
+              Uploading detail images...
             </Text>
             <Button 
               onClick={clearAllFiles} 
@@ -531,10 +361,10 @@ export default function ImageUploader({
         </Box>
       )}
       
-      {files.length === 0 && !currentImage && !busy && (
+      {files.length === 0 && !busy && (
         <VStack spacing={2} align="stretch">
           <Text color="gray.500" fontSize="sm">
-            Select images or a folder to automatically upload (JPG, PNG, WebP, HEIC supported)
+            Upload additional images for the event details page (JPG, PNG, WebP, HEIC supported)
           </Text>
           <Text color="gray.400" fontSize="xs">
             Maximum file size: {formatFileSize(FILE_SIZE_LIMIT)} per file
@@ -542,11 +372,11 @@ export default function ImageUploader({
         </VStack>
       )}
 
-      {/* Uploaded Images */}
-      {showUploadedImages && uploadedImages.length > 0 && (
+      {/* Uploaded Detail Images */}
+      {uploadedImages.length > 0 && (
         <Box>
           <Text fontSize="sm" fontWeight="medium" mb={2}>
-            Recently uploaded:
+            Detail Images ({uploadedImages.length}):
           </Text>
           <SimpleGrid columns={3} spacing={3}>
             {uploadedImages.map((img) => (
@@ -554,7 +384,7 @@ export default function ImageUploader({
                 <Box w="full" h="24" borderRadius="md" overflow="hidden" mb={2}>
                   <img 
                     src={getImageUrl(img)} 
-                    alt={img.fileName || "Uploaded image"}
+                    alt={img.fileName || "Detail image"}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
@@ -566,7 +396,7 @@ export default function ImageUploader({
                   {img.fileName || "Image"}
                 </Text>
                 <IconButton
-                  aria-label="Remove image"
+                  aria-label="Remove detail image"
                   icon={<span>✕</span>}
                   size="xs"
                   variant="ghost"

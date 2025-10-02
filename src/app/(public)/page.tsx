@@ -96,61 +96,36 @@ export default async function HomePage() {
         position="relative"
       >
         <Container maxW="7xl" position="relative" zIndex={1}>
-          <Box mb={{ base: 8, md: 12 }} textAlign="center">
+          <Box mb={{ base: 8, md: 12 }} display="flex" justifyContent="space-between" alignItems="center">
+            <Heading 
+              size={{ base: "md", md: "xl" }} 
+              color="black"
+              fontWeight="600"
+              letterSpacing="tight"
+              fontFamily="'SUSE Mono', monospace"
+            >
+              Events Calendar
+            </Heading>
             <Box
               position="relative"
               display="inline-block"
-              px={8}
-              py={4}
-              borderRadius="3xl"
-              border="3px solid"
-              borderColor="transparent"
-              bgGradient="linear(135deg, green.100, blue.100, green.50)"
-              _before={{
-                content: '""',
-                position: "absolute",
-                top: "-3px",
-                left: "-3px",
-                right: "-3px",
-                bottom: "-3px",
-                borderRadius: "3xl",
-                bgGradient: "linear(135deg, green.500, blue.500, green.400)",
-                zIndex: -1
-              }}
-              _after={{
-                content: '""',
-                position: "absolute",
-                top: "0px",
-                left: "0px",
-                right: "0px",
-                bottom: "0px",
-                borderRadius: "3xl",
-                bg: "white",
-                zIndex: -1
-              }}
+              px={5}
+              py={2}
+              borderRadius="xl"
+              border="2px solid"
+              borderColor="black"
+              bg="white"
             >
               <Heading 
-                size={{ base: "2xl", md: "3xl" }} 
-                bgGradient="linear(135deg, green.600, green.500, blue.500)"
-                bgClip="text"
+                size={{ base: "md", md: "xl" }} 
+                color="black"
                 fontWeight="600"
                 letterSpacing="tight"
-                position="relative"
-                zIndex={1}
                 fontFamily="'SUSE Mono', monospace"
               >
-                Upcoming Events
+                {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
               </Heading>
             </Box>
-            <Text 
-              fontSize={{ base: "lg", md: "xl" }} 
-              color="gray.600" 
-              mt={4}
-              fontFamily="'SUSE Mono', monospace"
-              fontWeight="500"
-            >
-              {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-            </Text>
           </Box>
           <Suspense fallback={<EventGridSkeleton />}>
             <EventGrid items={eventsData.items || []} />

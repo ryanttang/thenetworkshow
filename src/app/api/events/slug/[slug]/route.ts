@@ -18,7 +18,7 @@ export async function GET(
         slug: slug,
         status: "PUBLISHED"
       },
-      include: { heroImage: true }
+      include: { heroImage: true, images: true }
     });
     
     if (!event) {

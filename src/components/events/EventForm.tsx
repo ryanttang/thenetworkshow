@@ -3,18 +3,21 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createEventSchema } from "@/lib/validation";
 import { Box, Button, FormControl, FormLabel, Input, Textarea, HStack, Switch, VStack, useToast, SimpleGrid, Stack } from "@chakra-ui/react";
-import ImageUploader from "./ImageUploader";
+import HeroImageUploader from "./HeroImageUploader";
+import DetailImagesUploader from "./DetailImagesUploader";
 import { useState } from "react";
 import type { z } from "zod";
 
 type FormVals = z.infer<typeof createEventSchema>;
 
-export default function EventForm({ initial, mode = "create", eventId }: { 
+export default function EventForm({ initial, mode = "create", eventId, existingImages }: { 
   initial?: Partial<FormVals>; 
   mode?: "create" | "edit";
   eventId?: string;
+  existingImages?: Array<{id: string, variants: any, fileName: string}>;
 }) {
   const [heroImageId, setHeroImageId] = useState<string | undefined>(initial?.heroImageId);
+  const [detailImages, setDetailImages] = useState<Array<{id: string, variants: any, fileName: string}>>(existingImages || []);
   const toast = useToast();
   
   const { register, handleSubmit, formState: { isSubmitting, errors }, watch, setValue } = useForm<FormVals>({
@@ -176,10 +179,21 @@ export default function EventForm({ initial, mode = "create", eventId }: {
         
         {/* Hero Image Section */}
         <Box>
-          <FormLabel fontSize="sm" fontWeight="semibold">Hero Image</FormLabel>
-          <ImageUploader 
+          <FormLabel fontSize="sm" fontWeight="semibold">Hero Image (Main Flyer)</FormLabel>
+          <HeroImageUploader 
             onUploaded={(id) => setHeroImageId(id)} 
-            initialImageId={initial?.heroImageId}
+            initialImageId={heroImageId}
+            eventId={eventId}
+          />
+        </Box>
+        
+        {/* Detail Images Section */}
+        <Box>
+          <FormLabel fontSize="sm" fontWeight="semibold">Additional Detail Images (Optional)</FormLabel>
+          <DetailImagesUploader 
+            onImagesUploaded={(images) => setDetailImages(images)}
+            eventId={eventId}
+            initialImages={existingImages}
           />
         </Box>
         
