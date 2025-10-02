@@ -195,7 +195,12 @@ export default function GalleryPage({ galleries, allTags }: GalleryPageProps) {
       <VStack spacing={8} align="stretch">
         {/* Header */}
         <Box textAlign="center">
-          <Heading size="2xl" mb={4}>Event Gallery</Heading>
+          <Heading 
+            size="2xl" 
+            mb={4}
+            fontFamily="'SUSE Mono', monospace"
+            fontWeight="600"
+          >Event Gallery</Heading>
           <Text fontSize="lg" color="gray.600">
             Browse photos from our amazing events and Instagram
           </Text>
@@ -312,7 +317,12 @@ export default function GalleryPage({ galleries, allTags }: GalleryPageProps) {
                     >
                     {/* Gallery Header */}
                     <Box p={4} bg="gray.50">
-                      <Heading size="md" mb={2}>{gallery.name}</Heading>
+                      <Heading 
+                        size="md" 
+                        mb={2}
+                        fontFamily="'SUSE Mono', monospace"
+                        fontWeight="600"
+                      >{gallery.name}</Heading>
                       {gallery.event && (
                         <Text color="blue.600" fontSize="sm" mb={2}>
                           Event: {gallery.event.title}
@@ -414,7 +424,12 @@ export default function GalleryPage({ galleries, allTags }: GalleryPageProps) {
               {/* Instagram Tab */}
               <VStack spacing={6} align="stretch">
                 <Box textAlign="center">
-                  <Heading size="lg" mb={2}>Instagram Posts</Heading>
+                  <Heading 
+                    size="lg" 
+                    mb={2}
+                    fontFamily="'SUSE Mono', monospace"
+                    fontWeight="600"
+                  >Instagram Posts</Heading>
                   <Text color="gray.600">
                     Latest posts from our Instagram account
                   </Text>
@@ -481,7 +496,11 @@ export default function GalleryPage({ galleries, allTags }: GalleryPageProps) {
                   fallbackSrc="/placeholder-image.svg"
                 />
                 {selectedImage.title && (
-                  <Heading size="md">{selectedImage.title}</Heading>
+                  <Heading 
+                    size="md"
+                    fontFamily="'SUSE Mono', monospace"
+                    fontWeight="600"
+                  >{selectedImage.title}</Heading>
                 )}
                 {selectedImage.caption && (
                   <Text color="gray.600">{selectedImage.caption}</Text>

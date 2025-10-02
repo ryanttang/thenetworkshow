@@ -149,7 +149,12 @@ export default function GalleryDetailPage({ gallery }: GalleryDetailPageProps) {
 
         {/* Gallery Info */}
         <Box textAlign="center">
-          <Heading size="2xl" mb={4}>{gallery.name}</Heading>
+          <Heading 
+            size="2xl" 
+            mb={4}
+            fontFamily="'SUSE Mono', monospace"
+            fontWeight="600"
+          >{gallery.name}</Heading>
           {gallery.description && (
             <Text fontSize="lg" color="gray.600" mb={4}>
               {gallery.description}
@@ -264,7 +269,12 @@ export default function GalleryDetailPage({ gallery }: GalleryDetailPageProps) {
                 />
                 <Box textAlign="center">
                   {selectedImage.title && (
-                    <Heading size="md" mb={2}>{selectedImage.title}</Heading>
+                    <Heading 
+                      size="md" 
+                      mb={2}
+                      fontFamily="'SUSE Mono', monospace"
+                      fontWeight="600"
+                    >{selectedImage.title}</Heading>
                   )}
                   {selectedImage.caption && (
                     <Text color="gray.600" mb={3}>{selectedImage.caption}</Text>

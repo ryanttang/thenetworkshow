@@ -147,7 +147,12 @@ export default function ContactPage() {
     <Container maxW="2xl" py={16}>
       <VStack spacing={8} align="stretch">
         <Box textAlign="center">
-          <Heading size="2xl" mb={4}>
+          <Heading 
+            size="2xl" 
+            mb={4}
+            fontFamily="'SUSE Mono', monospace"
+            fontWeight="600"
+          >
             Contact Us
           </Heading>
           <Text fontSize="lg" color="gray.600">

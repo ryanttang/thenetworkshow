@@ -28,7 +28,12 @@ export default async function ArchivePage() {
     <VStack align="stretch" spacing={6}>
       <VStack spacing={6} align="center" mb={8}>
         <Box textAlign="center">
-          <Heading size="xl" mb={3}>Archived Events</Heading>
+          <Heading 
+            size="xl" 
+            mb={3}
+            fontFamily="'SUSE Mono', monospace"
+            fontWeight="600"
+          >Archived Events</Heading>
           <Text color="gray.600">
             {canManageAllEvents 
               ? "View and manage all archived events" 

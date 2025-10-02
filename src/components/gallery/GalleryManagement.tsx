@@ -398,7 +398,12 @@ export default function GalleryManagement({ events, galleries, onRefresh }: Gall
                   >
                     {/* Gallery Header */}
                     <Box p={4} bg="gray.50">
-                      <Heading size="md" mb={2}>{gallery.name}</Heading>
+                      <Heading 
+                        size="md" 
+                        mb={2}
+                        fontFamily="'SUSE Mono', monospace"
+                        fontWeight="600"
+                      >{gallery.name}</Heading>
                       {gallery.event && (
                         <Text color="blue.600" fontSize="sm" mb={2}>
                           Event: {gallery.event.title}
@@ -528,7 +533,11 @@ export default function GalleryManagement({ events, galleries, onRefresh }: Gall
                 {/* Instagram Account Status */}
                 <Box p={6} bg="gray.50" borderRadius="lg">
                   <VStack spacing={4} align="stretch">
-                    <Heading size="md">Instagram Integration</Heading>
+                    <Heading 
+                      size="md"
+                      fontFamily="'SUSE Mono', monospace"
+                      fontWeight="600"
+                    >Instagram Integration</Heading>
                     
                     {instagramAccount ? (
                       <VStack spacing={3} align="stretch">
@@ -571,7 +580,12 @@ export default function GalleryManagement({ events, galleries, onRefresh }: Gall
                 {/* Instagram Posts Preview */}
                 {instagramAccount && (
                   <Box>
-                    <Heading size="md" mb={4}>Recent Instagram Posts</Heading>
+                    <Heading 
+                      size="md" 
+                      mb={4}
+                      fontFamily="'SUSE Mono', monospace"
+                      fontWeight="600"
+                    >Recent Instagram Posts</Heading>
                     <Text color="gray.600" mb={4}>
                       These posts will appear in your public gallery automatically
                     </Text>

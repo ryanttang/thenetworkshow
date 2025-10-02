@@ -134,7 +134,13 @@ export default function FAQPage() {
       <VStack spacing={8} align="stretch">
         {/* Header */}
         <Box textAlign="center">
-          <Heading size="2xl" mb={4} color="green.600">
+          <Heading 
+            size="2xl" 
+            mb={4} 
+            color="green.600"
+            fontFamily="'SUSE Mono', monospace"
+            fontWeight="600"
+          >
             Cannabis Event FAQ
           </Heading>
           <Text fontSize="lg" color="gray.600" maxW="2xl" mx="auto">
@@ -157,7 +163,12 @@ export default function FAQPage() {
 
         {/* Quick Reference */}
         <Box bg="gray.50" p={6} borderRadius="md">
-          <Heading size="md" mb={4}>Quick Reference</Heading>
+          <Heading 
+            size="md" 
+            mb={4}
+            fontFamily="'SUSE Mono', monospace"
+            fontWeight="600"
+          >Quick Reference</Heading>
           <HStack spacing={4} flexWrap="wrap">
             <Badge colorScheme="green" p={2}>21+ with Valid ID</Badge>
             <Badge colorScheme="blue" p={2}>1 oz Flower Limit</Badge>
@@ -169,7 +180,13 @@ export default function FAQPage() {
         {/* FAQ Sections */}
         {faqData.map((section, sectionIndex) => (
           <Box key={sectionIndex}>
-            <Heading size="lg" mb={4} color="green.700">
+            <Heading 
+              size="lg" 
+              mb={4} 
+              color="green.700"
+              fontFamily="'SUSE Mono', monospace"
+              fontWeight="600"
+            >
               {section.category}
             </Heading>
             <Accordion allowMultiple>
@@ -195,7 +212,13 @@ export default function FAQPage() {
 
         {/* Additional Resources */}
         <Box bg="green.50" p={6} borderRadius="md" border="1px" borderColor="green.200">
-          <Heading size="md" mb={4} color="green.700">
+          <Heading 
+            size="md" 
+            mb={4} 
+            color="green.700"
+            fontFamily="'SUSE Mono', monospace"
+            fontWeight="600"
+          >
             Additional Resources
           </Heading>
           <List spacing={2}>
