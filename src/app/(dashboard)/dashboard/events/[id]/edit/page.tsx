@@ -50,13 +50,13 @@ export default async function EditEventPage({ params }: { params: { id: string }
   };
 
   return (
-    <VStack align="stretch" spacing={6}>
-      <Box textAlign="center" mb={8}>
-        <Heading size="xl" mb={3}>Edit Event</Heading>
-        <Text color="gray.600">Update your event details</Text>
+    <Box maxW="4xl" mx="auto">
+      <Box textAlign="center" mb={6}>
+        <Heading size="lg" mb={2}>Edit Event</Heading>
+        <Text color="gray.600" fontSize="sm">Update your event details</Text>
       </Box>
       
       <EventForm initial={initialData} mode="edit" eventId={event.id} />
-    </VStack>
+    </Box>
   );
 }

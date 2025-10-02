@@ -23,6 +23,12 @@ export async function GET(
             address: true,
             city: true,
             state: true,
+            heroImage: {
+              select: {
+                id: true,
+                variants: true,
+              },
+            },
           },
         },
         documents: {

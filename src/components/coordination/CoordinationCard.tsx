@@ -140,24 +140,24 @@ export default function CoordinationCard({ coordination, events }: CoordinationC
   return (
     <>
       <Card 
-        shadow="lg" 
-        borderRadius="2xl" 
+        shadow="md" 
+        borderRadius="xl" 
         overflow="hidden"
         border="1px solid"
         borderColor="gray.100"
         _hover={{
-          shadow: "xl",
-          transform: "translateY(-2px)",
+          shadow: "lg",
+          transform: "translateY(-1px)",
           transition: "all 0.3s ease"
         }}
         transition="all 0.3s ease"
       >
-        <CardHeader pb={4} px={6} pt={6}>
+        <CardHeader pb={3} px={{ base: 4, md: 6 }} pt={{ base: 4, md: 6 }}>
           <VStack align="flex-start" spacing={3}>
-            <HStack justify="space-between" w="full">
-              <VStack align="flex-start" spacing={1} flex={1}>
+            <HStack justify="space-between" w="full" align="flex-start">
+              <VStack align="flex-start" spacing={1} flex={1} minW={0}>
                 <Heading 
-                  size="md" 
+                  size={{ base: "sm", md: "md" }} 
                   color="gray.800" 
                   noOfLines={2}
                   fontFamily="'SUSE Mono', monospace"
@@ -165,7 +165,7 @@ export default function CoordinationCard({ coordination, events }: CoordinationC
                 >
                   {coordination.title}
                 </Heading>
-                <Text fontSize="sm" color="gray.500">
+                <Text fontSize="xs" color="gray.500" noOfLines={1}>
                   {coordination.event.title}
                 </Text>
               </VStack>
@@ -175,29 +175,30 @@ export default function CoordinationCard({ coordination, events }: CoordinationC
                 px={2} 
                 py={1} 
                 borderRadius="full"
+                fontSize="xs"
+                flexShrink={0}
               >
                 {coordination.isActive ? "Active" : "Inactive"}
               </Badge>
             </HStack>
             
             {coordination.description && (
-              <Text fontSize="sm" color="gray.600" noOfLines={2}>
+              <Text fontSize="xs" color="gray.600" noOfLines={2}>
                 {coordination.description}
               </Text>
             )}
           </VStack>
         </CardHeader>
 
-        <CardBody pt={0} px={6} pb={6}>
-          <VStack align="stretch" spacing={4}>
+        <CardBody pt={0} px={{ base: 4, md: 6 }} pb={{ base: 4, md: 6 }}>
+          <VStack align="stretch" spacing={3}>
             {/* Document Count */}
-            <HStack justify="space-between">
-              <Text fontSize="sm" color="gray.600">
+            <HStack justify="space-between" flexWrap="wrap" gap={2}>
+              <Text fontSize="xs" color="gray.600">
                 Documents: {coordination._count.documents}
               </Text>
               <Text fontSize="xs" color="gray.400">
-                Created {new Date(coordination.createdAt).toLocaleDateString('en-US', { 
-                  year: 'numeric', 
+                {new Date(coordination.createdAt).toLocaleDateString('en-US', { 
                   month: 'short', 
                   day: 'numeric' 
                 })}
@@ -234,19 +235,20 @@ export default function CoordinationCard({ coordination, events }: CoordinationC
             <VStack spacing={2} w="full">
               <HStack spacing={2} w="full">
                 <Button 
-                  size="sm" 
+                  size={{ base: "xs", md: "sm" }} 
                   variant="outline" 
                   colorScheme="blue"
                   flex={1}
                   onClick={onUploadOpen}
+                  fontSize="xs"
                 >
-                  Upload Documents
+                  Upload
                 </Button>
                 <Tooltip label="Copy share link">
                   <IconButton
                     aria-label="Copy share link"
                     icon={<span>🔗</span>}
-                    size="sm"
+                    size={{ base: "xs", md: "sm" }}
                     variant="outline"
                     colorScheme="green"
                     onClick={copyShareLink}
@@ -256,21 +258,24 @@ export default function CoordinationCard({ coordination, events }: CoordinationC
               
               <HStack spacing={2} w="full">
                 <Button 
-                  size="sm" 
+                  size={{ base: "xs", md: "sm" }} 
                   variant="outline" 
                   colorScheme="gray"
                   flex={1}
                   onClick={onOpen}
+                  fontSize="xs"
                 >
                   Edit
                 </Button>
                 <Button 
                   as={Link}
                   href={`/coordination/${coordination.shareToken}`}
-                  size="sm" 
+                  size={{ base: "xs", md: "sm" }} 
                   colorScheme="blue"
                   flex={1}
                   target="_blank"
+                  fontSize="xs"
+                  leftIcon={<span>👁️</span>}
                 >
                   View
                 </Button>
@@ -278,7 +283,7 @@ export default function CoordinationCard({ coordination, events }: CoordinationC
                   <IconButton
                     aria-label="Delete coordination"
                     icon={<span>🗑️</span>}
-                    size="sm"
+                    size={{ base: "xs", md: "sm" }}
                     variant="outline"
                     colorScheme="red"
                     onClick={handleDelete}
@@ -295,7 +300,7 @@ export default function CoordinationCard({ coordination, events }: CoordinationC
       <Modal isOpen={isOpen} onClose={onClose} size="lg">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Edit Coordination Set</ModalHeader>
+          <ModalHeader fontFamily="'SUSE Mono', monospace" fontWeight="600">Edit Coordination Set</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <CoordinationForm 
@@ -316,7 +321,7 @@ export default function CoordinationCard({ coordination, events }: CoordinationC
       <Modal isOpen={isUploadOpen} onClose={onUploadClose} size="xl">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Upload Documents</ModalHeader>
+          <ModalHeader fontFamily="'SUSE Mono', monospace" fontWeight="600">Upload Documents</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <DocumentUploader 

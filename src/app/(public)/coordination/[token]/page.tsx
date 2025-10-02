@@ -69,6 +69,48 @@ const getDocumentTypeLabel = (type: string) => {
   return labels[type] || "Other";
 };
 
+const getImageUrl = (image: any) => {
+  if (!image?.variants) {
+    return null;
+  }
+  
+  // Use direct S3 URLs first
+  if (image.variants?.card?.webpUrl) {
+    return image.variants.card.webpUrl;
+  }
+  if (image.variants?.card?.jpgUrl) {
+    return image.variants.card.jpgUrl;
+  }
+  if (image.variants?.thumb?.webpUrl) {
+    return image.variants.thumb.webpUrl;
+  }
+  if (image.variants?.thumb?.jpgUrl) {
+    return image.variants.thumb.jpgUrl;
+  }
+  if (image.variants?.hero?.webpUrl) {
+    return image.variants.hero.webpUrl;
+  }
+  if (image.variants?.hero?.jpgUrl) {
+    return image.variants.hero.jpgUrl;
+  }
+  
+  // Fallback to API route if no direct URLs
+  if (image.variants?.card?.webpKey) {
+    return `/api/images/${encodeURIComponent(image.variants.card.webpKey)}`;
+  }
+  if (image.variants?.card?.jpgKey) {
+    return `/api/images/${encodeURIComponent(image.variants.card.jpgKey)}`;
+  }
+  if (image.variants?.thumb?.webpKey) {
+    return `/api/images/${encodeURIComponent(image.variants.thumb.webpKey)}`;
+  }
+  if (image.variants?.thumb?.jpgKey) {
+    return `/api/images/${encodeURIComponent(image.variants.thumb.jpgKey)}`;
+  }
+  
+  return null;
+};
+
 const formatFileSize = (bytes: number) => {
   if (bytes === 0) return '0 Bytes';
   const k = 1024;
@@ -225,6 +267,7 @@ export default function CoordinationPage({ params }: CoordinationPageProps) {
             color="gray.800"
             fontWeight="700"
             lineHeight="1.2"
+            fontFamily="'SUSE Mono', monospace"
           >
             {coordination.title}
           </Heading>
@@ -250,12 +293,32 @@ export default function CoordinationPage({ params }: CoordinationPageProps) {
           )}
         </Box>
 
+        {/* Event Flyer */}
+        {coordination.event.heroImage && (
+          <Card shadow="lg" borderRadius="xl" overflow="hidden">
+            <Box>
+              <Image
+                src={getImageUrl(coordination.event.heroImage)}
+                alt={`${coordination.event.title} flyer`}
+                w="100%"
+                h="auto"
+                objectFit="cover"
+                fallbackSrc="/placeholder-image.svg"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "/placeholder-image.svg";
+                }}
+              />
+            </Box>
+          </Card>
+        )}
+
         {/* Event Information */}
         <Card shadow="lg" borderRadius="xl">
           <CardHeader>
             <HStack justify="space-between" align="flex-start">
               <VStack align="flex-start" spacing={2}>
-                <Heading size="lg" color="gray.800">
+                <Heading size="lg" color="gray.800" fontFamily="'SUSE Mono', monospace" fontWeight="600">
                   {coordination.event.title}
                 </Heading>
                 <HStack spacing={4} flexWrap="wrap">
@@ -303,7 +366,7 @@ export default function CoordinationPage({ params }: CoordinationPageProps) {
         {coordination.notes && (
           <Card shadow="md" borderRadius="xl">
             <CardHeader>
-              <Heading size="md" color="gray.800">
+              <Heading size="md" color="gray.800" fontFamily="'SUSE Mono', monospace" fontWeight="600">
                 📝 Notes
               </Heading>
             </CardHeader>
@@ -318,7 +381,7 @@ export default function CoordinationPage({ params }: CoordinationPageProps) {
         {/* Documents */}
         <Card shadow="lg" borderRadius="xl">
           <CardHeader>
-            <Heading size="lg" color="gray.800">
+            <Heading size="lg" color="gray.800" fontFamily="'SUSE Mono', monospace" fontWeight="600">
               📋 Coordination Documents
             </Heading>
             <Text color="gray.600" fontSize="sm">
@@ -395,7 +458,7 @@ export default function CoordinationPage({ params }: CoordinationPageProps) {
         {/* Footer */}
         <Box textAlign="center" pt={8}>
           <Text color="gray.400" fontSize="sm">
-            This coordination page is shared by the event organizers
+            This coordination page is intended for internal staff only. Do not share or distribute.
           </Text>
         </Box>
       </VStack>

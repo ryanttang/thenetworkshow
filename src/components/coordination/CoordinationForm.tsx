@@ -17,7 +17,15 @@ import {
   Select,
   useToast,
   useDisclosure,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
+  Box,
+  Text,
 } from "@chakra-ui/react";
+import DocumentUploader from "./DocumentUploader";
 
 interface Event {
   id: string;
@@ -39,6 +47,7 @@ export default function CoordinationForm({
 }: CoordinationFormProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isLoading, setIsLoading] = useState(false);
+  const [createdCoordinationId, setCreatedCoordinationId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     eventId: coordination?.eventId || "",
     title: coordination?.title || "",
@@ -71,6 +80,8 @@ export default function CoordinationForm({
         throw new Error(error.error || "Failed to save coordination");
       }
 
+      const result = await response.json();
+
       toast({
         title: coordination ? "Coordination updated" : "Coordination created",
         description: coordination 
@@ -80,10 +91,17 @@ export default function CoordinationForm({
         duration: 3000,
       });
 
-      onClose();
-      if (onSuccess) onSuccess();
+      // If creating new coordination, store the ID and don't close modal yet
+      if (!coordination) {
+        setCreatedCoordinationId(result.id);
+        // Don't close modal or call onSuccess yet - let user upload documents
+      } else {
+        // For editing, close modal and refresh
+        onClose();
+        if (onSuccess) onSuccess();
+      }
       
-      // Reset form if creating new
+      // Reset form if creating new (but keep modal open for document upload)
       if (!coordination) {
         setFormData({
           eventId: "",
@@ -108,6 +126,20 @@ export default function CoordinationForm({
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleDocumentUploadSuccess = () => {
+    // Close modal and refresh page after document upload
+    onClose();
+    if (onSuccess) onSuccess();
+    setCreatedCoordinationId(null);
+  };
+
+  const handleSkipDocumentUpload = () => {
+    // Close modal and refresh page without uploading documents
+    onClose();
+    if (onSuccess) onSuccess();
+    setCreatedCoordinationId(null);
+  };
+
   return (
     <>
       <Button 
@@ -123,76 +155,116 @@ export default function CoordinationForm({
         {coordination ? "Edit Coordination" : "Create Coordination Set"}
       </Button>
 
-      <Modal isOpen={isOpen} onClose={onClose} size="lg">
+      <Modal isOpen={isOpen} onClose={onClose} size="xl">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>
+          <ModalHeader fontFamily="'SUSE Mono', monospace" fontWeight="600">
             {coordination ? "Edit Coordination Set" : "Create Coordination Set"}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
-            <form onSubmit={handleSubmit}>
-              <VStack spacing={4}>
-                <FormControl isRequired>
-                  <FormLabel>Event</FormLabel>
-                  <Select
-                    value={formData.eventId}
-                    onChange={(e) => handleInputChange("eventId", e.target.value)}
-                    placeholder="Select an event"
+            {!createdCoordinationId ? (
+              // Show form for creating/editing coordination
+              <form onSubmit={handleSubmit}>
+                <VStack spacing={4}>
+                  <FormControl isRequired>
+                    <FormLabel>Event</FormLabel>
+                    <Select
+                      value={formData.eventId}
+                      onChange={(e) => handleInputChange("eventId", e.target.value)}
+                      placeholder="Select an event"
+                    >
+                      {events.map((event) => (
+                        <option key={event.id} value={event.id}>
+                          {event.title} - {new Date(event.startAt).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric' 
+                          })}
+                        </option>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  <FormControl isRequired>
+                    <FormLabel>Title</FormLabel>
+                    <Input
+                      value={formData.title}
+                      onChange={(e) => handleInputChange("title", e.target.value)}
+                      placeholder="e.g., VIP Event Coordination"
+                    />
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel>Description</FormLabel>
+                    <Textarea
+                      value={formData.description}
+                      onChange={(e) => handleInputChange("description", e.target.value)}
+                      placeholder="Brief description of this coordination set"
+                      rows={3}
+                    />
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel>Notes</FormLabel>
+                    <Textarea
+                      value={formData.notes}
+                      onChange={(e) => handleInputChange("notes", e.target.value)}
+                      placeholder="Additional notes for team members"
+                      rows={4}
+                    />
+                  </FormControl>
+
+                  <Button
+                    type="submit"
+                    colorScheme="blue"
+                    isLoading={isLoading}
+                    loadingText={coordination ? "Updating..." : "Creating..."}
+                    w="full"
+                    size="lg"
                   >
-                    {events.map((event) => (
-                      <option key={event.id} value={event.id}>
-                        {event.title} - {new Date(event.startAt).toLocaleDateString('en-US', { 
-                          year: 'numeric', 
-                          month: 'short', 
-                          day: 'numeric' 
-                        })}
-                      </option>
-                    ))}
-                  </Select>
-                </FormControl>
+                    {coordination ? "Update Coordination" : "Create Coordination"}
+                  </Button>
+                </VStack>
+              </form>
+            ) : (
+              // Show document upload interface after coordination is created
+              <VStack spacing={6} align="stretch">
+                <Box textAlign="center" p={4} bg="green.50" borderRadius="md">
+                  <Text color="green.700" fontWeight="medium" mb={2}>
+                    ✅ Coordination set created successfully!
+                  </Text>
+                  <Text color="green.600" fontSize="sm">
+                    You can now upload documents for this coordination set, or skip to finish.
+                  </Text>
+                </Box>
 
-                <FormControl isRequired>
-                  <FormLabel>Title</FormLabel>
-                  <Input
-                    value={formData.title}
-                    onChange={(e) => handleInputChange("title", e.target.value)}
-                    placeholder="e.g., VIP Event Coordination"
-                  />
-                </FormControl>
+                <Tabs>
+                  <TabList>
+                    <Tab>Upload Documents</Tab>
+                  </TabList>
+                  <TabPanels>
+                    <TabPanel px={0}>
+                      <DocumentUploader 
+                        coordinationId={createdCoordinationId}
+                        onSuccess={handleDocumentUploadSuccess}
+                      />
+                    </TabPanel>
+                  </TabPanels>
+                </Tabs>
 
-                <FormControl>
-                  <FormLabel>Description</FormLabel>
-                  <Textarea
-                    value={formData.description}
-                    onChange={(e) => handleInputChange("description", e.target.value)}
-                    placeholder="Brief description of this coordination set"
-                    rows={3}
-                  />
-                </FormControl>
-
-                <FormControl>
-                  <FormLabel>Notes</FormLabel>
-                  <Textarea
-                    value={formData.notes}
-                    onChange={(e) => handleInputChange("notes", e.target.value)}
-                    placeholder="Additional notes for team members"
-                    rows={4}
-                  />
-                </FormControl>
-
-                <Button
-                  type="submit"
-                  colorScheme="blue"
-                  isLoading={isLoading}
-                  loadingText={coordination ? "Updating..." : "Creating..."}
-                  w="full"
-                  size="lg"
-                >
-                  {coordination ? "Update Coordination" : "Create Coordination"}
-                </Button>
+                <Box textAlign="center" pt={4}>
+                  <Button
+                    variant="outline"
+                    colorScheme="gray"
+                    onClick={handleSkipDocumentUpload}
+                    size="sm"
+                  >
+                    Skip Document Upload
+                  </Button>
+                </Box>
               </VStack>
-            </form>
+            )}
           </ModalBody>
         </ModalContent>
       </Modal>

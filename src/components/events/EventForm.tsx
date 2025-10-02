@@ -2,7 +2,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createEventSchema } from "@/lib/validation";
-import { Box, Button, FormControl, FormLabel, Input, Textarea, HStack, Switch, VStack, useToast } from "@chakra-ui/react";
+import { Box, Button, FormControl, FormLabel, Input, Textarea, HStack, Switch, VStack, useToast, SimpleGrid, Stack } from "@chakra-ui/react";
 import ImageUploader from "./ImageUploader";
 import { useState } from "react";
 import type { z } from "zod";
@@ -95,117 +95,148 @@ export default function EventForm({ initial, mode = "create", eventId }: {
   };
 
   return (
-    <Box as="form" onSubmit={handleSubmit(onSubmit)} bg="white" p={6} borderRadius="xl" boxShadow="sm">
-      <VStack spacing={4} align="stretch">
-        <FormControl isInvalid={!!errors.title}>
-          <FormLabel>Title *</FormLabel>
-          <Input {...register("title")} />
-        </FormControl>
-        
-        <FormControl>
-          <FormLabel>Description</FormLabel>
-          <Textarea rows={4} {...register("description")} />
-        </FormControl>
-        
-        <FormControl>
-          <FormLabel>Ticket URL</FormLabel>
-          <Input type="url" {...register("ticketUrl")} placeholder="https://..." />
-        </FormControl>
-        
-        <FormControl>
-          <FormLabel>Button Type</FormLabel>
-          <HStack spacing={4}>
-            <Button
-              type="button"
-              variant={watch("buttonType") === "RSVP" ? "solid" : "outline"}
-              colorScheme="teal"
-              onClick={() => setValue("buttonType", "RSVP")}
-            >
-              RSVP
-            </Button>
-            <Button
-              type="button"
-              variant={watch("buttonType") === "BUY_TICKETS" ? "solid" : "outline"}
-              colorScheme="teal"
-              onClick={() => setValue("buttonType", "BUY_TICKETS")}
-            >
-              Buy Tickets
-            </Button>
-          </HStack>
-        </FormControl>
-        
-        <HStack spacing={4}>
-          <FormControl isInvalid={!!errors.startAt}>
-            <FormLabel>Start Date & Time *</FormLabel>
-            <Input type="datetime-local" {...register("startAt")} />
-          </FormControl>
-          <FormControl>
-            <FormLabel>End Date & Time</FormLabel>
-            <Input type="datetime-local" {...register("endAt")} />
-          </FormControl>
-        </HStack>
-        
-        <HStack spacing={4}>
-          <FormControl>
-            <FormLabel>Location Name</FormLabel>
-            <Input {...register("locationName")} />
-          </FormControl>
-          <FormControl>
-            <FormLabel>City</FormLabel>
-            <Input {...register("city")} />
-          </FormControl>
-          <FormControl>
-            <FormLabel>State</FormLabel>
-            <Input {...register("state")} />
-          </FormControl>
-        </HStack>
-        
-        <FormControl display="flex" alignItems="center">
-          <FormLabel mb="0">Publish immediately</FormLabel>
-          <Switch 
-            defaultChecked={initial?.status === "PUBLISHED"}
-            onChange={(e) => setValue("status", e.target.checked ? "PUBLISHED" : "DRAFT")}
-          />
-        </FormControl>
-
+    <Box as="form" onSubmit={handleSubmit(onSubmit)} bg="white" p={{ base: 4, md: 6 }} borderRadius="xl" boxShadow="sm">
+      <VStack spacing={6} align="stretch">
+        {/* Basic Information Section */}
         <Box>
-          <FormLabel>Hero Image</FormLabel>
+          <FormControl isInvalid={!!errors.title} mb={4}>
+            <FormLabel fontSize="sm" fontWeight="semibold">Title *</FormLabel>
+            <Input {...register("title")} size="md" />
+          </FormControl>
+          
+          <FormControl mb={4}>
+            <FormLabel fontSize="sm" fontWeight="semibold">Description</FormLabel>
+            <Textarea rows={3} {...register("description")} resize="vertical" />
+          </FormControl>
+        </Box>
+
+        {/* Ticket Information Section */}
+        <Box>
+          <FormControl mb={4}>
+            <FormLabel fontSize="sm" fontWeight="semibold">Ticket URL</FormLabel>
+            <Input type="url" {...register("ticketUrl")} placeholder="https://..." />
+          </FormControl>
+          
+          <FormControl>
+            <FormLabel fontSize="sm" fontWeight="semibold">Button Type</FormLabel>
+            <HStack spacing={3} mt={2}>
+              <Button
+                type="button"
+                variant={watch("buttonType") === "RSVP" ? "solid" : "outline"}
+                colorScheme="teal"
+                size="sm"
+                onClick={() => setValue("buttonType", "RSVP")}
+              >
+                RSVP
+              </Button>
+              <Button
+                type="button"
+                variant={watch("buttonType") === "BUY_TICKETS" ? "solid" : "outline"}
+                colorScheme="teal"
+                size="sm"
+                onClick={() => setValue("buttonType", "BUY_TICKETS")}
+              >
+                Buy Tickets
+              </Button>
+            </HStack>
+          </FormControl>
+        </Box>
+        
+        {/* Date & Time Section */}
+        <Box>
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+            <FormControl isInvalid={!!errors.startAt}>
+              <FormLabel fontSize="sm" fontWeight="semibold">Start Date & Time *</FormLabel>
+              <Input type="datetime-local" {...register("startAt")} />
+            </FormControl>
+            <FormControl>
+              <FormLabel fontSize="sm" fontWeight="semibold">End Date & Time</FormLabel>
+              <Input type="datetime-local" {...register("endAt")} />
+            </FormControl>
+          </SimpleGrid>
+        </Box>
+        
+        {/* Location Section */}
+        <Box>
+          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
+            <FormControl>
+              <FormLabel fontSize="sm" fontWeight="semibold">Location Name</FormLabel>
+              <Input {...register("locationName")} />
+            </FormControl>
+            <FormControl>
+              <FormLabel fontSize="sm" fontWeight="semibold">City</FormLabel>
+              <Input {...register("city")} />
+            </FormControl>
+            <FormControl>
+              <FormLabel fontSize="sm" fontWeight="semibold">State</FormLabel>
+              <Input {...register("state")} />
+            </FormControl>
+          </SimpleGrid>
+        </Box>
+        
+        {/* Hero Image Section */}
+        <Box>
+          <FormLabel fontSize="sm" fontWeight="semibold">Hero Image</FormLabel>
           <ImageUploader 
             onUploaded={(id) => setHeroImageId(id)} 
             initialImageId={initial?.heroImageId}
           />
         </Box>
         
-        <Button 
-          type="submit" 
-          isLoading={isSubmitting} 
-          size="lg"
-          bg="linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)"
-          color="white"
-          shadow="lg"
-          fontWeight="600"
-          _hover={{
-            bg: "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)",
-            transform: "translateY(-2px)",
-            shadow: "xl"
-          }}
-          transition="all 0.3s ease-in-out"
-        >
-          {mode === "edit" ? "Update Event" : "Save Event"}
-        </Button>
+        {/* Publish Settings */}
+        <Box>
+          <FormControl display="flex" alignItems="center" justifyContent="space-between" p={3} bg="gray.50" borderRadius="md">
+            <FormLabel mb="0" fontSize="sm" fontWeight="semibold">Publish immediately</FormLabel>
+            <Switch 
+              defaultChecked={initial?.status === "PUBLISHED"}
+              onChange={(e) => setValue("status", e.target.checked ? "PUBLISHED" : "DRAFT")}
+            />
+          </FormControl>
+        </Box>
         
-        {/* Debug button */}
-        <Button 
-          type="button" 
-          variant="outline" 
-          onClick={() => {
-            console.log("Form errors:", errors);
-            console.log("Form values:", watch());
-            console.log("Is submitting:", isSubmitting);
-          }}
-        >
-          Debug Form
-        </Button>
+        {/* Action Buttons */}
+        <Stack direction={{ base: "column", sm: "row" }} spacing={3} pt={2}>
+          <Button 
+            type="submit" 
+            isLoading={isSubmitting} 
+            size={{ base: "lg", md: "md" }}
+            flex={1}
+            bg="linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)"
+            color="white"
+            shadow={{ base: "xl", md: "lg" }}
+            fontWeight="600"
+            minH={{ base: "48px", md: "40px" }}
+            fontSize={{ base: "md", md: "sm" }}
+            _hover={{
+              bg: "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)",
+              transform: "translateY(-2px)",
+              shadow: "xl"
+            }}
+            _active={{
+              transform: "translateY(0px)",
+              shadow: "lg"
+            }}
+            transition="all 0.3s ease-in-out"
+          >
+            {mode === "edit" ? "Update Event" : "Save Event"}
+          </Button>
+          
+          {/* Debug button - only show in development */}
+          {process.env.NODE_ENV === 'development' && (
+            <Button 
+              type="button" 
+              variant="outline" 
+              size="md"
+              onClick={() => {
+                console.log("Form errors:", errors);
+                console.log("Form values:", watch());
+                console.log("Is submitting:", isSubmitting);
+              }}
+            >
+              Debug
+            </Button>
+          )}
+        </Stack>
       </VStack>
     </Box>
   );
