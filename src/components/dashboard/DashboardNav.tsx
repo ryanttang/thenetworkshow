@@ -19,8 +19,9 @@ import {
   DrawerContent,
   DrawerCloseButton,
 } from "@chakra-ui/react";
-import { ViewIcon, HamburgerIcon } from "@chakra-ui/icons";
+import { ViewIcon } from "@chakra-ui/icons";
 import NextLink from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useRef, useState, useEffect } from "react";
 
@@ -33,6 +34,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: "🏠", category: "main" },
+  { label: "Help & Guides", href: "/dashboard/help", icon: "📚", category: "main" },
   { label: "Events", href: "/dashboard/events", icon: "📅", category: "content" },
   { label: "Archive", href: "/dashboard/events/archive", icon: "📦", category: "content" },
   { label: "Videos", href: "/dashboard/videos", icon: "🎥", category: "content" },
@@ -151,14 +153,33 @@ export default function DashboardNav() {
                     colorScheme="blue"
                   />
                 </Tooltip>
-                <IconButton
-                  ref={btnRef}
-                  aria-label="Open menu"
-                  icon={<HamburgerIcon />}
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setIsOpen(true)}
-                />
+                <Tooltip label="Navigation Menu" placement="bottom">
+                  <Button
+                    ref={btnRef}
+                    aria-label="Open menu"
+                    bg="green.50"
+                    color="green.600"
+                    size="md"
+                    variant="outline"
+                    borderColor="green.300"
+                    onClick={() => setIsOpen(true)}
+                    _hover={{ bg: "green.100", borderColor: "green.400" }}
+                    minW="auto"
+                    w="40px"
+                    h="40px"
+                    p={2}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Image
+                      src="/weedicon.svg"
+                      alt="Menu icon"
+                      width={18}
+                      height={18}
+                    />
+                  </Button>
+                </Tooltip>
               </HStack>
             </Flex>
           </Container>

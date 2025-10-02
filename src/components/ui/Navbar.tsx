@@ -56,6 +56,8 @@ export default function Navbar() {
   }, []);
 
   const navLinks = [
+    { label: "Home", href: "/" },
+    { label: "Events", href: "/events" },
     { label: "Gallery", href: "/gallery" },
     { label: "FAQ", href: "/faq" },
     { label: "Contact", href: "/contact" },
@@ -158,20 +160,26 @@ export default function Navbar() {
             <IconButton
               ref={btnRef}
               aria-label="Open menu"
-              icon={<HamburgerIcon />}
               size="md"
-              bg="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"
+              bg="linear-gradient(135deg, #22c55e 0%, #16a34a 100%)"
               color="white"
               shadow="md"
               fontWeight="600"
               onClick={() => setIsOpen(true)}
               _hover={{
-                bg: "linear-gradient(135deg, #43a3f7 0%, #00e6f7 100%)",
+                bg: "linear-gradient(135deg, #16a34a 0%, #15803d 100%)",
                 transform: "scale(1.1)",
                 shadow: "lg"
               }}
               transition="all 0.3s ease-in-out"
-            />
+            >
+              <Image
+                src="/weedicon.svg"
+                alt="Menu icon"
+                width={16}
+                height={16}
+              />
+            </IconButton>
           </Flex>
         </Box>
 
@@ -200,21 +208,91 @@ export default function Navbar() {
             <DrawerHeader 
               borderBottomWidth="1px"
               borderColor={drawerBorderColor}
-              pb={6}
+              pb={8}
+              pt={8}
             >
-              <Text 
-                color={drawerTextColor} 
-                fontWeight="700" 
-                fontSize="xl"
-                className="gradient-text"
-              >
-                Menu
-              </Text>
+              <Box display="flex" flexDirection="column" alignItems="center" gap={3}>
+                <Image 
+                  src="/thc-logo.png" 
+                  alt="THC Members Only Club" 
+                  height="36px" 
+                  width="auto"
+                  filter="brightness(0.8)"
+                />
+                <VStack spacing={2} align="center">
+                  <Text fontSize="sm" color={drawerTextColor} fontWeight="600">
+                    THC Members Only Club
+                  </Text>
+                  <Text fontSize="xs" color={drawerTextColor} fontStyle="italic" opacity={0.8}>
+                    Premiere Cannabis Events
+                  </Text>
+                  <Button
+                    as="a"
+                    href="https://instagram.com/thcmembersonlyclub"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    variant="ghost"
+                    color={drawerTextColor}
+                    _hover={{ bg: "rgba(255, 255, 255, 0.1)" }}
+                    p={0}
+                    w="24px"
+                    h="24px"
+                    minW="24px"
+                    minH="24px"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    mt={1}
+                  >
+                    <Image
+                      src="/Instagram_icon.png"
+                      alt="Instagram"
+                      width={12}
+                      height={12}
+                      objectFit="contain"
+                    />
+                  </Button>
+                </VStack>
+              </Box>
             </DrawerHeader>
-            <DrawerBody pt={6}>
-              <VStack spacing={6} align="stretch">
-                <NavLinks />
-                <Box pt={4} borderTop="1px" borderColor={drawerBorderColor} mt={4}>
+            <DrawerBody pt={8}>
+              <VStack spacing={8} align="stretch">
+                {/* Navigation Links */}
+                <VStack spacing={4} align="stretch">
+                    {navLinks.map((link) => (
+                      <Link 
+                        key={link.href}
+                        as={link.isExternal ? "a" : NextLink} 
+                        href={link.href}
+                        {...(link.isExternal && { 
+                          target: "_blank", 
+                          rel: "noopener noreferrer" 
+                        })}
+                        fontSize="lg"
+                        fontWeight="600"
+                        color={drawerTextColor}
+                        textAlign="center"
+                        py={3}
+                        px={6}
+                        borderRadius="lg"
+                        _hover={{ 
+                          color: linkHoverColor,
+                          bg: "rgba(255, 255, 255, 0.1)",
+                          transform: "translateY(-1px)",
+                          textDecoration: "none",
+                        }}
+                        transition="all 0.3s ease-in-out"
+                        width="full"
+                        fontSize="md"
+                        fontWeight="500"
+                      >
+                        {link.label}
+                      </Link>
+                    ))}
+                </VStack>
+
+                {/* Sign Out Button */}
+                <VStack spacing={4} pt={4} borderTop="1px" borderColor={drawerBorderColor}>
                   {session ? (
                     <Button 
                       size="lg" 
@@ -224,6 +302,8 @@ export default function Navbar() {
                       shadow="md"
                       fontWeight="600"
                       width="full"
+                      py={6}
+                      fontSize="md"
                       _hover={{
                         bg: "linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)",
                         transform: "translateY(-1px) scale(1.02)",
@@ -243,6 +323,8 @@ export default function Navbar() {
                       shadow="lg"
                       fontWeight="600"
                       width="full"
+                      py={6}
+                      fontSize="md"
                       _hover={{
                         bg: "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)",
                         transform: "translateY(-1px) scale(1.02)",
@@ -257,34 +339,11 @@ export default function Navbar() {
                     fontSize="xs" 
                     color="gray.500" 
                     textAlign="center" 
-                    mt={2}
                     fontStyle="italic"
                   >
                     Staff Use Only
                   </Text>
-                </Box>
-                
-                {/* THC Logo Footer */}
-                <Box 
-                  pt={4} 
-                  mt={6} 
-                  textAlign="center" 
-                  borderTop="1px" 
-                  borderColor={drawerBorderColor}
-                >
-                  <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
-                    <Image 
-                      src="/thc-logo.png" 
-                      alt="THC Members Only Club" 
-                      height="32px" 
-                      width="auto"
-                      filter="brightness(0.8)"
-                    />
-                    <Text fontSize="xs" color={drawerTextColor} fontWeight="500">
-                      THC Members Only Club
-                    </Text>
-                  </Box>
-                </Box>
+                </VStack>
               </VStack>
             </DrawerBody>
           </DrawerContent>
