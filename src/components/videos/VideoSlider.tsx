@@ -118,10 +118,11 @@ export default function VideoSlider({ videos }: VideoSliderProps) {
               size="3xl" 
               bgGradient="linear(135deg, blue.600, blue.500, purple.500)"
               bgClip="text"
-              fontWeight="bold"
+              fontWeight="600"
               letterSpacing="tight"
               position="relative"
               zIndex={1}
+              fontFamily="'SUSE Mono', monospace"
             >
               Recent Events
             </Heading>

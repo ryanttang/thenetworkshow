@@ -258,7 +258,7 @@ export default function EventCard({
         flexDirection="column"
       >
         {img && (
-          <NextLink href={isAdminView ? `/events/${id}` : `/events/${slug}`}>
+          <NextLink href={`/events/${slug}`}>
               <CImage
               src={img}
               alt={title}
@@ -281,11 +281,11 @@ export default function EventCard({
             />
           </NextLink>
         )}
-        <Stack p={{ base: 3, md: 4 }} spacing={3} flex={1} display="flex" flexDirection="column" position="relative" zIndex={1}>
+        <Stack p={{ base: 2, sm: 3, md: 4 }} spacing={{ base: 2, md: 3 }} flex={1} display="flex" flexDirection="column" position="relative" zIndex={1}>
           <Box flex={1}>
-            <HStack justify="space-between" align="start" mb={2}>
+            <HStack justify="space-between" align="start" mb={{ base: 1, md: 2 }}>
               <Heading 
-                size="md" 
+                size={{ base: "sm", md: "md" }} 
                 noOfLines={2} 
                 flex={1}
                 color="gray.800"
@@ -299,21 +299,21 @@ export default function EventCard({
             </HStack>
             <Text 
               color="gray.600" 
-              fontSize="xs" 
+              fontSize={{ base: "2xs", md: "xs" }} 
               fontWeight="500"
-              mb={1}
+              mb={{ base: 0.5, md: 1 }}
             >
               {formatStartAt(startAt)}
             </Text>
             <Text 
               color="gray.600" 
               noOfLines={1}
-              fontSize="sm"
+              fontSize={{ base: "xs", md: "sm" }}
             >
               {locationName ?? `${city ?? ""}${state ? `, ${state}` : ""}`}
             </Text>
           </Box>
-          <HStack pt={1} justify="space-between" align="center" spacing={2} flexWrap="wrap">
+          <HStack pt={{ base: 0.5, md: 1 }} justify="space-between" align="center" spacing={{ base: 1, md: 2 }} flexWrap="wrap">
             {buttonType === 'BUY_TICKETS' && ticketUrl ? (
               <Button 
                 as="a"
@@ -368,7 +368,7 @@ export default function EventCard({
             
             <Button 
               as={NextLink} 
-              href={isAdminView ? `/events/${id}` : `/events/${slug}`} 
+              href={`/events/${slug}`} 
               variant="outline" 
               size={{ base: "sm", md: "md" }}
               px={{ base: 3, md: 4 }}
@@ -395,7 +395,7 @@ export default function EventCard({
           </HStack>
           
           {/* Action Buttons */}
-          <HStack spacing={2} justify="center">
+          <HStack spacing={{ base: 1, md: 2 }} justify="center">
             {isAdminView && (
               <Button 
                 as={NextLink} 

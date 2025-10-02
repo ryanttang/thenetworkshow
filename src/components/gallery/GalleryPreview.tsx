@@ -131,7 +131,7 @@ export default function GalleryPreview({ images }: GalleryPreviewProps) {
       <Container maxW="7xl" py={8}>
         <VStack spacing={8} align="stretch">
           <Box textAlign="center">
-            <Heading size="2xl" mb={4}>Gallery</Heading>
+            <Heading size="2xl" mb={4} fontFamily="'SUSE Mono', monospace" fontWeight="600">Gallery</Heading>
             <Text fontSize="lg" color="gray.600">
               No images available yet. Check back soon for amazing photos from our events!
             </Text>
@@ -182,10 +182,11 @@ export default function GalleryPreview({ images }: GalleryPreviewProps) {
               size="3xl" 
               bgGradient="linear(135deg, purple.600, purple.500, pink.500)"
               bgClip="text"
-              fontWeight="bold"
+              fontWeight="600"
               letterSpacing="tight"
               position="relative"
               zIndex={1}
+              fontFamily="'SUSE Mono', monospace"
             >
               Gallery
             </Heading>

@@ -119,10 +119,11 @@ export default function SubscribeForm() {
             size="2xl" 
             bgGradient="linear(135deg, green.600, green.500, teal.500)"
             bgClip="text"
-            fontWeight="bold"
+            fontWeight="600"
             letterSpacing="tight"
             position="relative"
             zIndex={1}
+            fontFamily="'SUSE Mono', monospace"
           >
             Stay Connected
           </Heading>

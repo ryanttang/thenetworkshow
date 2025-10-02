@@ -132,10 +132,11 @@ export default async function HomePage() {
                 size={{ base: "2xl", md: "3xl" }} 
                 bgGradient="linear(135deg, green.600, green.500, blue.500)"
                 bgClip="text"
-                fontWeight="bold"
+                fontWeight="600"
                 letterSpacing="tight"
                 position="relative"
                 zIndex={1}
+                fontFamily="'SUSE Mono', monospace"
               >
                 Upcoming Events
               </Heading>

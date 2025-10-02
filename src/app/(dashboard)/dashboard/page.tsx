@@ -45,12 +45,12 @@ export default async function DashboardPage() {
 
   return (
     <Container maxW="full" px={0}>
-      <VStack align="stretch" spacing={16} py={8}>
+      <VStack align="stretch" spacing={{ base: 8, md: 12, lg: 16 }} py={{ base: 4, md: 6, lg: 8 }}>
         {/* Welcome Section */}
-        <Box textAlign="center" px={{ base: 4, md: 0 }}>
+        <Box textAlign="center" px={{ base: 2, sm: 4, md: 0 }}>
           <Heading 
-            size="2xl" 
-            mb={6} 
+            size={{ base: "xl", md: "2xl" }} 
+            mb={{ base: 4, md: 6 }} 
             fontWeight="700"
             lineHeight="1.2"
             background="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
@@ -61,19 +61,20 @@ export default async function DashboardPage() {
           </Heading>
           <Text 
             color="gray.600" 
-            fontSize="xl" 
+            fontSize={{ base: "md", md: "lg", lg: "xl" }} 
             fontWeight="500"
             maxW="2xl"
             lineHeight="1.6"
             mx="auto"
+            px={{ base: 2, md: 0 }}
           >
             Manage your events and galleries from your dashboard
           </Text>
         </Box>
 
         {/* Quick Actions */}
-        <Box px={{ base: 4, md: 0 }} display="flex" justifyContent="center">
-          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8} w="full" maxW="4xl">
+        <Box px={{ base: 2, sm: 4, md: 0 }} display="flex" justifyContent="center">
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={{ base: 4, md: 6, lg: 8 }} w="full" maxW="4xl">
             {/* Events Card */}
             <Card 
               shadow="lg" 
@@ -102,7 +103,7 @@ export default async function DashboardPage() {
                 borderRadius: '2xl 2xl 0 0'
               }}
             >
-              <CardHeader pb={6} px={8} pt={8}>
+              <CardHeader pb={{ base: 4, md: 6 }} px={{ base: 4, md: 6, lg: 8 }} pt={{ base: 6, md: 8 }}>
                 <VStack align="flex-start" spacing={4}>
                   <HStack spacing={4}>
                     <Box 
@@ -136,17 +137,17 @@ export default async function DashboardPage() {
                   </HStack>
                 </VStack>
               </CardHeader>
-              <CardBody pt={0} px={8} pb={8}>
-                <VStack align="stretch" spacing={8}>
+              <CardBody pt={0} px={{ base: 4, md: 6, lg: 8 }} pb={{ base: 6, md: 8 }}>
+                <VStack align="stretch" spacing={{ base: 6, md: 8 }}>
                   <Text color="gray.600" fontSize="md" lineHeight="1.6">
                     You have {items.length} event{items.length !== 1 ? 's' : ''} in your portfolio
                   </Text>
-                  <VStack spacing={4} w="full">
+                  <VStack spacing={{ base: 3, md: 4 }} w="full">
                     <Button 
                       as={Link} 
                       href="/dashboard/events" 
                       variant="outline" 
-                      size="lg" 
+                      size={{ base: "md", md: "lg" }} 
                       w="full"
                       colorScheme="black"
                       bg="rgba(255, 255, 255, 0.8)"
@@ -166,7 +167,7 @@ export default async function DashboardPage() {
                     <Button 
                       as={Link} 
                       href="/dashboard/events/new" 
-                      size="lg" 
+                      size={{ base: "md", md: "lg" }} 
                       w="full"
                       bg="linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)"
                       color="white"
@@ -215,7 +216,7 @@ export default async function DashboardPage() {
                 borderRadius: '2xl 2xl 0 0'
               }}
             >
-              <CardHeader pb={6} px={8} pt={8}>
+              <CardHeader pb={{ base: 4, md: 6 }} px={{ base: 4, md: 6, lg: 8 }} pt={{ base: 6, md: 8 }}>
                 <VStack align="flex-start" spacing={4}>
                   <HStack spacing={4}>
                     <Box 
@@ -249,17 +250,17 @@ export default async function DashboardPage() {
                   </HStack>
                 </VStack>
               </CardHeader>
-              <CardBody pt={0} px={8} pb={8}>
-                <VStack align="stretch" spacing={8}>
+              <CardBody pt={0} px={{ base: 4, md: 6, lg: 8 }} pb={{ base: 6, md: 8 }}>
+                <VStack align="stretch" spacing={{ base: 6, md: 8 }}>
                   <Text color="gray.600" fontSize="md" lineHeight="1.6">
                     You have {coordinations.length} coordination set{coordinations.length !== 1 ? 's' : ''} for event planning
                   </Text>
-                  <VStack spacing={4} w="full">
+                  <VStack spacing={{ base: 3, md: 4 }} w="full">
                     <Button 
                       as={Link} 
                       href="/dashboard/coordination" 
                       variant="outline" 
-                      size="lg" 
+                      size={{ base: "md", md: "lg" }} 
                       w="full"
                       colorScheme="black"
                       bg="rgba(255, 255, 255, 0.8)"
@@ -279,7 +280,7 @@ export default async function DashboardPage() {
                     <Button 
                       as={Link} 
                       href="/dashboard/coordination" 
-                      size="lg" 
+                      size={{ base: "md", md: "lg" }} 
                       w="full"
                       bg="linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)"
                       color="white"
@@ -302,10 +303,10 @@ export default async function DashboardPage() {
         </Box>
 
         {/* Recent Events */}
-        <Box w="full" px={{ base: 4, md: 0 }}>
+        <Box w="full" px={{ base: 2, sm: 4, md: 0 }}>
           <Box 
             bg="linear-gradient(145deg, rgba(255,255,255,0.9), rgba(248,250,252,0.9))"
-            p={8} 
+            p={{ base: 4, md: 6, lg: 8 }} 
             borderRadius="2xl" 
             shadow="lg"
             border="1px solid"
@@ -320,30 +321,30 @@ export default async function DashboardPage() {
             <HStack 
               justify="space-between" 
               align="center" 
-              mb={10} 
+              mb={{ base: 6, md: 8, lg: 10 }} 
               flexWrap="wrap" 
-              gap={6}
-              pb={6}
+              gap={{ base: 4, md: 6 }}
+              pb={{ base: 4, md: 6 }}
               borderBottom="1px solid"
               borderColor="gray.100"
             >
               <Box>
                 <Heading 
-                  size="lg" 
-                  mb={3} 
+                  size={{ base: "md", md: "lg" }} 
+                  mb={{ base: 2, md: 3 }} 
                   color="gray.800"
                   fontFamily="'SUSE Mono', monospace"
                   fontWeight="600"
                 >
                   Recent Events
                 </Heading>
-                <Text color="gray.600" fontSize="md">Your latest event creations</Text>
+                <Text color="gray.600" fontSize={{ base: "sm", md: "md" }}>Your latest event creations</Text>
               </Box>
               <Button 
                 as={Link} 
                 href="/dashboard/events/new" 
-                size="lg" 
-                px={8}
+                size={{ base: "md", md: "lg" }} 
+                px={{ base: 4, md: 6, lg: 8 }}
                 bg="linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)"
                 color="white"
                 shadow="lg"
@@ -360,16 +361,16 @@ export default async function DashboardPage() {
             </HStack>
 
             {items.length === 0 ? (
-              <Box textAlign="center" py={20} px={8}>
-                <Text fontSize="xl" color="gray.500" mb={8} fontWeight="500">
+              <Box textAlign="center" py={{ base: 12, md: 16, lg: 20 }} px={{ base: 4, md: 6, lg: 8 }}>
+                <Text fontSize={{ base: "lg", md: "xl" }} color="gray.500" mb={{ base: 6, md: 8 }} fontWeight="500">
                   You haven't created any events yet
                 </Text>
                 <Button 
                   as={Link} 
                   href="/dashboard/events/new" 
-                  size="lg" 
-                  px={10}
-                  py={6}
+                  size={{ base: "md", md: "lg" }} 
+                  px={{ base: 6, md: 8, lg: 10 }}
+                  py={{ base: 4, md: 5, lg: 6 }}
                   bg="linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)"
                   color="white"
                   shadow="xl"

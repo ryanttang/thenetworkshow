@@ -72,7 +72,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       title: `${event.title} - Cannabis Event | THC Members Only Club`,
       description: `${event.description || `Join us for ${event.title} on ${eventDate} at ${location}.`} Don't miss this exclusive cannabis event.`,
       url: `https://thcmembersonlyclub.com/events/${event.slug}`,
-      type: 'event',
+      type: 'website',
       images: event.heroImage?.variants?.hero?.webpUrl ? [
         {
           url: event.heroImage.variants.hero.webpUrl,
