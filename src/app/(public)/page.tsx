@@ -3,7 +3,8 @@ import VideoSlider from "@/components/videos/VideoSlider";
 import GalleryPreview from "@/components/gallery/GalleryPreview";
 import SubscribeForm from "@/components/SubscribeForm";
 import { EventGridSkeleton, VideoSliderSkeleton, GalleryPreviewSkeleton, SubscribeFormSkeleton } from "@/components/ui/SkeletonLoader";
-import { Box, Heading, Container, VStack, Text } from "@chakra-ui/react";
+import BackToTopButton from "@/components/ui/BackToTopButton";
+import { Box, Heading, Container, VStack, Text, Button, HStack, Image } from "@chakra-ui/react";
 import { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -89,6 +90,53 @@ export default async function HomePage() {
   
   return (
     <VStack spacing={0} align="stretch">
+      {/* Instagram Follow Button */}
+      <Box 
+        bg="white"
+        py={{ base: 6, md: 8 }}
+        textAlign="center"
+      >
+        <Container maxW="7xl">
+          <Button
+            as="a"
+            href="https://instagram.com/thcmembersonlyclub"
+            target="_blank"
+            rel="noopener noreferrer"
+            size={{ base: "md", md: "lg" }}
+            bgGradient="linear(135deg, #833AB4, #C13584, #E1306C, #F56040, #F77737, #FCAF45, #FFDC80)"
+            color="white"
+            px={{ base: 6, md: 8 }}
+            py={{ base: 4, md: 6 }}
+            borderRadius="xl"
+            fontSize={{ base: "sm", md: "md" }}
+            fontWeight="600"
+            shadow="lg"
+            _hover={{
+              bgGradient: "linear(135deg, #6A2C93, #A02A6B, #C13584, #E1306C, #F56040, #F77737, #FCAF45)",
+              transform: "translateY(-2px)",
+              shadow: "xl"
+            }}
+            _active={{
+              transform: "translateY(0px)"
+            }}
+            transition="all 0.3s ease"
+            maxW={{ base: "320px", md: "450px" }}
+            mx="auto"
+            leftIcon={
+              <Image
+                src="/Instagram_icon.png"
+                alt="Instagram"
+                w="20px"
+                h="20px"
+                objectFit="contain"
+              />
+            }
+          >
+            Follow @THCMEMBERSONLYCLUB
+          </Button>
+        </Container>
+      </Box>
+
       {/* Upcoming Events Section */}
       <Box 
         bg="white"
@@ -211,6 +259,9 @@ export default async function HomePage() {
           <SubscribeForm />
         </Suspense>
       </Box>
+
+      {/* Back to Top Button */}
+      <BackToTopButton />
     </VStack>
   );
 }
