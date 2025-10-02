@@ -204,19 +204,8 @@ export default async function HomePage() {
 
       {/* Subscribe Section */}
       <Box 
-        bg="green.50" 
-        py={{ base: 12, md: 20 }}
-        position="relative"
-        _before={{
-          content: '""',
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: "linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%)",
-          zIndex: 0
-        }}
+        bg="white"
+        py={{ base: 16, md: 24 }}
       >
         <Suspense fallback={<SubscribeFormSkeleton />}>
           <SubscribeForm />
