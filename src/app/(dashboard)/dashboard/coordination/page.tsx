@@ -18,7 +18,17 @@ export default async function CoordinationPage() {
       ...(canManageAllEvents ? {} : { event: { ownerId: user.id } }),
       isArchived: false // By default, exclude archived coordinations
     }, 
-    include: { 
+    select: {
+      id: true,
+      eventId: true,
+      title: true,
+      description: true,
+      notes: true,
+      shareToken: true,
+      slug: true,
+      isActive: true,
+      isArchived: true,
+      createdAt: true,
       event: {
         select: {
           id: true,

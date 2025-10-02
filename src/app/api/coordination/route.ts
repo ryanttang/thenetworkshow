@@ -54,7 +54,17 @@ export async function GET(request: NextRequest) {
 
     const coordinations = await prisma.coordination.findMany({
       where: whereClause,
-      include: {
+      select: {
+        id: true,
+        eventId: true,
+        title: true,
+        description: true,
+        notes: true,
+        shareToken: true,
+        slug: true,
+        isActive: true,
+        isArchived: true,
+        createdAt: true,
         event: {
           select: {
             id: true,

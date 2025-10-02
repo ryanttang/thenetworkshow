@@ -43,6 +43,7 @@ interface CoordinationCardProps {
     description?: string | null;
     notes?: string | null;
     shareToken: string;
+    slug?: string | null;
     isActive: boolean;
     isArchived: boolean;
     createdAt: Date;

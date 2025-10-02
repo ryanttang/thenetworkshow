@@ -60,7 +60,7 @@ export default async function EditEventPage({ params }: { params: { id: string }
         initial={initialData} 
         mode="edit" 
         eventId={event.id} 
-        existingImages={event.images?.map(img => ({
+        existingImages={event.images?.map((img: { id: string; variants: any }) => ({
           id: img.id,
           variants: img.variants,
           fileName: `image-${img.id.slice(-8)}` // Generate a filename since we don't store original names
