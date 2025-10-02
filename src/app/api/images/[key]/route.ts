@@ -52,6 +52,12 @@ export async function GET(
     });
 
     console.log("Image API: Creating presigned URL for bucket:", process.env.S3_BUCKET);
+    
+    if (!s3Client) {
+      console.error("Image API: S3 client not initialized");
+      return NextResponse.json({ error: "S3 client not available" }, { status: 500 });
+    }
+    
     const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // 1 hour
     console.log("Image API: Generated presigned URL successfully");
 

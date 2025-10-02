@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { prisma } from '@/lib/prisma'
+import { Event, Gallery } from '@prisma/client'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://thcmembersonlyclub.com'
@@ -62,7 +63,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       },
     })
 
-    eventPages = events.map((event) => ({
+    eventPages = events.map((event: Pick<Event, 'slug' | 'updatedAt' | 'startAt'>) => ({
       url: `${baseUrl}/events/${event.slug}`,
       lastModified: event.updatedAt,
       changeFrequency: 'weekly' as const,
@@ -78,7 +79,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const galleries = await prisma.gallery.findMany({
       where: {
-        status: 'PUBLISHED',
+        isPublic: true,
       },
       select: {
         id: true,
@@ -89,7 +90,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       },
     })
 
-    galleryPages = galleries.map((gallery) => ({
+    galleryPages = galleries.map((gallery: Pick<Gallery, 'id' | 'updatedAt'>) => ({
       url: `${baseUrl}/gallery/${gallery.id}`,
       lastModified: gallery.updatedAt,
       changeFrequency: 'monthly' as const,

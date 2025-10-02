@@ -6,7 +6,6 @@ const nextConfig = {
     ...(process.env.NODE_ENV === 'production' && {
       // Production-specific configuration
     }),
-    optimizeCss: true,
     optimizePackageImports: ['@chakra-ui/react', '@chakra-ui/icons'],
     turbo: {
       rules: {
@@ -17,7 +16,6 @@ const nextConfig = {
       },
     },
   },
-  serverExternalPackages: ['sharp'], // Ensure Sharp is externalized for better performance
   // Disable static optimization for dynamic pages
   output: 'standalone',
   images: {

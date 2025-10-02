@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Gallery, GalleryImage, Image, Event } from "@prisma/client";
 
 export async function GET(request: NextRequest) {
   try {
@@ -47,11 +48,14 @@ export async function GET(request: NextRequest) {
     });
 
     // Transform galleries to match the expected interface
-    const transformedGalleries = galleries.map(gallery => ({
+    const transformedGalleries = galleries.map((gallery: Gallery & { 
+      event: Pick<Event, 'id' | 'title' | 'slug'> | null; 
+      images: (GalleryImage & { image: Image })[] 
+    }) => ({
       ...gallery,
       description: gallery.description || undefined,
       createdAt: gallery.createdAt.toISOString(),
-      images: gallery.images.map(img => ({
+      images: gallery.images.map((img: GalleryImage & { image: Image }) => ({
         ...img,
         createdAt: img.createdAt.toISOString()
       }))

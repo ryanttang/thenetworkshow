@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import GalleryDetailPage from "@/components/gallery/GalleryDetailPage";
+import { GalleryImage, Image } from "@prisma/client";
 
 interface GalleryDetailRouteProps {
   params: {
@@ -40,7 +41,7 @@ export default async function GalleryDetailRoute({ params }: GalleryDetailRouteP
     ...gallery,
     description: gallery.description || undefined,
     createdAt: gallery.createdAt.toISOString(),
-    images: gallery.images.map(img => ({
+    images: gallery.images.map((img: GalleryImage & { image: Image }) => ({
       ...img,
       title: img.title || undefined,
       caption: img.caption || undefined,

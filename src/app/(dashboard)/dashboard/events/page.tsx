@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import EventGrid from "@/components/events/EventGrid";
 import { Button, HStack, Heading, Box, Text, VStack, Tabs, TabList, Tab, TabPanels, TabPanel } from "@chakra-ui/react";
 import Link from "next/link";
+import { Event, Image, User } from "@prisma/client";
 
 export default async function DashboardEventsPage() {
   const session = await getServerAuthSession();
@@ -24,8 +25,8 @@ export default async function DashboardEventsPage() {
     orderBy: { startAt: "desc" }
   });
 
-  const draftEvents = allActiveEvents.filter((e: any) => e.status === "DRAFT");
-  const publishedEvents = allActiveEvents.filter((e: any) => e.status === "PUBLISHED");
+  const draftEvents = allActiveEvents.filter((e: Event & { heroImage: Image | null; owner: Pick<User, 'name' | 'email'> }) => e.status === "DRAFT");
+  const publishedEvents = allActiveEvents.filter((e: Event & { heroImage: Image | null; owner: Pick<User, 'name' | 'email'> }) => e.status === "PUBLISHED");
 
   const archivedCount = await prisma.event.count({
     where: {

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { Gallery, GalleryImage, Image, Event } from "@prisma/client";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -30,8 +31,11 @@ export async function GET() {
     });
 
     // Flatten all images from all galleries
-    const allImages = galleries.flatMap(gallery => 
-      gallery.images.map(img => ({
+    const allImages = galleries.flatMap((gallery: Gallery & { 
+      event: Pick<Event, 'id' | 'title' | 'slug'> | null; 
+      images: (GalleryImage & { image: Image })[] 
+    }) => 
+      gallery.images.map((img: GalleryImage & { image: Image }) => ({
         ...img,
         galleryName: gallery.name,
         galleryId: gallery.id,
@@ -41,11 +45,14 @@ export async function GET() {
     );
 
     // Transform galleries to match the expected interface
-    const transformedGalleries = galleries.map(gallery => ({
+    const transformedGalleries = galleries.map((gallery: Gallery & { 
+      event: Pick<Event, 'id' | 'title' | 'slug'> | null; 
+      images: (GalleryImage & { image: Image })[] 
+    }) => ({
       ...gallery,
       description: gallery.description || undefined,
       createdAt: gallery.createdAt.toISOString(),
-      images: gallery.images.map(img => ({
+      images: gallery.images.map((img: GalleryImage & { image: Image }) => ({
         ...img,
         createdAt: img.createdAt.toISOString()
       }))
