@@ -69,6 +69,19 @@ export default function CoordinationCard({ coordination, events }: CoordinationC
   const { isOpen: isUploadOpen, onOpen: onUploadOpen, onClose: onUploadClose } = useDisclosure();
   const toast = useToast();
 
+  // Generate URL token prioritizing slug, with fallback
+  const getUrlToken = () => {
+    let urlToken = coordination.slug;
+    
+    if (!urlToken && coordination.event?.title && coordination.title) {
+      // Generate slug from event title and coordination title if missing
+      urlToken = createSlug(coordination.event.title, coordination.title);
+    }
+    
+    // Fall back to shareToken only if no slug can be generated
+    return urlToken || coordination.shareToken;
+  };
+
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this coordination set? This action cannot be undone.")) {
       return;
@@ -159,20 +172,7 @@ export default function CoordinationCard({ coordination, events }: CoordinationC
   };
 
   const copyShareLink = async () => {
-    // Always prioritize slug over shareToken for better URLs
-    // If slug doesn't exist, generate it from event title and coordination title
-    let urlToken = coordination.slug;
-    
-    if (!urlToken && coordination.event?.title && coordination.title) {
-      // Generate slug from event title and coordination title if missing
-      urlToken = createSlug(coordination.event.title, coordination.title);
-    }
-    
-    // Fall back to shareToken only if no slug can be generated
-    if (!urlToken) {
-      urlToken = coordination.shareToken;
-    }
-    
+    const urlToken = getUrlToken();
     const shareUrl = `${window.location.origin}/coordination/${urlToken}`;
     
     try {
@@ -354,7 +354,7 @@ export default function CoordinationCard({ coordination, events }: CoordinationC
                 </Button>
                 <Button 
                   as={Link}
-                  href={`/coordination/${coordination.shareToken}`}
+                  href={`/coordination/${getUrlToken()}`}
                   size={{ base: "xs", md: "sm" }} 
                   colorScheme="blue"
                   flex={1}
