@@ -15,7 +15,8 @@ export default async function CoordinationPage() {
   
   const coordinations = await prisma.coordination.findMany({ 
     where: { 
-      ...(canManageAllEvents ? {} : { event: { ownerId: user.id } })
+      ...(canManageAllEvents ? {} : { event: { ownerId: user.id } }),
+      isArchived: false // By default, exclude archived coordinations
     }, 
     include: { 
       event: {

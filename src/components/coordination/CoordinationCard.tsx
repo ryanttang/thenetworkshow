@@ -44,6 +44,7 @@ interface CoordinationCardProps {
     notes?: string | null;
     shareToken: string;
     isActive: boolean;
+    isArchived: boolean;
     createdAt: Date;
     event: {
       id: string;
@@ -61,6 +62,7 @@ interface CoordinationCardProps {
 
 export default function CoordinationCard({ coordination, events }: CoordinationCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isArchiving, setIsArchiving] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isUploadOpen, onOpen: onUploadOpen, onClose: onUploadClose } = useDisclosure();
   const toast = useToast();
@@ -101,6 +103,56 @@ export default function CoordinationCard({ coordination, events }: CoordinationC
       });
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleArchive = async () => {
+    const action = coordination.isArchived ? "unarchive" : "archive";
+    const confirmMessage = coordination.isArchived 
+      ? "Are you sure you want to unarchive this coordination set? The share link will become active again."
+      : "Are you sure you want to archive this coordination set? The share link will become inactive.";
+    
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    setIsArchiving(true);
+    try {
+      const response = await fetch(`/api/coordination/${coordination.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          isArchived: !coordination.isArchived,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || `Failed to ${action} coordination`);
+      }
+
+      toast({
+        title: `Coordination ${action}d`,
+        description: `The coordination set has been ${action}d successfully`,
+        status: "success",
+        duration: 3000,
+      });
+
+      // Trigger parent component refresh
+      if (typeof window !== 'undefined') {
+        window.location.reload();
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "An error occurred",
+        status: "error",
+        duration: 5000,
+      });
+    } finally {
+      setIsArchiving(false);
     }
   };
 
@@ -170,17 +222,32 @@ export default function CoordinationCard({ coordination, events }: CoordinationC
                   {coordination.event.title}
                 </Text>
               </VStack>
-              <Badge 
-                colorScheme={coordination.isActive ? "green" : "gray"} 
-                variant="subtle" 
-                px={2} 
-                py={1} 
-                borderRadius="full"
-                fontSize="xs"
-                flexShrink={0}
-              >
-                {coordination.isActive ? "Active" : "Inactive"}
-              </Badge>
+              <VStack spacing={1} align="flex-end">
+                <Badge 
+                  colorScheme={coordination.isActive ? "green" : "gray"} 
+                  variant="subtle" 
+                  px={2} 
+                  py={1} 
+                  borderRadius="full"
+                  fontSize="xs"
+                  flexShrink={0}
+                >
+                  {coordination.isActive ? "Active" : "Inactive"}
+                </Badge>
+                {coordination.isArchived && (
+                  <Badge 
+                    colorScheme="orange" 
+                    variant="subtle" 
+                    px={2} 
+                    py={1} 
+                    borderRadius="full"
+                    fontSize="xs"
+                    flexShrink={0}
+                  >
+                    Archived
+                  </Badge>
+                )}
+              </VStack>
             </HStack>
             
             {coordination.description && (
@@ -280,6 +347,17 @@ export default function CoordinationCard({ coordination, events }: CoordinationC
                 >
                   View
                 </Button>
+                <Tooltip label={coordination.isArchived ? "Unarchive coordination" : "Archive coordination"}>
+                  <IconButton
+                    aria-label={coordination.isArchived ? "Unarchive coordination" : "Archive coordination"}
+                    icon={<span>{coordination.isArchived ? "📦" : "📁"}</span>}
+                    size={{ base: "xs", md: "sm" }}
+                    variant="outline"
+                    colorScheme={coordination.isArchived ? "green" : "orange"}
+                    onClick={handleArchive}
+                    isLoading={isArchiving}
+                  />
+                </Tooltip>
                 <Tooltip label="Delete coordination">
                   <IconButton
                     aria-label="Delete coordination"

@@ -8,8 +8,13 @@ import {
   Card, 
   CardBody, 
   HStack, 
-  Box
+  Box,
+  Switch,
+  FormControl,
+  FormLabel,
+  useToast
 } from "@chakra-ui/react";
+import { useState, useEffect } from "react";
 import CoordinationForm from "@/components/coordination/CoordinationForm";
 import CoordinationCard from "@/components/coordination/CoordinationCard";
 
@@ -28,6 +33,7 @@ interface Coordination {
   notes?: string | null;
   shareToken: string;
   isActive: boolean;
+  isArchived: boolean;
   createdAt: Date;
   event: {
     id: string;
@@ -52,6 +58,38 @@ export default function CoordinationPageClient({
   events, 
   canManageAllEvents 
 }: CoordinationPageClientProps) {
+  const [showArchived, setShowArchived] = useState(false);
+  const [allCoordinations, setAllCoordinations] = useState(coordinations);
+  const [filteredCoordinations, setFilteredCoordinations] = useState(coordinations);
+  const toast = useToast();
+
+  useEffect(() => {
+    if (showArchived) {
+      // Fetch all coordinations including archived ones
+      fetchCoordinations(true);
+    } else {
+      setFilteredCoordinations(coordinations);
+    }
+  }, [showArchived, coordinations]);
+
+  const fetchCoordinations = async (includeArchived: boolean) => {
+    try {
+      const response = await fetch(`/api/coordination?includeArchived=${includeArchived}`);
+      if (response.ok) {
+        const data = await response.json();
+        setAllCoordinations(data);
+        setFilteredCoordinations(data);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch coordinations",
+        status: "error",
+        duration: 3000,
+      });
+    }
+  };
+
   const handleRefresh = () => {
     // Refresh the page to show the new coordination set
     window.location.reload();
@@ -92,7 +130,7 @@ export default function CoordinationPageClient({
           <Card shadow="sm" borderRadius="lg">
             <CardBody textAlign="center" py={6}>
               <Text fontSize={{ base: "2xl", md: "3xl" }} fontWeight="bold" color="blue.600" mb={2}>
-                {coordinations.length}
+                {filteredCoordinations.length}
               </Text>
               <Text color="gray.600" fontWeight="medium" fontSize="sm">
                 Coordination Sets
@@ -103,7 +141,7 @@ export default function CoordinationPageClient({
           <Card shadow="sm" borderRadius="lg">
             <CardBody textAlign="center" py={6}>
               <Text fontSize={{ base: "2xl", md: "3xl" }} fontWeight="bold" color="green.600" mb={2}>
-                {coordinations.reduce((sum: number, c: any) => sum + c._count.documents, 0)}
+                {filteredCoordinations.reduce((sum: number, c: any) => sum + c._count.documents, 0)}
               </Text>
               <Text color="gray.600" fontWeight="medium" fontSize="sm">
                 Total Documents
@@ -140,25 +178,41 @@ export default function CoordinationPageClient({
                   Manage documents and shareable links for event coordination
                 </Text>
               </Box>
-              <CoordinationForm events={events} onSuccess={handleRefresh} />
+              <HStack spacing={4}>
+                <FormControl display="flex" alignItems="center">
+                  <FormLabel htmlFor="show-archived" mb="0" fontSize="sm" color="gray.600">
+                    Show Archived
+                  </FormLabel>
+                  <Switch
+                    id="show-archived"
+                    isChecked={showArchived}
+                    onChange={(e) => setShowArchived(e.target.checked)}
+                    colorScheme="orange"
+                  />
+                </FormControl>
+                <CoordinationForm events={events} onSuccess={handleRefresh} />
+              </HStack>
             </HStack>
           </VStack>
 
-          {coordinations.length === 0 ? (
+          {filteredCoordinations.length === 0 ? (
             <Card shadow="md" borderRadius="xl">
               <CardBody textAlign="center" py={12}>
                 <Text fontSize={{ base: "lg", md: "xl" }} color="gray.500" mb={6} fontWeight="500">
-                  No coordination sets created yet
+                  {showArchived ? "No archived coordination sets" : "No coordination sets created yet"}
                 </Text>
                 <Text color="gray.400" mb={6} fontSize="sm">
-                  Create your first coordination set to start organizing event documents
+                  {showArchived 
+                    ? "Archived coordination sets will appear here when you archive them"
+                    : "Create your first coordination set to start organizing event documents"
+                  }
                 </Text>
-                <CoordinationForm events={events} onSuccess={handleRefresh} />
+                {!showArchived && <CoordinationForm events={events} onSuccess={handleRefresh} />}
               </CardBody>
             </Card>
           ) : (
             <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
-              {coordinations.map((coordination: any) => (
+              {filteredCoordinations.map((coordination: any) => (
                 <CoordinationCard 
                   key={coordination.id} 
                   coordination={coordination}

@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const eventId = searchParams.get("eventId");
     const owner = searchParams.get("owner"); // Allow admin to specify owner filter
+    const includeArchived = searchParams.get("includeArchived") === "true";
 
     // Admins and Organizers can see all coordinations, others only see their own
     const canManageAllEvents = user.role === "ADMIN" || user.role === "ORGANIZER";
@@ -44,6 +45,11 @@ export async function GET(request: NextRequest) {
 
     if (eventId) {
       whereClause.eventId = eventId;
+    }
+
+    // By default, exclude archived coordinations unless explicitly requested
+    if (!includeArchived) {
+      whereClause.isArchived = false;
     }
 
     const coordinations = await prisma.coordination.findMany({

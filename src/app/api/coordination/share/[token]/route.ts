@@ -10,6 +10,7 @@ export async function GET(
       where: {
         shareToken: params.token,
         isActive: true,
+        isArchived: false,
       },
       select: {
         id: true,
@@ -20,6 +21,7 @@ export async function GET(
         pointOfContacts: true,
         shareToken: true,
         isActive: true,
+        isArchived: true,
         createdAt: true,
         event: {
           select: {

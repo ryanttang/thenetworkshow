@@ -15,6 +15,7 @@ const updateCoordinationSchema = z.object({
     email: z.string().email().optional().or(z.literal("")),
   })).optional(),
   isActive: z.boolean().optional(),
+  isArchived: z.boolean().optional(),
 });
 
 export async function GET(

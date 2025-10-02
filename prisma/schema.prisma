@@ -155,6 +155,7 @@ model Coordination {
   
   shareToken  String   @unique @default(cuid())
   isActive    Boolean  @default(true)
+  isArchived  Boolean  @default(false)
   
   documents   CoordinationDocument[] @relation("CoordinationDocuments")
   createdAt   DateTime @default(now())
