@@ -27,6 +27,7 @@ import {
 import Link from "next/link";
 import CoordinationForm from "./CoordinationForm";
 import DocumentUploader from "./DocumentUploader";
+import { createSlug } from "@/lib/utils";
 
 interface Event {
   id: string;
@@ -158,16 +159,29 @@ export default function CoordinationCard({ coordination, events }: CoordinationC
   };
 
   const copyShareLink = async () => {
-    // Use slug if available, otherwise fall back to shareToken
-    const urlToken = coordination.slug || coordination.shareToken;
+    // Always prioritize slug over shareToken for better URLs
+    // If slug doesn't exist, generate it from event title and coordination title
+    let urlToken = coordination.slug;
+    
+    if (!urlToken && coordination.event?.title && coordination.title) {
+      // Generate slug from event title and coordination title if missing
+      urlToken = createSlug(coordination.event.title, coordination.title);
+    }
+    
+    // Fall back to shareToken only if no slug can be generated
+    if (!urlToken) {
+      urlToken = coordination.shareToken;
+    }
+    
     const shareUrl = `${window.location.origin}/coordination/${urlToken}`;
+    
     try {
       await navigator.clipboard.writeText(shareUrl);
       toast({
         title: "Link copied",
-        description: "Share link copied to clipboard",
+        description: `Share link copied to clipboard`,
         status: "success",
-        duration: 2000,
+        duration: 3000,
       });
     } catch (error) {
       toast({
