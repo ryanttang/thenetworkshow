@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerAuthSession } from "@/lib/auth";
 import { updateEventSchema } from "@/lib/validation";
 import { canEditEvent } from "@/lib/rbac";
+import { createSlug } from "@/lib/utils";
 
 export async function GET(
   req: NextRequest, 
@@ -55,6 +56,37 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     }
     
     console.log("Parsed data:", JSON.stringify(parsed.data, null, 2));
+
+    // If title or locationName is being updated, regenerate the slug
+    if (parsed.data.title || parsed.data.locationName) {
+      // Get current title and locationName (use updated values or fall back to existing)
+      const newTitle = parsed.data.title || event.title;
+      const newLocationName = parsed.data.locationName || event.locationName;
+      
+      // Create new slug with both title and location name
+      let slug = createSlug(newTitle, newLocationName);
+      let counter = 1;
+      
+      // Ensure slug is unique by appending numbers if needed
+      while (true) {
+        const existing = await prisma.event.findFirst({
+          where: { 
+            slug: slug,
+            id: { not: params.id } // Exclude current event
+          }
+        });
+        
+        if (!existing) {
+          break;
+        }
+        
+        slug = `${createSlug(newTitle, newLocationName)}-${counter}`;
+        counter++;
+      }
+      
+      // Add the new slug to updateData
+      parsed.data.slug = slug;
+    }
 
     // Convert datetime-local format to proper ISO format for Prisma
     const updateData: any = { ...parsed.data };

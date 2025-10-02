@@ -1,8 +1,16 @@
 import slugify from "slugify";
 
-export const createSlug = (title: string) => {
-  const slugBase = slugify(title, { lower: true, strict: true });
-  return `${slugBase}-${Date.now().toString(36)}`;
+export const createSlug = (title: string, locationName?: string) => {
+  // Combine title and location for more descriptive URLs
+  const slugParts = [title];
+  if (locationName && locationName.trim()) {
+    slugParts.push(locationName.trim());
+  }
+  
+  const combinedText = slugParts.join(' ');
+  const slugBase = slugify(combinedText, { lower: true, strict: true });
+  
+  return slugBase;
 };
 
 export const formatDateTime = (date: Date | string) => {

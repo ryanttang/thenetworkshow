@@ -235,21 +235,7 @@ export default function EventForm({ initial, mode = "create", eventId, existingI
             {mode === "edit" ? "Update Event" : "Save Event"}
           </Button>
           
-          {/* Debug button - only show in development */}
-          {process.env.NODE_ENV === 'development' && (
-            <Button 
-              type="button" 
-              variant="outline" 
-              size="md"
-              onClick={() => {
-                console.log("Form errors:", errors);
-                console.log("Form values:", watch());
-                console.log("Is submitting:", isSubmitting);
-              }}
-            >
-              Debug
-            </Button>
-          )}
+          {/* Debug button removed */}
         </Stack>
       </VStack>
     </Box>

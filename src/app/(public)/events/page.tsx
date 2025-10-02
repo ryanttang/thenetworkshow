@@ -90,7 +90,7 @@ export default async function EventsPage() {
       {/* Page Header */}
       <VStack spacing={6} align="stretch" mb={12}>
         <Box textAlign="center">
-          <Heading size="2xl" mb={4} color="green.600">
+          <Heading size="2xl" mb={4} color="green.600" fontFamily="'SUSE Mono', monospace" fontWeight="600">
             Events Calendar
           </Heading>
           <Text fontSize="xl" color="gray.600" maxW="3xl" mx="auto">
@@ -102,7 +102,7 @@ export default async function EventsPage() {
         {/* SEO Content */}
         <Box bg="gray.50" p={8} borderRadius="xl" mt={8}>
           <VStack spacing={4} align="stretch">
-            <Heading size="lg" color="green.600">
+            <Heading size="lg" color="green.600" fontFamily="'SUSE Mono', monospace" fontWeight="600">
               Why Join Our Cannabis Events?
             </Heading>
             <Text color="gray.700">
@@ -110,7 +110,7 @@ export default async function EventsPage() {
               Whether you're a seasoned cannabis enthusiast or new to the community, our events offer something for everyone.
             </Text>
             <Box>
-              <Heading size="md" mb={2} color="green.600">
+              <Heading size="md" mb={2} color="green.600" fontFamily="'SUSE Mono', monospace" fontWeight="600">
                 Event Types We Host:
               </Heading>
               <Text color="gray.700" mb={2}>
@@ -135,7 +135,7 @@ export default async function EventsPage() {
 
       {/* Events Grid */}
       <Box>
-        <Heading size="lg" mb={6} color="green.600">
+        <Heading size="lg" mb={6} color="green.600" fontFamily="'SUSE Mono', monospace" fontWeight="600">
           Upcoming Events ({eventsData.items?.length || 0})
         </Heading>
         <EventGrid items={eventsData.items || []} />
@@ -143,7 +143,7 @@ export default async function EventsPage() {
 
       {/* Call to Action */}
       <Box textAlign="center" mt={16} p={8} bg="green.50" borderRadius="xl">
-        <Heading size="lg" mb={4} color="green.600">
+        <Heading size="lg" mb={4} color="green.600" fontFamily="'SUSE Mono', monospace" fontWeight="600">
           Don't Miss Out on Exclusive Events
         </Heading>
         <Text fontSize="lg" color="gray.700" mb={6}>

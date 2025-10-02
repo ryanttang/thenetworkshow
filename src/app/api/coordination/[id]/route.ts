@@ -106,11 +106,13 @@ export async function PUT(
       return NextResponse.json({ error: "Coordination not found" }, { status: 404 });
     }
 
+    let newEvent = null;
+    
     // If eventId is being updated, verify the new event exists and user has permission
     if (updateData.eventId && updateData.eventId !== existingCoordination.eventId) {
       const canManageAllEvents = user.role === "ADMIN" || user.role === "ORGANIZER";
       
-      const newEvent = await prisma.event.findFirst({
+      newEvent = await prisma.event.findFirst({
         where: {
           id: updateData.eventId,
           ...(canManageAllEvents ? {} : { ownerId: user.id }),
@@ -120,6 +122,57 @@ export async function PUT(
       if (!newEvent) {
         return NextResponse.json({ error: "Event not found or permission denied" }, { status: 404 });
       }
+    }
+
+    // If title or event is being updated, regenerate the slug
+    if (updateData.title || updateData.eventId) {
+      // Create slug from event title and coordination title
+      const createSlug = (text: string) => {
+        return text
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+          .replace(/\s+/g, '-') // Replace spaces with hyphens
+          .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+          .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+      };
+
+      // Get the event (either updated or existing)
+      const eventForSlug = newEvent || await prisma.event.findUnique({
+        where: { id: newEvent?.id || existingCoordination.eventId }
+      });
+      
+      if (!eventForSlug) {
+        return NextResponse.json({ error: "Event not found" }, { status: 404 });
+      }
+
+      // Use updated title or existing title
+      const coordinationTitle = updateData.title || existingCoordination.title;
+      
+      // Combine event title and coordination title for the slug
+      const combinedTitle = `${eventForSlug.title} ${coordinationTitle}`;
+      const baseSlug = createSlug(combinedTitle);
+      let slug = baseSlug;
+      let counter = 1;
+
+      // Ensure slug is unique by appending numbers if needed
+      while (true) {
+        const existing = await prisma.coordination.findFirst({
+          where: { 
+            slug: slug,
+            id: { not: params.id } // Exclude current coordination
+          }
+        });
+        
+        if (!existing) {
+          break;
+        }
+        
+        slug = `${baseSlug}-${counter}`;
+        counter++;
+      }
+
+      // Add the new slug to updateData
+      updateData.slug = slug;
     }
 
     const coordination = await prisma.coordination.update({

@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Event not found or permission denied" }, { status: 404 });
     }
 
-    // Create slug from event title
+    // Create slug from event title and coordination title
     const createSlug = (text: string) => {
       return text
         .toLowerCase()
@@ -136,7 +136,9 @@ export async function POST(request: NextRequest) {
         .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
     };
 
-    const baseSlug = createSlug(event.title);
+    // Combine event title and coordination title for the slug
+    const combinedTitle = `${event.title} ${title}`;
+    const baseSlug = createSlug(combinedTitle);
     let slug = baseSlug;
     let counter = 1;
 

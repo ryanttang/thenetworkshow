@@ -317,6 +317,17 @@ export default function CoordinationForm({
                     </VStack>
                   </FormControl>
 
+                  {!coordination && (
+                    <Box p={4} bg="blue.50" borderRadius="md" border="1px solid" borderColor="blue.200">
+                      <Text fontSize="sm" color="blue.700" fontWeight="medium" mb={1}>
+                        📄 Next Step: Document Upload
+                      </Text>
+                      <Text fontSize="sm" color="blue.600">
+                        After creating this coordination set, you'll have the option to upload documents in the next step.
+                      </Text>
+                    </Box>
+                  )}
+
                   <Button
                     type="submit"
                     colorScheme="blue"

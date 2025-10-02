@@ -68,7 +68,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const slug = createSlug(parsed.data.title);
+  // Create slug with both title and location name, ensuring uniqueness
+  let slug = createSlug(parsed.data.title, parsed.data.locationName);
+  let counter = 1;
+  
+  // Ensure slug is unique by appending numbers if needed
+  while (true) {
+    const existing = await prisma.event.findFirst({
+      where: { slug: slug }
+    });
+    
+    if (!existing) {
+      break;
+    }
+    
+    slug = `${createSlug(parsed.data.title, parsed.data.locationName)}-${counter}`;
+    counter++;
+  }
 
   // Convert datetime-local format to proper ISO format for Prisma
   const eventData = {

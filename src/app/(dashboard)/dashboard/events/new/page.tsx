@@ -11,7 +11,14 @@ export default async function NewEventPage() {
   return (
     <VStack align="stretch" spacing={6}>
       <Box textAlign="center">
-        <Heading size="xl" mb={3}>Create New Event</Heading>
+        <Heading 
+          size="xl" 
+          mb={3}
+          fontFamily="'SUSE Mono', monospace"
+          fontWeight="600"
+        >
+          Create New Event
+        </Heading>
         <Text color="gray.600">Fill out the details below to create your event</Text>
       </Box>
       <EventForm />
