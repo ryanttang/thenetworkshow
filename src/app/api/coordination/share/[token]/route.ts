@@ -17,6 +17,7 @@ export async function GET(
         description: true,
         notes: true,
         specialMessage: true,
+        pointOfContacts: true,
         shareToken: true,
         isActive: true,
         createdAt: true,
