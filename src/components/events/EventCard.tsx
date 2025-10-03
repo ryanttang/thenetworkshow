@@ -310,7 +310,14 @@ export default function EventCard({
               noOfLines={1}
               fontSize={{ base: "xs", md: "sm" }}
             >
-              {locationName ?? `${city ?? ""}${state ? `, ${state}` : ""}`}
+              {(() => {
+                // Show locationName first if available, then supplement with city/state info
+                if (locationName) {
+                  return `${locationName}${city ? ` • ${city}` : ""}${state ? `, ${state}` : ""}`;
+                }
+                // Fallback to city and state only
+                return `${city ?? ""}${state ? `${city ? ", " : ""}${state}` : ""}`;
+              })()}
             </Text>
           </Box>
           <HStack pt={{ base: 0.5, md: 1 }} justify="space-between" align="center" spacing={{ base: 1, md: 2 }} flexWrap="wrap">
