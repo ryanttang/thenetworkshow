@@ -35,7 +35,7 @@ export default function HelpGuidesPage() {
             Help & Guides
           </Heading>
           <Text fontSize="lg" color="gray.600">
-            Quick reference guides for THC Members Only Club staff
+            Quick reference guides for The Network Show staff
           </Text>
         </Box>
 

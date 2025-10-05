@@ -19,7 +19,7 @@ export default function Footer() {
         left: 0,
         right: 0,
         height: '2px',
-        background: 'linear-gradient(90deg, #667eea 0%, #764ba2 50%, #4facfe 100%)',
+        background: 'linear-gradient(90deg, #3c7d9f 0%, #3c7da0 50%, #2d5f7a 100%)',
         opacity: 0.7
       }}
     >
@@ -41,7 +41,7 @@ export default function Footer() {
               fontWeight="500"
               fontSize="md"
             >
-              © 2025 THC Members Only Club. All Rights Reserved.
+              © 2025 The Network Show. All Rights Reserved.
             </Text>
           </Box>
         </VStack>

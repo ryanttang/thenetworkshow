@@ -7,23 +7,23 @@ const theme = extendTheme({
   },
   colors: {
     brand: {
-      50: "#e6fffa",
-      100: "#b2f5ea",
-      200: "#81e6d9",
-      300: "#4fd1c7",
-      400: "#38b2ac",
-      500: "#319795",
-      600: "#2c7a7b",
-      700: "#285e61",
-      800: "#234e52",
-      900: "#1a202c"
+      50: "#e6f2ff",
+      100: "#b3d9ff",
+      200: "#80c0ff",
+      300: "#4da6ff",
+      400: "#3c7da0",
+      500: "#3c7d9f",
+      600: "#2d5f7a",
+      700: "#1e4155",
+      800: "#0f2330",
+      900: "#00050b"
     },
     gradient: {
-      purple: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-      teal: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+      purple: "linear-gradient(135deg, #3c7d9f 0%, #3c7da0 100%)",
+      teal: "linear-gradient(135deg, #3c7d9f 0%, #3c7da0 100%)",
       orange: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
-      green: "linear-gradient(135deg, #a8e6cf 0%, #88d8a3 100%)",
-      blue: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+      green: "linear-gradient(135deg, #3c7d9f 0%, #3c7da0 100%)",
+      blue: "linear-gradient(135deg, #3c7d9f 0%, #3c7da0 100%)"
     }
   },
   components: {
@@ -37,16 +37,16 @@ const theme = extendTheme({
         }
       },
       defaultProps: {
-        colorScheme: "teal"
+        colorScheme: "brand"
       },
       variants: {
         gradient: {
-          bg: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+          bg: 'linear-gradient(135deg, #3c7d9f 0%, #3c7da0 100%)',
           color: 'white',
           _hover: {
             transform: 'translateY(-2px)',
             shadow: 'xl',
-            bg: 'linear-gradient(135deg, #43a3f7 0%, #00e6f7 100%)'
+            bg: 'linear-gradient(135deg, #2d5f7a 0%, #1e4155 100%)'
           }
         },
         glass: {

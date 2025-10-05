@@ -75,9 +75,9 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       event.state?.toLowerCase() || "",
     ].filter(Boolean),
     openGraph: {
-      title: `${event.title} - Cannabis Event | THC Members Only Club`,
-      description: `${event.description || `Join us for ${event.title} on ${eventDate} at ${location}.`} Don't miss this exclusive cannabis event.`,
-      url: `https://thcmembersonlyclub.com/events/${event.slug}`,
+      title: `${event.title} - Cannabis Trade Show Event | The Network Show`,
+      description: `${event.description || `Join us for ${event.title} on ${eventDate} at ${location}.`} Don't miss this premier cannabis trade show event.`,
+      url: `https://thenetworkshow.com/events/${event.slug}`,
       type: 'website',
       images: event.heroImage?.variants?.hero?.webpUrl ? [
         {
@@ -88,7 +88,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
         },
       ] : [
         {
-          url: '/thcmembers-banner.png',
+          url: '/network-photos.jpg',
           width: 1200,
           height: 630,
           alt: event.title,
@@ -96,9 +96,9 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       ],
     },
     twitter: {
-      title: `${event.title} - Cannabis Event | THC Members Only Club`,
-      description: `${event.description || `Join us for ${event.title} on ${eventDate} at ${location}.`} Don't miss this exclusive cannabis event.`,
-      images: event.heroImage?.variants?.hero?.webpUrl ? [event.heroImage.variants.hero.webpUrl] : ['/thcmembers-banner.png'],
+      title: `${event.title} - Cannabis Trade Show Event | The Network Show`,
+      description: `${event.description || `Join us for ${event.title} on ${eventDate} at ${location}.`} Don't miss this premier cannabis trade show event.`,
+      images: event.heroImage?.variants?.hero?.webpUrl ? [event.heroImage.variants.hero.webpUrl] : ['/network-photos.jpg'],
     },
     alternates: {
       canonical: `/events/${event.slug}`,

@@ -29,11 +29,11 @@ export default function Navbar() {
   const btnRef = useRef<HTMLButtonElement>(null);
   
   // Define all color mode values at top level
-  const headerBg = useColorModeValue("rgba(255, 255, 255, 0.95)", "rgba(26, 32, 32, 0.95)");
+  const headerBg = useColorModeValue("rgba(60, 125, 159, 0.95)", "rgba(26, 32, 32, 0.95)");
   const headerBorderColor = useColorModeValue("rgba(255, 255, 255, 0.2)", "rgba(255, 255, 255, 0.1)");
   const headerBorderColorMobile = useColorModeValue("rgba(255, 255, 255, 0.2)", "rgba(255, 255, 255, 0.1)");
-  const linkColor = useColorModeValue("gray.700", "gray.300");
-  const linkHoverColor = useColorModeValue("blue.600", "blue.400");
+  const linkColor = useColorModeValue("white", "gray.300");
+  const linkHoverColor = useColorModeValue("brand.200", "brand.300");
   const drawerBg = useColorModeValue("rgba(255, 255, 255, 0.95)", "rgba(26, 32, 32, 0.95)");
   const drawerBorderColor = useColorModeValue("rgba(255, 255, 255, 0.2)", "rgba(255, 255, 255, 0.1)");
   const drawerTextColor = useColorModeValue("gray.700", "gray.300");
@@ -61,7 +61,7 @@ export default function Navbar() {
     { label: "Gallery", href: "/gallery" },
     { label: "FAQ", href: "/faq" },
     { label: "Contact", href: "/contact" },
-    { label: "Waiver", href: "https://thcmembersonlyclub.com/waiver/", isExternal: true },
+    { label: "Exhibitors", href: "/exhibitors" },
   ];
 
   // Only add Dashboard link after hydration to avoid mismatch
@@ -97,7 +97,7 @@ export default function Navbar() {
             height: '2px',
             bottom: '-4px',
             left: '50%',
-            backgroundColor: 'blue.500',
+            backgroundColor: 'brand.200',
             transition: 'all 0.3s ease-in-out',
             transform: 'translateX(-50%)'
           }}
@@ -113,7 +113,7 @@ export default function Navbar() {
       <>
         <Box 
           as="header" 
-          bg={headerBg}
+          bg="rgba(60, 125, 159, 0.95)"
           backdropFilter="blur(12px)"
           boxShadow="0 4px 20px rgba(0, 0, 0, 0.1)"
           borderBottom="1px solid"
@@ -139,8 +139,8 @@ export default function Navbar() {
                 p={1}
               >
                 <Image 
-                  src="/thc-logo.png" 
-                  alt="THC Members Only Club" 
+                  src="/network-logo-white.png" 
+                  alt="The Network Show" 
                   height="36px" 
                   width="auto"
                   filter="brightness(1.1)"
@@ -153,7 +153,7 @@ export default function Navbar() {
                 className="gradient-text"
                 fontFamily="'SUSE Mono', monospace"
               >
-                THC Members Only Club
+                The Network Show
               </Box>
             </Link>
             
@@ -161,13 +161,13 @@ export default function Navbar() {
               ref={btnRef}
               aria-label="Open menu"
               size="md"
-              bg="linear-gradient(135deg, #22c55e 0%, #16a34a 100%)"
+              bg="linear-gradient(135deg, #3c7d9f 0%, #3c7da0 100%)"
               color="white"
               shadow="md"
               fontWeight="600"
               onClick={() => setIsOpen(true)}
               _hover={{
-                bg: "linear-gradient(135deg, #16a34a 0%, #15803d 100%)",
+                bg: "linear-gradient(135deg, #2d5f7a 0%, #1e4155 100%)",
                 transform: "scale(1.1)",
                 shadow: "lg"
               }}
@@ -213,22 +213,22 @@ export default function Navbar() {
             >
               <Box display="flex" flexDirection="column" alignItems="center" gap={3}>
                 <Image 
-                  src="/thc-logo.png" 
-                  alt="THC Members Only Club" 
+                  src="/network-logo-white.png" 
+                  alt="The Network Show" 
                   height="36px" 
                   width="auto"
                   filter="brightness(0.8)"
                 />
                 <VStack spacing={2} align="center">
                   <Text fontSize="sm" color={drawerTextColor} fontWeight="600">
-                    THC Members Only Club
+                    The Network Show
                   </Text>
                   <Text fontSize="xs" color={drawerTextColor} fontStyle="italic" opacity={0.8}>
-                    Premiere Cannabis Events
+                    Cannabis Trade Show
                   </Text>
                   <Button
                     as="a"
-                    href="https://instagram.com/thcmembersonlyclub"
+                    href="https://instagram.com/thenetworkshow"
                     target="_blank"
                     rel="noopener noreferrer"
                     variant="ghost"
@@ -316,7 +316,7 @@ export default function Navbar() {
                       as={NextLink} 
                       href="/signin" 
                       size="lg" 
-                      bg="linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)"
+                      bg="linear-gradient(135deg, #3c7d9f 0%, #3c7da0 100%)"
                       color="white"
                       shadow="lg"
                       fontWeight="600"
@@ -324,7 +324,7 @@ export default function Navbar() {
                       py={6}
                       fontSize="md"
                       _hover={{
-                        bg: "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)",
+                        bg: "linear-gradient(135deg, #2d5f7a 0%, #1e4155 100%)",
                         transform: "translateY(-1px) scale(1.02)",
                         shadow: "xl"
                       }}
@@ -353,7 +353,7 @@ export default function Navbar() {
   return (
     <Box 
       as="header" 
-      bg={headerBg} 
+      bg="rgba(60, 125, 159, 0.95)" 
       backdropFilter="blur(12px)"
       borderBottom="1px solid"
       borderColor={headerBorderColor}
@@ -383,8 +383,8 @@ export default function Navbar() {
               p={1}
             >
               <Image 
-                src="/thc-logo.png" 
-                alt="THC Members Only Club" 
+                src="/network-logo-white.png" 
+                alt="The Network Show" 
                 height="56px" 
                 width="auto"
                 filter="brightness(1.1)"
@@ -396,7 +396,7 @@ export default function Navbar() {
               className="gradient-text"
               fontFamily="'SUSE Mono', monospace"
             >
-              THC Members Only Club
+              The Network Show
             </Box>
           </Link>
         </HStack>
@@ -425,12 +425,12 @@ export default function Navbar() {
               href="/signin"
               size="md"
               px={8}
-              bg="linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)"
+              bg="linear-gradient(135deg, #3c7d9f 0%, #3c7da0 100%)"
               color="white"
               shadow="lg"
               fontWeight="600"
               _hover={{
-                bg: "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)",
+                bg: "linear-gradient(135deg, #2d5f7a 0%, #1e4155 100%)",
                 transform: "translateY(-2px)",
                 shadow: "xl"
               }}

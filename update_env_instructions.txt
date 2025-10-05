@@ -1,0 +1,22 @@
+# Instructions to update your .env.local file for The Network Show
+
+# 1. Update your .env.local file with these key changes:
+
+# Replace the NEXTAUTH_SECRET with the new one:
+NEXTAUTH_SECRET="GLsBSYYp1IXH9+Tt4AczQy3hyKP+TMptSdyOPg2qVQ0="
+
+# Update DATABASE_URL to point to your new Supabase database:
+# Replace [YOUR_PROJECT_REF] and [YOUR_PASSWORD] with your actual Supabase values
+DATABASE_URL="postgresql://postgres:[YOUR_PASSWORD]@db.[YOUR_PROJECT_REF].supabase.co:5432/postgres?schema=public"
+
+# Update S3 bucket name from thcmembersonlyclub to thenetworkshow:
+S3_BUCKET="thenetworkshow"
+S3_PUBLIC_BASE_URL="https://thenetworkshow.s3.us-west-2.amazonaws.com"
+
+# 2. If you want to copy the template to your .env.local:
+cp env.thenetworkshow.example .env.local
+
+# 3. Then edit .env.local with your actual Supabase credentials
+
+# 4. Restart your development server:
+npm run dev

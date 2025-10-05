@@ -21,10 +21,10 @@ interface OrganizationStructuredDataProps {
 }
 
 export function OrganizationStructuredData({
-  name = "THC Members Only Club",
-  description = "Premiere cannabis social club in Southern California offering exclusive events, member benefits, and community coordination.",
-  url = "https://thcmembersonlyclub.com",
-  logo = "https://thcmembersonlyclub.com/thc-logo.png",
+  name = "The Network Show",
+  description = "Premier cannabis trade show connecting industry professionals, showcasing innovative products, and fostering business relationships in the cannabis industry.",
+  url = "https://thenetworkshow.com",
+  logo = "https://thenetworkshow.com/network-logo-white.png",
   address = {
     addressLocality: "Southern California",
     addressRegion: "CA",
@@ -32,7 +32,7 @@ export function OrganizationStructuredData({
   },
   contactPoint = {
     contactType: "customer service",
-    email: "info@thcmembersonlyclub.com",
+    email: "info@thenetworkshow.com",
   },
 }: OrganizationStructuredDataProps) {
   const structuredData = {
@@ -51,14 +51,14 @@ export function OrganizationStructuredData({
       ...contactPoint,
     },
     sameAs: [
-      "https://instagram.com/thcmembersonlyclub",
+      "https://instagram.com/thenetworkshow",
     ],
     foundingDate: "2024",
     areaServed: {
       "@type": "State",
       name: "California",
     },
-    serviceType: "Cannabis Social Club",
+    serviceType: "Cannabis Trade Show",
   };
 
   return (
@@ -110,27 +110,27 @@ export function EventStructuredData({ event }: EventStructuredDataProps) {
     location,
     organizer: {
       "@type": "Organization",
-      name: "THC Members Only Club",
-      url: "https://thcmembersonlyclub.com",
+      name: "The Network Show",
+      url: "https://thenetworkshow.com",
     },
     offers,
-    image: event.heroImage?.variants?.hero?.webpUrl || "https://thcmembersonlyclub.com/thcmembers-banner.png",
-    url: `https://thcmembersonlyclub.com/events/${event.slug}`,
+    image: event.heroImage?.variants?.hero?.webpUrl || "https://thenetworkshow.com/network-photos.jpg",
+    url: `https://thenetworkshow.com/events/${event.slug}`,
     keywords: [
-      "cannabis event",
-      "marijuana event",
-      "cannabis social gathering",
-      "weed event",
-      "cannabis meetup",
+      "cannabis trade show",
+      "marijuana trade show",
+      "cannabis industry event",
+      "cannabis business event",
+      "cannabis networking",
       event.title.toLowerCase(),
       event.city?.toLowerCase() || "",
       event.state?.toLowerCase() || "",
     ].filter(Boolean).join(", "),
     audience: {
       "@type": "Audience",
-      audienceType: "Cannabis enthusiasts and community members",
+      audienceType: "Cannabis industry professionals and business leaders",
     },
-    category: "Cannabis Social Event",
+    category: "Cannabis Trade Show Event",
   };
 
   return (
@@ -153,12 +153,12 @@ interface WebsiteStructuredDataProps {
 }
 
 export function WebsiteStructuredData({
-  name = "THC Members Only Club",
-  description = "Premiere cannabis social club in Southern California",
-  url = "https://thcmembersonlyclub.com",
+  name = "The Network Show",
+  description = "Premier cannabis trade show connecting industry professionals",
+  url = "https://thenetworkshow.com",
   potentialAction = {
     "@type": "SearchAction",
-    target: "https://thcmembersonlyclub.com/events?q={search_term_string}",
+    target: "https://thenetworkshow.com/events?q={search_term_string}",
     "query-input": "required name=search_term_string",
   },
 }: WebsiteStructuredDataProps) {
@@ -171,10 +171,10 @@ export function WebsiteStructuredData({
     potentialAction,
     publisher: {
       "@type": "Organization",
-      name: "THC Members Only Club",
+      name: "The Network Show",
       logo: {
         "@type": "ImageObject",
-        url: "https://thcmembersonlyclub.com/thc-logo.png",
+        url: "https://thenetworkshow.com/network-logo-white.png",
       },
     },
   };

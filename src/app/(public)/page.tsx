@@ -10,36 +10,36 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "THC Members Only Club - Premiere Cannabis Social Club",
-  description: "Join the premiere cannabis social club in Southern California. Discover exclusive events, connect with like-minded members, and experience the finest cannabis culture. Upcoming events, member benefits, and community coordination.",
+  title: "The Network Show - Premier Cannabis Trade Show",
+  description: "Join The Network Show, the premier cannabis trade show connecting industry professionals, showcasing innovative products, and fostering business relationships in the cannabis industry.",
   keywords: [
-    "cannabis social club",
-    "THC members only",
-    "cannabis events",
-    "marijuana social club",
-    "cannabis community",
-    "Southern California cannabis",
-    "cannabis events calendar",
-    "marijuana events",
+    "cannabis trade show",
+    "marijuana trade show",
+    "cannabis industry",
     "cannabis networking",
-    "weed social club"
+    "cannabis business",
+    "cannabis events",
+    "cannabis expo",
+    "cannabis conference",
+    "cannabis professionals",
+    "cannabis marketplace"
   ],
   openGraph: {
-    title: "THC Members Only Club - Premiere Cannabis Social Club",
-    description: "Join the premiere cannabis social club in Southern California. Discover exclusive events, connect with like-minded members, and experience the finest cannabis culture.",
-    url: 'https://thcmembersonlyclub.com',
+    title: "The Network Show - Premier Cannabis Trade Show",
+    description: "Join The Network Show, the premier cannabis trade show connecting industry professionals, showcasing innovative products, and fostering business relationships in the cannabis industry.",
+    url: 'https://thenetworkshow.com',
     images: [
       {
-        url: '/thcmembers-banner.png',
+        url: '/network-photos.jpg',
         width: 1200,
         height: 630,
-        alt: 'THC Members Only Club - Premiere Cannabis Social Club',
+        alt: 'The Network Show - Premier Cannabis Trade Show',
       },
     ],
   },
   twitter: {
-    title: "THC Members Only Club - Premiere Cannabis Social Club",
-    description: "Join the premiere cannabis social club in Southern California. Discover exclusive events, connect with like-minded members, and experience the finest cannabis culture.",
+    title: "The Network Show - Premier Cannabis Trade Show",
+    description: "Join The Network Show, the premier cannabis trade show connecting industry professionals, showcasing innovative products, and fostering business relationships in the cannabis industry.",
   },
   alternates: {
     canonical: '/',
@@ -99,7 +99,7 @@ export default async function HomePage() {
         <Container maxW="7xl">
           <Button
             as="a"
-            href="https://instagram.com/thcmembersonlyclub"
+            href="https://instagram.com/thenetworkshow"
             target="_blank"
             rel="noopener noreferrer"
             size={{ base: "md", md: "lg" }}
@@ -132,7 +132,7 @@ export default async function HomePage() {
               />
             }
           >
-            Follow @THCMEMBERSONLYCLUB
+            Follow @THENETWORKSHOW
           </Button>
         </Container>
       </Box>
@@ -152,7 +152,7 @@ export default async function HomePage() {
               letterSpacing="tight"
               fontFamily="'SUSE Mono', monospace"
             >
-              Events Calendar
+              Trade Show Events
             </Heading>
             <Box
               position="relative"

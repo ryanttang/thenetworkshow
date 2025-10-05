@@ -8,45 +8,45 @@ import { Box, Image, ColorModeScript } from "@chakra-ui/react";
 
 export const metadata: Metadata = {
   title: {
-    default: "THC Members Only Club - Premiere Cannabis Social Club",
-    template: "%s | THC Members Only Club"
+    default: "The Network Show - Premier Cannabis Trade Show",
+    template: "%s | The Network Show"
   },
-  description: "Join the premiere cannabis social club in Southern California. Discover exclusive events, connect with like-minded members, and experience the finest cannabis culture. Upcoming events, member benefits, and community coordination.",
+  description: "Join The Network Show, the premier cannabis trade show connecting industry professionals, showcasing innovative products, and fostering business relationships in the cannabis industry.",
   keywords: [
-    "cannabis social club",
-    "THC members only",
-    "cannabis events",
-    "marijuana social club",
-    "cannabis community",
-    "Southern California cannabis",
-    "cannabis events calendar",
-    "marijuana events",
+    "cannabis trade show",
+    "marijuana trade show",
+    "cannabis industry",
     "cannabis networking",
-    "weed social club"
+    "cannabis business",
+    "cannabis events",
+    "cannabis expo",
+    "cannabis conference",
+    "cannabis professionals",
+    "cannabis marketplace"
   ],
-  authors: [{ name: "THC Members Only Club" }],
-  creator: "THC Members Only Club",
-  publisher: "THC Members Only Club",
+  authors: [{ name: "The Network Show" }],
+  creator: "The Network Show",
+  publisher: "The Network Show",
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://thcmembersonlyclub.com'),
+  metadataBase: new URL('https://thenetworkshow.com'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: "THC Members Only Club - Premiere Cannabis Social Club",
-    description: "Join the premiere cannabis social club in Southern California. Discover exclusive events, connect with like-minded members, and experience the finest cannabis culture.",
-    url: 'https://thcmembersonlyclub.com',
-    siteName: 'THC Members Only Club',
+    title: "The Network Show - Premier Cannabis Trade Show",
+    description: "Join The Network Show, the premier cannabis trade show connecting industry professionals, showcasing innovative products, and fostering business relationships in the cannabis industry.",
+    url: 'https://thenetworkshow.com',
+    siteName: 'The Network Show',
     images: [
       {
-        url: '/thcmembers-banner.png',
+        url: '/network-photos.jpg',
         width: 1200,
         height: 630,
-        alt: 'THC Members Only Club - Premiere Cannabis Social Club',
+        alt: 'The Network Show - Premier Cannabis Trade Show',
       },
     ],
     locale: 'en_US',
@@ -54,9 +54,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "THC Members Only Club - Premiere Cannabis Social Club",
-    description: "Join the premiere cannabis social club in Southern California. Discover exclusive events, connect with like-minded members, and experience the finest cannabis culture.",
-    images: ['/thcmembers-banner.png'],
+    title: "The Network Show - Premier Cannabis Trade Show",
+    description: "Join The Network Show, the premier cannabis trade show connecting industry professionals, showcasing innovative products, and fostering business relationships in the cannabis industry.",
+    images: ['/network-photos.jpg'],
   },
   robots: {
     index: true,
@@ -82,9 +82,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Changa+One:ital@0;1&family=SUSE+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet" />
-        <link rel="icon" href="/thc-logo.png" />
-        <link rel="apple-touch-icon" href="/thc-logo.png" />
-        <meta name="theme-color" content="#2D3748" />
+        <link rel="icon" href="/network-logo-white.png" />
+        <link rel="apple-touch-icon" href="/network-logo-white.png" />
+        <meta name="theme-color" content="#3c7d9f" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <OrganizationStructuredData />
         <WebsiteStructuredData />
@@ -95,8 +95,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Navbar />
           <Box width="100%" height={{ base: "220px", md: "260px", lg: "300px" }} overflow="hidden">
             <Image 
-              src="/thcmembers-banner.png" 
-              alt="THC Members Only Club Banner" 
+              src="/network-photos.jpg" 
+              alt="The Network Show Banner" 
               width="100%" 
               height="100%" 
               objectFit="cover"

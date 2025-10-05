@@ -5,36 +5,36 @@ import Link from "next/link";
 import { BreadcrumbStructuredData } from "@/components/seo/StructuredData";
 
 export const metadata: Metadata = {
-  title: "Events Calendar - Upcoming Cannabis Events",
-  description: "Discover upcoming cannabis events, social gatherings, and exclusive member experiences. Join the THC Members Only Club for access to premier cannabis events in Southern California and beyond.",
+  title: "Trade Show Events - Cannabis Industry Events",
+  description: "Discover upcoming cannabis trade show events, industry conferences, and business networking opportunities. Join The Network Show for premier cannabis industry events and professional networking.",
   keywords: [
-    "cannabis events calendar",
-    "marijuana events",
-    "cannabis social events",
-    "weed events",
+    "cannabis trade show events",
+    "marijuana trade shows",
+    "cannabis industry events",
+    "cannabis business events",
     "cannabis networking",
-    "marijuana social gatherings",
-    "cannabis community events",
-    "THC events",
-    "cannabis meetups",
-    "marijuana meetups"
+    "marijuana industry conferences",
+    "cannabis professional events",
+    "cannabis expo",
+    "cannabis conference",
+    "cannabis marketplace"
   ],
   openGraph: {
-    title: "Events Calendar - Upcoming Cannabis Events | THC Members Only Club",
-    description: "Discover upcoming cannabis events, social gatherings, and exclusive member experiences. Join the THC Members Only Club for access to premier cannabis events in Southern California and beyond.",
-    url: 'https://thcmembersonlyclub.com/events',
+    title: "Trade Show Events - Cannabis Industry Events | The Network Show",
+    description: "Discover upcoming cannabis trade show events, industry conferences, and business networking opportunities. Join The Network Show for premier cannabis industry events and professional networking.",
+    url: 'https://thenetworkshow.com/events',
     images: [
       {
-        url: '/thcmembers-banner.png',
+        url: '/network-photos.jpg',
         width: 1200,
         height: 630,
-        alt: 'THC Members Only Club Events Calendar',
+        alt: 'The Network Show Trade Show Events',
       },
     ],
   },
   twitter: {
-    title: "Events Calendar - Upcoming Cannabis Events | THC Members Only Club",
-    description: "Discover upcoming cannabis events, social gatherings, and exclusive member experiences. Join the THC Members Only Club for access to premier cannabis events in Southern California and beyond.",
+    title: "Trade Show Events - Cannabis Industry Events | The Network Show",
+    description: "Discover upcoming cannabis trade show events, industry conferences, and business networking opportunities. Join The Network Show for premier cannabis industry events and professional networking.",
   },
   alternates: {
     canonical: '/events',
@@ -126,7 +126,7 @@ export default async function EventsPage() {
                 • <strong>Community Events:</strong> Participate in cannabis advocacy and community building activities
               </Text>
               <Text color="gray.700">
-                • <strong>Exclusive Member Events:</strong> Special events reserved for THC Members Only Club members
+                • <strong>Industry Networking:</strong> Connect with cannabis industry professionals and business leaders
               </Text>
             </Box>
           </VStack>
@@ -147,7 +147,7 @@ export default async function EventsPage() {
           Don&apos;t Miss Out on Exclusive Events
         </Heading>
         <Text fontSize="lg" color="gray.700" mb={6}>
-          Join the THC Members Only Club to get early access to events, member-only gatherings, and exclusive perks.
+          Join The Network Show to get early access to trade show events, industry networking opportunities, and exclusive business connections.
         </Text>
         <Box>
           <Link href="/contact">
