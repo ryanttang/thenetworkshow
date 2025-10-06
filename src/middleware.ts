@@ -6,6 +6,9 @@ export function middleware(request: NextRequest) {
 
   // Skip rate limiting in development mode
   const isDevelopment = process.env.NODE_ENV === 'development';
+  // Correlation ID propagation
+  const existingRequestId = request.headers.get('x-request-id');
+  const requestId = existingRequestId || crypto.randomUUID();
   
   // Apply rate limiting based on route
   if (pathname.startsWith('/api/auth/')) {
@@ -98,6 +101,10 @@ export function middleware(request: NextRequest) {
 
   // Security headers for all responses
   const response = NextResponse.next();
+  // Propagate correlation ID
+  response.headers.set('x-request-id', requestId);
+  const vercelId = request.headers.get('x-vercel-id');
+  if (vercelId) response.headers.set('x-vercel-id', vercelId);
   
   // Add security headers
   response.headers.set('X-DNS-Prefetch-Control', 'off');

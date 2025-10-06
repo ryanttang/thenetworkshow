@@ -22,6 +22,11 @@ export async function POST(request: NextRequest) {
     const userAgent = request.headers.get("user-agent") || undefined;
     const referer = request.headers.get("referer") || undefined;
     const xRequestId = request.headers.get("x-request-id") || undefined;
+    const vercelId = request.headers.get("x-vercel-id") || undefined;
+    const geoCity = request.headers.get("x-vercel-ip-city") || undefined;
+    const geoCountry = request.headers.get("x-vercel-ip-country") || undefined;
+    const geoRegion = request.headers.get("x-vercel-ip-country-region") || undefined;
+    const forwardedFor = request.headers.get("x-forwarded-for") || undefined;
 
     logger.error(
       "Client-side error reported",
@@ -37,6 +42,11 @@ export async function POST(request: NextRequest) {
         userAgent,
         referer,
         xRequestId,
+        vercelId,
+        geoCity,
+        geoCountry,
+        geoRegion,
+        forwardedFor,
         ...((extra as Record<string, unknown>) || {}),
       }
     );

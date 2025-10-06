@@ -23,6 +23,10 @@ export function getRequestMeta() {
     forwardedFor: h.get("x-forwarded-for") || undefined,
     host: h.get("host") || undefined,
     protocol: h.get("x-forwarded-proto") || undefined,
+    vercelId: h.get("x-vercel-id") || undefined,
+    geoCity: h.get("x-vercel-ip-city") || undefined,
+    geoCountry: h.get("x-vercel-ip-country") || undefined,
+    geoRegion: h.get("x-vercel-ip-country-region") || undefined,
   };
 }
 
