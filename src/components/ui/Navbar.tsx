@@ -74,9 +74,8 @@ export default function Navbar() {
       {navLinks.map((link) => (
         <Link 
           key={link.href}
-          as={link.isExternal ? "a" : NextLink} 
+          as={NextLink} 
           href={link.href}
-          {...(link.isExternal && { isExternal: true })}
           fontSize="md"
           fontWeight="600"
           color={linkColor}
@@ -262,12 +261,8 @@ export default function Navbar() {
                     {navLinks.map((link) => (
                       <Link 
                         key={link.href}
-                        as={link.isExternal ? "a" : NextLink} 
+                        as={NextLink} 
                         href={link.href}
-                        {...(link.isExternal && { 
-                          target: "_blank", 
-                          rel: "noopener noreferrer" 
-                        })}
                         fontSize="md"
                         fontWeight="600"
                         color={drawerTextColor}
