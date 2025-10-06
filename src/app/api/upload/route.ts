@@ -1,4 +1,4 @@
-export const runtime = 'nodejs';
+export const runtime = 'nodejs'; // ensure sharp works
 
 import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthSession } from "@/lib/auth";
@@ -8,8 +8,6 @@ import { uploadBufferToS3 } from "@/lib/s3";
 import { VARIANTS, makeVariant, normalizeBuffer } from "@/lib/images";
 import { randomUUID } from "crypto";
 import type { ImageVariants } from "@/types";
-
-export const runtime = "nodejs"; // ensure sharp works
 
 // Configure route segment - new Next.js App Router format
 export const maxDuration = 30;
