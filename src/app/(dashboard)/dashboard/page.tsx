@@ -1,6 +1,5 @@
 export const runtime = 'nodejs';
 
-import { SupabaseClient } from "@/lib/supabase";
 import { getServerAuthSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 // Treat Next.js redirect errors as control flow, not failures
@@ -11,6 +10,7 @@ import { Button, HStack, Heading, Box, Text, VStack, SimpleGrid, Card, CardBody,
 import Link from "next/link";
 import { createLogger } from "@/lib/logger";
 import { getRequestMeta } from "@/lib/request";
+import { prisma } from "@/lib/prisma";
 
 // Server component wrapper to catch ALL errors including JSX rendering
 async function DashboardContent() {
@@ -34,20 +34,10 @@ async function DashboardContent() {
     redirect("/signin");
   }
   
-  // Step 2: Initialize Supabase
-  let supabase;
-  try {
-    supabase = new SupabaseClient(true);
-    logger.info("Supabase client initialized", { ...reqMeta });
-  } catch (error) {
-    logger.error("Supabase client initialization failed", error as Error, { ...reqMeta });
-    throw error;
-  }
-  
-  // Step 3: Find user
+  // Step 2: Find user using Prisma
   let me;
   try {
-    me = await supabase.findUnique("User", { email: session.user.email }) as any;
+    me = await prisma.user.findUnique({ where: { email: session.user.email } });
     logger.info("User lookup completed", { ...reqMeta, userFound: !!me, emailTried: session.user.email });
   } catch (error) {
     logger.error("User lookup failed", error as Error, { ...reqMeta, emailTried: session.user.email });
@@ -63,32 +53,32 @@ async function DashboardContent() {
   const canManageAllEvents = me.role === "ADMIN" || me.role === "ORGANIZER";
   logger.info("User permissions determined", { ...reqMeta, userId: me.id, role: me.role, canManageAllEvents });
   
-  // Step 5: Load events
+  // Step 3: Load events using Prisma
   let items;
   try {
     const eventsWhere = canManageAllEvents ? { status: "PUBLISHED" } : { status: "PUBLISHED", ownerId: me.id };
     const t0 = Date.now();
-    items = await supabase.findMany("Event", {
+    items = await prisma.event.findMany({
       where: eventsWhere,
       orderBy: { startAt: "desc" }
-    }) as any[];
+    });
     logger.info("Events loaded successfully", { ...reqMeta, count: items.length, durationMs: Date.now() - t0, whereClause: eventsWhere });
   } catch (error) {
     logger.error("Events loading failed", error as Error, { ...reqMeta, userId: me.id, canManageAllEvents });
     throw error;
   }
 
-  // Step 6: Load coordinations
+  // Step 4: Load coordinations using Prisma
   let coordinations;
   try {
     const coordinationsWhere = canManageAllEvents 
       ? {}
       : { eventId: { in: (items || []).map((e: any) => e.id).filter(Boolean) } };
     const t1 = Date.now();
-    coordinations = await supabase.findMany("Coordination", {
+    coordinations = await prisma.coordination.findMany({
       where: coordinationsWhere,
       orderBy: { createdAt: "desc" }
-    }) as any[];
+    });
     logger.info("Coordinations loaded successfully", { ...reqMeta, count: coordinations.length, durationMs: Date.now() - t1, whereClause: coordinationsWhere });
   } catch (error) {
     logger.error("Coordinations loading failed", error as Error, { ...reqMeta, userId: me.id, canManageAllEvents });
