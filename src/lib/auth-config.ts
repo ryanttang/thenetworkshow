@@ -22,19 +22,19 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
         
-        // Check if we're in build mode
-        const isBuildTime = process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL;
-        if (isBuildTime) {
-          console.log("Build time detected, skipping authentication");
+        // Skip authentication during build time
+        if (process.env.NODE_ENV === 'production' && process.env.VERCEL_ENV === 'preview') {
+          console.log("Preview build detected, skipping authentication");
           return null;
         }
 
         try {
+          console.log("Attempting to find user:", creds.email.toLowerCase());
           const user = await prisma.user.findUnique({ 
             where: { email: creds.email.toLowerCase() }
           });
           
-          console.log("User lookup result:", user ? { id: user.id, email: user.email, hasPassword: !!user.hashedPassword } : "not found");
+          console.log("User lookup result:", user ? { id: user.id, email: user.email, hasPassword: !!user.hashedPassword, role: user.role } : "not found");
           
           if (!user) {
             console.log("User not found:", creds.email);
