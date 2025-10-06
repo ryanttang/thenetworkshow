@@ -447,6 +447,24 @@ export default async function DashboardPage() {
   );
   } catch (error) {
     logger.error("Dashboard render failed", error as Error, { ...reqMeta });
+    try {
+      const digest = (error as any)?.digest;
+      const payload = {
+        message: (error as Error)?.message,
+        name: (error as Error)?.name,
+        stack: (error as Error)?.stack,
+        digest,
+        pathname: "/dashboard",
+        timestamp: new Date().toISOString(),
+        extra: { ...reqMeta, phase: "dashboard-catch" }
+      };
+      const base = process.env.NEXT_PUBLIC_SITE_URL || "";
+      await fetch(`${base}/api/debug/error-report`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    } catch {}
     throw error;
   }
 }
