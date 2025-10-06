@@ -10,6 +10,10 @@ ALTER TABLE "public"."GalleryImage" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."Coordination" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."CoordinationDocument" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."InstagramAccount" ENABLE ROW LEVEL SECURITY;
+-- Newly added tables
+ALTER TABLE "public"."Subscriber" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."ContactMessage" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."RecentEventVideo" ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for User table
 -- Users can only see their own profile
@@ -307,4 +311,36 @@ CREATE POLICY "Account owners can create Instagram posts" ON "public"."Instagram
             WHERE "InstagramAccount".id = "InstagramPost"."accountId" 
             AND "InstagramAccount"."userId" = auth.uid()::text
         )
+    );
+
+-- Subscriber policies
+-- Anyone can create a subscriber (public newsletter signup)
+CREATE POLICY "Anyone can create subscriber" ON "public"."Subscriber"
+    FOR INSERT WITH CHECK (true);
+
+-- Only service role can update/delete subscribers; no general SELECT needed
+CREATE POLICY "No general select on subscribers" ON "public"."Subscriber"
+    FOR SELECT USING (false);
+
+-- ContactMessage policies
+-- Anyone can create a contact message
+CREATE POLICY "Anyone can create contact message" ON "public"."ContactMessage"
+    FOR INSERT WITH CHECK (true);
+
+-- No general select/update/delete (restricted to backend service role)
+CREATE POLICY "No general select on contact messages" ON "public"."ContactMessage"
+    FOR SELECT USING (false);
+
+-- RecentEventVideo policies
+-- Anyone can view published videos (for homepage)
+CREATE POLICY "Anyone can view published recent event videos" ON "public"."RecentEventVideo"
+    FOR SELECT USING ("isPublished" = true);
+
+-- Allow authenticated admins/organizers to manage videos by role in JWT (if present)
+-- Note: Adjust if you use a different role claim
+CREATE POLICY "Admins can manage recent event videos" ON "public"."RecentEventVideo"
+    FOR ALL USING (
+      coalesce((current_setting('request.jwt.claims', true)::jsonb ->> 'role') IN ('ADMIN','ORGANIZER'), false)
+    ) WITH CHECK (
+      coalesce((current_setting('request.jwt.claims', true)::jsonb ->> 'role') IN ('ADMIN','ORGANIZER'), false)
     );
