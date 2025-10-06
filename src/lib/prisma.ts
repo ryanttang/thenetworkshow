@@ -21,13 +21,18 @@ const createPrismaClient = () => {
   let databaseUrl = process.env.DATABASE_URL;
   
   if (process.env.NODE_ENV === 'production' && process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    // Replace the anon key with service role key in the DATABASE_URL
+    // Construct DATABASE_URL with service role key
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    if (supabaseUrl && databaseUrl?.includes(supabaseUrl)) {
-      databaseUrl = databaseUrl.replace(
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-        process.env.SUPABASE_SERVICE_ROLE_KEY
-      );
+    if (supabaseUrl) {
+      // Extract the connection details from the existing DATABASE_URL
+      const url = new URL(databaseUrl || '');
+      const host = url.hostname;
+      const port = url.port || '5432';
+      const database = url.pathname.slice(1) || 'postgres';
+      const username = url.username || 'postgres';
+      
+      // Create new DATABASE_URL with service role key
+      databaseUrl = `postgresql://${username}:${process.env.SUPABASE_SERVICE_ROLE_KEY}@${host}:${port}/${database}`;
     }
   }
   
