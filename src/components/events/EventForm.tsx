@@ -5,7 +5,7 @@ import { createEventSchema } from "@/lib/validation";
 import { Box, Button, FormControl, FormLabel, Input, Textarea, HStack, Switch, VStack, useToast, SimpleGrid, Stack } from "@chakra-ui/react";
 import HeroImageUploader from "./HeroImageUploader";
 import DetailImagesUploader from "./DetailImagesUploader";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { z } from "zod";
 
 type FormVals = z.infer<typeof createEventSchema>;
@@ -19,6 +19,11 @@ export default function EventForm({ initial, mode = "create", eventId, existingI
   const [heroImageId, setHeroImageId] = useState<string | undefined>(initial?.heroImageId);
   const [detailImages, setDetailImages] = useState<Array<{id: string, variants: any, fileName: string}>>(existingImages || []);
   const toast = useToast();
+  
+  // Log heroImageId changes for debugging
+  useEffect(() => {
+    console.log("EventForm: heroImageId changed to:", heroImageId);
+  }, [heroImageId]);
   
   const { register, handleSubmit, formState: { isSubmitting, errors }, watch, setValue } = useForm<FormVals>({
     resolver: zodResolver(createEventSchema),
@@ -180,7 +185,6 @@ export default function EventForm({ initial, mode = "create", eventId, existingI
         {/* Hero Image Section */}
         <Box>
           <FormLabel fontSize="sm" fontWeight="semibold">Hero Image (Main Flyer)</FormLabel>
-          {console.log("EventForm: Rendering HeroImageUploader with initialImageId:", heroImageId)}
           <HeroImageUploader 
             onUploaded={(id) => {
               console.log("EventForm: HeroImageUploader onUploaded called with ID:", id);
