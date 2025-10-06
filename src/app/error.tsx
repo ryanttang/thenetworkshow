@@ -13,6 +13,7 @@ export default function Error({
   reset: () => void;
 }) {
   const [copied, setCopied] = useState(false);
+  const [serverReport, setServerReport] = useState<any | null>(null);
 
   useEffect(() => {
     console.error('Global error caught:', error);
@@ -34,6 +35,17 @@ export default function Error({
       body: JSON.stringify(payload),
       keepalive: true,
     }).catch(() => {});
+
+    // Also try to fetch any matching server-side report by digest to surface details in prod
+    const digest = (error as any)?.digest;
+    if (digest) {
+      fetch(`/api/debug/error-report?digest=${encodeURIComponent(String(digest))}`)
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => {
+          if (data && data.count > 0) setServerReport(data.matches?.[0] ?? null);
+        })
+        .catch(() => {});
+    }
   }, [error]);
 
   return (
@@ -104,6 +116,23 @@ export default function Error({
             <Text fontSize="xs" fontFamily="mono">
               {error.stack}
             </Text>
+
+            {serverReport && (
+              <>
+                <Text fontSize="sm" fontWeight="bold" mt={4} mb={2}>
+                  Server Report Snapshot:
+                </Text>
+                <Text fontSize="xs" fontFamily="mono">
+                  {JSON.stringify({
+                    digest: serverReport.digest,
+                    xRequestId: serverReport.xRequestId,
+                    vercelId: serverReport.vercelId,
+                    pathname: serverReport.pathname,
+                    timestamp: serverReport.timestamp,
+                  }, null, 2)}
+                </Text>
+              </>
+            )}
           </Box>
         )}
       </VStack>
