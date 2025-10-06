@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { Event, Gallery } from '@prisma/client'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://thcmembersonlyclub.com'
+  const baseUrl = 'https://thenetworkshow.com'
   
   // Static pages
   const staticPages = [

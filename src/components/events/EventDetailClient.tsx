@@ -29,9 +29,9 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
       <EventStructuredData event={event} />
       <BreadcrumbStructuredData 
         items={[
-          { name: "Home", url: "https://thcmembersonlyclub.com" },
-          { name: "Events", url: "https://thcmembersonlyclub.com/events" },
-          { name: event.title, url: `https://thcmembersonlyclub.com/events/${event.slug}` },
+          { name: "Home", url: "https://thenetworkshow.com" },
+          { name: "Events", url: "https://thenetworkshow.com/events" },
+          { name: event.title, url: `https://thenetworkshow.com/events/${event.slug}` },
         ]}
       />
       

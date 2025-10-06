@@ -70,8 +70,8 @@ export default async function EventsPage() {
       {/* Structured Data */}
       <BreadcrumbStructuredData 
         items={[
-          { name: "Home", url: "https://thcmembersonlyclub.com" },
-          { name: "Events", url: "https://thcmembersonlyclub.com/events" },
+          { name: "Home", url: "https://thenetworkshow.com" },
+          { name: "Events", url: "https://thenetworkshow.com/events" },
         ]}
       />
       

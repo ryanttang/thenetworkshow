@@ -21,7 +21,7 @@ const nextConfig = {
   images: {
     // if you later use next/image with remote patterns:
     remotePatterns: [
-      { protocol: 'https', hostname: 'thcmembersonlyclub.s3.us-west-2.amazonaws.com' }
+      { protocol: 'https', hostname: 'thenetworkshow.s3.us-west-2.amazonaws.com' }
     ],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days

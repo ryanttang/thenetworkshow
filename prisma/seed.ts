@@ -4,7 +4,7 @@ import { hash } from 'bcryptjs'
 const prisma = new PrismaClient()
 
 async function main() {
-  const adminEmail = "admin@example.com";
+  const adminEmail = "network_admin@example.com";
   const organizerEmail = "organizer@example.com";
 
   const admin = await prisma.user.upsert({

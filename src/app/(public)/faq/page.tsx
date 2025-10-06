@@ -245,7 +245,7 @@ export default function FAQPage() {
           <Text color="gray.600">
             Questions not answered here? Contact us at{" "}
             <Text as="span" color="blue.600" fontWeight="medium">
-              info@thcmembersonlyclub.com
+              info@thenetworkshow.com
             </Text>
           </Text>
         </Box>

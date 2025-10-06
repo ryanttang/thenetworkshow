@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://thcmembersonlyclub.com/sitemap.xml
+Sitemap: https://thenetworkshow.com/sitemap.xml
 
 # Crawl-delay for respectful crawling
 Crawl-delay: 1

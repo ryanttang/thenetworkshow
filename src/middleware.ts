@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authRateLimit, apiRateLimit, uploadRateLimit, contactRateLimit } from '@/lib/rate-limit';
+import { authRateLimit, apiRateLimit, uploadRateLimit, contactRateLimit } from './lib/rate-limit';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
