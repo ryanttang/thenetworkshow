@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { SupabaseClient } from "@/lib/supabase";
 import { getServerAuthSession } from "@/lib/auth";
 import { z } from "zod";
+import { supabaseRequest } from "@/lib/supabase-server";
 
 const createVideoSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -67,16 +68,13 @@ export async function POST(req: NextRequest) {
     console.log("Validated data:", validatedData);
 
     // Create video using Supabase REST API
-    const videoResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/RecentEventVideo`, {
+    const videoResponse = await supabaseRequest('RecentEventVideo', {
       method: 'POST',
       headers: {
-        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-        'Content-Type': 'application/json',
         'Prefer': 'return=representation'
       },
       body: JSON.stringify(validatedData)
-    });
+    }, true); // Use service role
 
     if (!videoResponse.ok) {
       const errorText = await videoResponse.text();

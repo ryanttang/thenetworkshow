@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthSession } from "@/lib/auth";
 import { SupabaseClient } from "@/lib/supabase";
+import { supabaseRequest } from "@/lib/supabase-server";
 import { uploadBufferToS3 } from "@/lib/s3";
 import { VARIANTS, makeVariant, normalizeBuffer } from "@/lib/images";
 import { randomUUID } from "crypto";
@@ -105,16 +106,13 @@ export async function POST(req: NextRequest) {
       variants: Object.keys(imageData.variants)
     });
 
-    const imageResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Image`, {
+    const imageResponse = await supabaseRequest('Image', {
       method: 'POST',
       headers: {
-        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-        'Content-Type': 'application/json',
         'Prefer': 'return=representation'
       },
       body: JSON.stringify(imageData)
-    });
+    }, true); // Use service role
 
     console.log("Upload API: Image creation response status:", imageResponse.status);
 

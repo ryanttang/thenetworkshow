@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { SupabaseClient } from "@/lib/supabase";
 import { getServerAuthSession } from "@/lib/auth";
 import { z } from "zod";
+import { supabaseRequest } from "@/lib/supabase-server";
 
 const updateVideoSchema = z.object({
   title: z.string().min(1, "Title is required").optional(),
@@ -64,8 +65,8 @@ export async function PUT(
     const updateResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/RecentEventVideo?id=eq.${params.id}`, {
       method: 'PATCH',
       headers: {
-        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
+        'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
         'Content-Type': 'application/json',
         'Prefer': 'return=representation'
       },
@@ -125,8 +126,8 @@ export async function DELETE(
     const deleteResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/RecentEventVideo?id=eq.${params.id}`, {
       method: 'DELETE',
       headers: {
-        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
+        'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
         'Content-Type': 'application/json'
       }
     });

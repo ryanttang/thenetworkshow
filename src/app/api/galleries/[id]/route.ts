@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthSession } from "@/lib/auth";
 import { SupabaseClient } from "@/lib/supabase";
+import { supabaseRequest } from "@/lib/supabase-server";
 
 export async function DELETE(
   request: NextRequest,
@@ -33,25 +34,10 @@ export async function DELETE(
       return NextResponse.json({ error: "Gallery not found or access denied" }, { status: 404 });
     }
 
-    // Delete gallery using Supabase REST API (GalleryImage records will be deleted automatically due to CASCADE)
-    const deleteResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Gallery?id=eq.${id}`, {
-      method: 'DELETE',
-      headers: {
-        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!deleteResponse.ok) {
-      const errorText = await deleteResponse.text();
-      console.error("Supabase Gallery deletion failed:", {
-        status: deleteResponse.status,
-        statusText: deleteResponse.statusText,
-        errorText
-      });
-      return NextResponse.json({ error: "Failed to delete gallery" }, { status: 500 });
-    }
+    // Delete gallery using SupabaseRequest utility
+    await supabaseRequest(`Gallery?id=eq.${id}`, {
+      method: 'DELETE'
+    }, true); // Use service role
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SupabaseClient } from "@/lib/supabase";
 import { z } from "zod";
+import { supabaseRequest } from "@/lib/supabase-server";
 
 const subscribeSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -27,8 +28,8 @@ export async function POST(request: NextRequest) {
         const updateResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Subscriber?email=eq.${encodeURIComponent(email)}`, {
           method: 'PATCH',
           headers: {
-            'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
+            'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY!,
+            'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ isActive: true, updatedAt: new Date().toISOString() })
@@ -54,8 +55,8 @@ export async function POST(request: NextRequest) {
     const createResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Subscriber`, {
       method: 'POST',
       headers: {
-        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
+        'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
         'Content-Type': 'application/json',
         'Prefer': 'return=representation'
       },

@@ -4,6 +4,7 @@ import { getServerAuthSession } from "@/lib/auth";
 import { updateEventSchema } from "@/lib/validation";
 import { canEditEvent } from "@/lib/rbac";
 import { createSlug } from "@/lib/utils";
+import { supabaseRequest } from "@/lib/supabase-server";
 
 export async function GET(
   req: NextRequest, 
@@ -91,28 +92,14 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       updateData.endAt = new Date(updateData.endAt).toISOString();
     }
 
-    // Update event using Supabase REST API
-    const updateResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Event?id=eq.${params.id}`, {
+    // Update event using SupabaseRequest utility
+    const updateResponse = await supabaseRequest(`Event?id=eq.${params.id}`, {
       method: 'PATCH',
       headers: {
-        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-        'Content-Type': 'application/json',
         'Prefer': 'return=representation'
       },
       body: JSON.stringify(updateData)
-    });
-
-    if (!updateResponse.ok) {
-      const errorText = await updateResponse.text();
-      console.error("Supabase Event update failed:", {
-        status: updateResponse.status,
-        statusText: updateResponse.statusText,
-        errorText,
-        updateData
-      });
-      return NextResponse.json({ error: "Failed to update event" }, { status: 500 });
-    }
+    }, true); // Use service role
 
     const updatedArray = await updateResponse.json();
     const updated = updatedArray[0]; // Supabase returns an array
@@ -121,26 +108,16 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     if (parsed.data.heroImageId !== undefined) {
       if (parsed.data.heroImageId) {
         // Assign new hero image
-        await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Image?id=eq.${parsed.data.heroImageId}`, {
+        await supabaseRequest(`Image?id=eq.${parsed.data.heroImageId}`, {
           method: 'PATCH',
-          headers: {
-            'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-            'Content-Type': 'application/json'
-          },
           body: JSON.stringify({ eventId: params.id })
-        });
+        }, true);
       } else {
         // Remove hero image (heroImageId is empty string)
-        await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Event?id=eq.${params.id}`, {
+        await supabaseRequest(`Event?id=eq.${params.id}`, {
           method: 'PATCH',
-          headers: {
-            'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-            'Content-Type': 'application/json'
-          },
           body: JSON.stringify({ heroImageId: null })
-        });
+        }, true);
       }
     }
     
@@ -170,25 +147,10 @@ export async function DELETE(_: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  // Delete event using Supabase REST API
-  const deleteResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Event?id=eq.${params.id}`, {
-    method: 'DELETE',
-    headers: {
-      'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-      'Content-Type': 'application/json'
-    }
-  });
-
-  if (!deleteResponse.ok) {
-    const errorText = await deleteResponse.text();
-    console.error("Supabase Event deletion failed:", {
-      status: deleteResponse.status,
-      statusText: deleteResponse.statusText,
-      errorText
-    });
-    return NextResponse.json({ error: "Failed to delete event" }, { status: 500 });
-  }
+  // Delete event using SupabaseRequest utility
+  await supabaseRequest(`Event?id=eq.${params.id}`, {
+    method: 'DELETE'
+  }, true); // Use service role
 
   return NextResponse.json({ ok: true });
 }

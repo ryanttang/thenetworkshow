@@ -3,6 +3,7 @@ import { SupabaseClient } from "@/lib/supabase";
 import { getServerAuthSession } from "@/lib/auth";
 import { createEventSchema } from "@/lib/validation";
 import { createSlug } from "@/lib/utils";
+import { supabaseRequest } from "@/lib/supabase-server";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -109,54 +110,35 @@ export async function POST(req: NextRequest) {
     }
   });
 
-  // Create event using Supabase REST API
-  const eventResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Event`, {
-    method: 'POST',
-    headers: {
-      'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=representation'
-    },
-    body: JSON.stringify(eventData)
-  });
+  // Create event using SupabaseRequest utility
+  try {
+    const eventResponse = await supabaseRequest('Event', {
+      method: 'POST',
+      headers: {
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(eventData)
+    }, true); // Use service role
 
-  if (!eventResponse.ok) {
-    const errorText = await eventResponse.text();
-    console.error("Supabase Event creation failed:", {
-      status: eventResponse.status,
-      statusText: eventResponse.statusText,
-      errorText,
-      eventData
-    });
+    const eventArray = await eventResponse.json();
+    const event = eventArray[0]; // Supabase returns an array
+
+    // Optionally set hero image ownership if provided
+    if (parsed.data.heroImageId) {
+      await supabaseRequest(`Image?id=eq.${parsed.data.heroImageId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ eventId: event.id })
+      }, true);
+      
+      await supabaseRequest(`Event?id=eq.${event.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ heroImageId: parsed.data.heroImageId })
+      }, true);
+    }
+
+    return NextResponse.json(event, { status: 201 });
+  } catch (error) {
+    console.error("Error creating event:", error);
     return NextResponse.json({ error: "Failed to create event" }, { status: 500 });
   }
-
-  const eventArray = await eventResponse.json();
-  const event = eventArray[0]; // Supabase returns an array
-
-  // Optionally set hero image ownership if provided
-  if (parsed.data.heroImageId) {
-    await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Image?id=eq.${parsed.data.heroImageId}`, {
-      method: 'PATCH',
-      headers: {
-        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ eventId: event.id })
-    });
-    
-    await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Event?id=eq.${event.id}`, {
-      method: 'PATCH',
-      headers: {
-        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ heroImageId: parsed.data.heroImageId })
-    });
-  }
-
-  return NextResponse.json(event, { status: 201 });
 }

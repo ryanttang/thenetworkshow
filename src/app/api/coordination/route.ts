@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthSession } from "@/lib/auth";
 import { SupabaseClient } from "@/lib/supabase";
 import { z } from "zod";
+import { supabaseRequest } from "@/lib/supabase-server";
 
 const createCoordinationSchema = z.object({
   eventId: z.string().min(1),
@@ -156,28 +157,14 @@ export async function POST(request: NextRequest) {
       slug,
     };
 
-    // Create coordination using Supabase REST API
-    const coordinationResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Coordination`, {
+    // Create coordination using SupabaseRequest utility
+    const coordinationResponse = await supabaseRequest('Coordination', {
       method: 'POST',
       headers: {
-        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-        'Content-Type': 'application/json',
         'Prefer': 'return=representation'
       },
       body: JSON.stringify(coordinationData)
-    });
-
-    if (!coordinationResponse.ok) {
-      const errorText = await coordinationResponse.text();
-      console.error("Supabase Coordination creation failed:", {
-        status: coordinationResponse.status,
-        statusText: coordinationResponse.statusText,
-        errorText,
-        coordinationData
-      });
-      return NextResponse.json({ error: "Failed to create coordination" }, { status: 500 });
-    }
+    }, true); // Use service role
 
     const coordinationArray = await coordinationResponse.json();
     const coordination = coordinationArray[0]; // Supabase returns an array

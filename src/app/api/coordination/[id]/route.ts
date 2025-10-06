@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthSession } from "@/lib/auth";
 import { SupabaseClient } from "@/lib/supabase";
 import { z } from "zod";
+import { supabaseRequest } from "@/lib/supabase-server";
 
 const updateCoordinationSchema = z.object({
   eventId: z.string().min(1).optional(),
@@ -146,28 +147,14 @@ export async function PUT(
       updateData.slug = slug;
     }
 
-    // Update coordination using Supabase REST API
-    const updateResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Coordination?id=eq.${params.id}`, {
+    // Update coordination using SupabaseRequest utility
+    const updateResponse = await supabaseRequest(`Coordination?id=eq.${params.id}`, {
       method: 'PATCH',
       headers: {
-        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-        'Content-Type': 'application/json',
         'Prefer': 'return=representation'
       },
       body: JSON.stringify(updateData)
-    });
-
-    if (!updateResponse.ok) {
-      const errorText = await updateResponse.text();
-      console.error("Supabase Coordination update failed:", {
-        status: updateResponse.status,
-        statusText: updateResponse.statusText,
-        errorText,
-        updateData
-      });
-      return NextResponse.json({ error: "Failed to update coordination" }, { status: 500 });
-    }
+    }, true); // Use service role
 
     const coordinationArray = await updateResponse.json();
     const coordination = coordinationArray[0]; // Supabase returns an array
@@ -216,25 +203,10 @@ export async function DELETE(
       return NextResponse.json({ error: "Coordination not found" }, { status: 404 });
     }
 
-    // Delete coordination using Supabase REST API
-    const deleteResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Coordination?id=eq.${params.id}`, {
-      method: 'DELETE',
-      headers: {
-        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!deleteResponse.ok) {
-      const errorText = await deleteResponse.text();
-      console.error("Supabase Coordination deletion failed:", {
-        status: deleteResponse.status,
-        statusText: deleteResponse.statusText,
-        errorText
-      });
-      return NextResponse.json({ error: "Failed to delete coordination" }, { status: 500 });
-    }
+    // Delete coordination using SupabaseRequest utility
+    await supabaseRequest(`Coordination?id=eq.${params.id}`, {
+      method: 'DELETE'
+    }, true); // Use service role
 
     return NextResponse.json({ success: true });
   } catch (error) {

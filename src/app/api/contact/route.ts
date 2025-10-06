@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SupabaseClient } from "@/lib/supabase";
 import { z } from "zod";
+import { supabaseRequest } from "@/lib/supabase-server";
 
 const contactSchema = z.object({
   name: z.string().min(1, "Name is required").max(100, "Name is too long"),
@@ -24,16 +25,13 @@ export async function POST(request: NextRequest) {
       message: validatedData.message,
     };
 
-    const contactResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/ContactMessage`, {
+    const contactResponse = await supabaseRequest('ContactMessage', {
       method: 'POST',
       headers: {
-        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-        'Content-Type': 'application/json',
         'Prefer': 'return=representation'
       },
       body: JSON.stringify(contactData)
-    });
+    }, true); // Use service role
 
     if (!contactResponse.ok) {
       const errorText = await contactResponse.text();

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthSession } from "@/lib/auth";
 import { SupabaseClient } from "@/lib/supabase";
+import { supabaseRequest } from "@/lib/supabase-server";
 
 export async function GET(request: NextRequest) {
   try {
@@ -98,7 +99,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create gallery using Supabase REST API
+    // Create gallery using SupabaseRequest utility
     const galleryData = {
       name: name.trim(),
       description: description?.trim() || null,
@@ -107,27 +108,13 @@ export async function POST(request: NextRequest) {
       isPublic: isPublic !== false,
     };
 
-    const galleryResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Gallery`, {
+    const galleryResponse = await supabaseRequest('Gallery', {
       method: 'POST',
       headers: {
-        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-        'Content-Type': 'application/json',
         'Prefer': 'return=representation'
       },
       body: JSON.stringify(galleryData)
-    });
-
-    if (!galleryResponse.ok) {
-      const errorText = await galleryResponse.text();
-      console.error("Supabase Gallery creation failed:", {
-        status: galleryResponse.status,
-        statusText: galleryResponse.statusText,
-        errorText,
-        galleryData
-      });
-      return NextResponse.json({ error: "Failed to create gallery" }, { status: 500 });
-    }
+    }, true); // Use service role
 
     const galleryArray = await galleryResponse.json();
     const gallery = galleryArray[0]; // Supabase returns an array
@@ -143,16 +130,13 @@ export async function POST(request: NextRequest) {
         sortOrder: index,
       }));
 
-      const imagesResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/GalleryImage`, {
+      const imagesResponse = await supabaseRequest('GalleryImage', {
         method: 'POST',
         headers: {
-          'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-          'Content-Type': 'application/json',
           'Prefer': 'return=representation'
         },
         body: JSON.stringify(galleryImages)
-      });
+      }, true); // Use service role
 
       if (!imagesResponse.ok) {
         console.error("Failed to add images to gallery:", await imagesResponse.text());
