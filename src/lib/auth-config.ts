@@ -70,6 +70,10 @@ export const authOptions: NextAuthOptions = {
           };
         } catch (error) {
           console.error("Auth error:", error);
+          console.error("Error details:", {
+            message: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
+          });
           return null;
         }
       }
@@ -95,29 +99,9 @@ export const authOptions: NextAuthOptions = {
     error: "/api/auth/error"
   },
   debug: true, // Enable debug in production for troubleshooting
-  // Add proper URL handling
-  useSecureCookies: process.env.NODE_ENV === "production",
   cookies: {
     sessionToken: {
       name: `next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === "production"
-      }
-    },
-    csrfToken: {
-      name: `next-auth.csrf-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === "production"
-      }
-    },
-    callbackUrl: {
-      name: `next-auth.callback-url`,
       options: {
         httpOnly: true,
         sameSite: 'lax',
