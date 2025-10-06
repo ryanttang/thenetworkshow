@@ -1,3 +1,5 @@
+export const runtime = 'nodejs';
+
 import { SupabaseClient } from "@/lib/supabase";
 import { getServerAuthSession } from "@/lib/auth";
 import { redirect } from "next/navigation";

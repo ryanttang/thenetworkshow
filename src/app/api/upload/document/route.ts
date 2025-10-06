@@ -1,10 +1,10 @@
+export const runtime = 'nodejs';
+
 import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthSession } from "@/lib/auth";
 import { SupabaseClient } from "@/lib/supabase";
 import { uploadBufferToS3 } from "@/lib/s3";
 import { randomUUID } from "crypto";
-
-export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   const session = await getServerAuthSession();
