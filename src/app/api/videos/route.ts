@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
     const whereClause = isPublished ? { isPublished: true } : {};
     const videos = await supabase.findMany("RecentEventVideo", {
       where: whereClause,
-      orderBy: { sortOrder: "asc" },
+      orderBy: { sortOrder: "asc", createdAt: "desc" },
       select: "*"
     }) as any[];
 
