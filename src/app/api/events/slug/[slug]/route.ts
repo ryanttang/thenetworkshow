@@ -1,7 +1,5 @@
-export const runtime = 'nodejs';
-
 import { NextRequest, NextResponse } from "next/server";
-import { SupabaseClient } from "@/lib/supabase";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(
   req: NextRequest, 
@@ -14,12 +12,14 @@ export async function GET(
       return NextResponse.json({ error: "Slug is required" }, { status: 400 });
     }
 
-    // Use Supabase REST API to fetch event by slug
-    const supabase = new SupabaseClient(true);
-    const event = await supabase.findUnique("Event", { 
-      slug,
-      status: "PUBLISHED"
-    }) as any;
+    // Look up by slug (for public access, published events only)
+    const event = await prisma.event.findUnique({
+      where: { 
+        slug: slug,
+        status: "PUBLISHED"
+      },
+      include: { heroImage: true, images: true }
+    });
     
     if (!event) {
       return NextResponse.json({ error: "Event not found" }, { status: 404 });

@@ -1,4 +1,4 @@
-import { SupabaseClient } from "@/lib/supabase";
+import { prisma } from "@/lib/prisma";
 import { getServerAuthSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import EventForm from "@/components/events/EventForm";
@@ -11,13 +11,13 @@ export default async function EditEventPage({ params }: { params: { id: string }
   const session = await getServerAuthSession();
   if (!session?.user?.email) redirect("/signin");
   
-  const supabase = new SupabaseClient(true);
-  const me = await supabase.findUnique("User", { email: session.user.email }) as any;
+  const me = await prisma.user.findUnique({ where: { email: session.user.email } });
   if (!me) redirect("/signin");
   
-  const event = await supabase.findUnique("Event", { 
-    id: params.id
-  }) as any;
+  const event = await prisma.event.findUnique({ 
+    where: { id: params.id },
+    include: { heroImage: true }
+  });
   
   if (!event) redirect("/dashboard/events");
   
@@ -27,11 +27,10 @@ export default async function EditEventPage({ params }: { params: { id: string }
   }
 
   // Get hero image and detail images
-  const heroImage = event.heroImageId ? await supabase.findUnique("Image", { id: event.heroImageId }) as any : null;
-  const detailImages = event.images ? await supabase.findMany("Image", {
-    where: { id: { in: event.images } },
-    select: "*"
-  }) as any[] : [];
+  const heroImage = event.heroImageId ? await prisma.image.findUnique({ where: { id: event.heroImageId } }) : null;
+  const detailImages = event.images ? await prisma.image.findMany({
+    where: { id: { in: event.images } }
+  }) : [];
 
   // Format dates for datetime-local inputs
   const formatDateForInput = (date: Date) => {

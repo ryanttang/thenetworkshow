@@ -1,13 +1,12 @@
-export const runtime = 'nodejs'; // ensure sharp works
-
 import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthSession } from "@/lib/auth";
-import { SupabaseClient } from "@/lib/supabase";
-import { supabaseRequest } from "@/lib/supabase-server";
+import { prisma } from "@/lib/prisma";
 import { uploadBufferToS3 } from "@/lib/s3";
 import { VARIANTS, makeVariant, normalizeBuffer } from "@/lib/images";
 import { randomUUID } from "crypto";
 import type { ImageVariants } from "@/types";
+
+export const runtime = "nodejs"; // ensure sharp works
 
 // Configure route segment - new Next.js App Router format
 export const maxDuration = 30;
@@ -40,17 +39,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unsupported file type" }, { status: 400 });
     }
 
-    // Use Supabase REST API for user lookup
-    const supabase = new SupabaseClient(true);
-    const uploader = await supabase.findUnique("User", { email: session.user.email }) as any;
+    const uploader = await prisma.user.findUnique({ where: { email: session.user.email }});
     if (!uploader) return NextResponse.json({ error: "User not found" }, { status: 401 });
 
     // Check AWS configuration
-    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY || !process.env.S3_Bucket) {
+    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY || !process.env.S3_BUCKET) {
       console.error("AWS configuration missing:", {
         hasAccessKey: !!process.env.AWS_ACCESS_KEY_ID,
         hasSecretKey: !!process.env.AWS_SECRET_ACCESS_KEY,
-        hasBucket: !!process.env.S3_Bucket
+        hasBucket: !!process.env.S3_BUCKET
       });
       return NextResponse.json({ error: "AWS configuration missing" }, { status: 500 });
     }
@@ -78,68 +75,25 @@ export async function POST(req: NextRequest) {
     const origWebpUrl = await uploadBufferToS3(origWebpKey, hero.webp, "image/webp");
     const origJpgUrl  = await uploadBufferToS3(origJpgKey, hero.jpeg, "image/jpeg");
 
-    // Create image record using Supabase REST API
-    const imageId = randomUUID();
-    const now = new Date().toISOString();
-    const imageData = {
-      id: imageId,
-      eventId: eventId ?? null,
-      uploaderId: uploader.id,
-      originalKey: origWebpKey,
-      format: "webp",
-      width: hero.width,
-      height: hero.height,
-      variants: {
-        tiny: variants.tiny!,
-        thumb: variants.thumb!,
-        card: variants.card!,
-        hero: variants.hero!,
-        original: { webpKey: origWebpKey, jpgKey: origJpgKey, webpUrl: origWebpUrl, jpgUrl: origJpgUrl, width: hero.width, height: hero.height }
-      },
-      updatedAt: now
-    };
-
-    console.log("Upload API: Creating image record with data:", {
-      imageId,
-      eventId: eventId ?? null,
-      uploaderId: uploader.id,
-      variants: Object.keys(imageData.variants)
+    const image = await prisma.image.create({
+      data: {
+        eventId: eventId ?? null,
+        uploaderId: uploader.id,
+        originalKey: origWebpKey,
+        format: "webp",
+        width: hero.width,
+        height: hero.height,
+        variants: {
+          tiny: variants.tiny!,
+          thumb: variants.thumb!,
+          card: variants.card!,
+          hero: variants.hero!,
+          original: { webpKey: origWebpKey, jpgKey: origJpgKey, webpUrl: origWebpUrl, jpgUrl: origJpgUrl, width: hero.width, height: hero.height }
+        } as any // Type assertion for Prisma JSON field
+      }
     });
 
-    const imageResponse = await supabaseRequest('Image', {
-      method: 'POST',
-      headers: {
-        'Prefer': 'return=representation'
-      },
-      body: JSON.stringify(imageData)
-    }, true); // Use service role
-
-    console.log("Upload API: Image creation response status:", imageResponse.status);
-
-    if (!imageResponse.ok) {
-      const errorText = await imageResponse.text();
-      console.error("Supabase Image creation failed:", {
-        status: imageResponse.status,
-        statusText: imageResponse.statusText,
-        errorText,
-        imageData
-      });
-      throw new Error(`Failed to create image record: ${imageResponse.statusText} - ${errorText}`);
-    }
-
-    const imageArray = await imageResponse.json();
-    const image = imageArray[0]; // Supabase returns an array
-
-    console.log("Upload API: Final image record:", {
-      id: image.id,
-      hasVariants: !!image.variants,
-      variantKeys: image.variants ? Object.keys(image.variants) : []
-    });
-
-    const response = { imageId: image.id, variants: image.variants };
-    console.log("Upload API: Returning response:", response);
-    
-    return NextResponse.json(response);
+    return NextResponse.json({ imageId: image.id, variants: image.variants });
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json({ 

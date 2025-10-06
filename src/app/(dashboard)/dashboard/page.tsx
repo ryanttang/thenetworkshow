@@ -9,28 +9,25 @@ import EventGrid from "@/components/events/EventGrid";
 import { Button, HStack, Heading, Box, Text, VStack, SimpleGrid, Card, CardBody, CardHeader, Container, Badge } from "@chakra-ui/react";
 import Link from "next/link";
 import { createLogger } from "@/lib/logger";
-import { getRequestMeta } from "@/lib/request";
 import { prisma } from "@/lib/prisma";
 
 // Server component wrapper to catch ALL errors including JSX rendering
 async function DashboardContent() {
   const logger = createLogger("dashboard");
-  const reqMeta = getRequestMeta();
-  
-  logger.info("Starting dashboard render", { ...reqMeta });
+  logger.info("Starting dashboard render");
   
   // Step 1: Get session
   let session;
   try {
     session = await getServerAuthSession();
-    logger.info("Session check completed", { ...reqMeta, hasSession: !!session, userEmail: session?.user?.email });
+    logger.info("Session check completed", { hasSession: !!session, userEmail: session?.user?.email });
   } catch (error) {
-    logger.error("Session check failed", error as Error, { ...reqMeta });
+    logger.error("Session check failed", error as Error);
     throw error;
   }
   
   if (!session?.user?.email) {
-    logger.info("No session, redirecting to signin", { ...reqMeta });
+    logger.info("No session, redirecting to signin");
     redirect("/signin");
   }
   
@@ -38,20 +35,20 @@ async function DashboardContent() {
   let me;
   try {
     me = await prisma.user.findUnique({ where: { email: session.user.email } });
-    logger.info("User lookup completed", { ...reqMeta, userFound: !!me, emailTried: session.user.email });
+    logger.info("User lookup completed", { userFound: !!me, emailTried: session.user.email });
   } catch (error) {
-    logger.error("User lookup failed", error as Error, { ...reqMeta, emailTried: session.user.email });
+    logger.error("User lookup failed", error as Error, { emailTried: session.user.email });
     throw error;
   }
   
   if (!me) {
-    logger.warn("User not found for session email", { ...reqMeta, emailTried: session.user.email });
+    logger.warn("User not found for session email", { emailTried: session.user.email });
     redirect("/signin");
   }
   
   // Step 4: Determine permissions
   const canManageAllEvents = me.role === "ADMIN" || me.role === "ORGANIZER";
-  logger.info("User permissions determined", { ...reqMeta, userId: me.id, role: me.role, canManageAllEvents });
+  logger.info("User permissions determined", { userId: me.id, role: me.role, canManageAllEvents });
   
   // Step 3: Load events using Prisma
   let items;
@@ -62,9 +59,9 @@ async function DashboardContent() {
       where: eventsWhere,
       orderBy: { startAt: "desc" }
     });
-    logger.info("Events loaded successfully", { ...reqMeta, count: items.length, durationMs: Date.now() - t0, whereClause: eventsWhere });
+    logger.info("Events loaded successfully", { count: items.length, durationMs: Date.now() - t0, whereClause: eventsWhere });
   } catch (error) {
-    logger.error("Events loading failed", error as Error, { ...reqMeta, userId: me.id, canManageAllEvents });
+    logger.error("Events loading failed", error as Error, { userId: me.id, canManageAllEvents });
     throw error;
   }
 
@@ -79,9 +76,9 @@ async function DashboardContent() {
       where: coordinationsWhere,
       orderBy: { createdAt: "desc" }
     });
-    logger.info("Coordinations loaded successfully", { ...reqMeta, count: coordinations.length, durationMs: Date.now() - t1, whereClause: coordinationsWhere });
+    logger.info("Coordinations loaded successfully", { count: coordinations.length, durationMs: Date.now() - t1, whereClause: coordinationsWhere });
   } catch (error) {
-    logger.error("Coordinations loading failed", error as Error, { ...reqMeta, userId: me.id, canManageAllEvents });
+    logger.error("Coordinations loading failed", error as Error, { userId: me.id, canManageAllEvents });
     throw error;
   }
 

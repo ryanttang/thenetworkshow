@@ -1,15 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth-config";
 import { createLogger } from "@/lib/logger";
-import { getRequestMeta } from "@/lib/request";
 
 const logger = createLogger("auth-test");
 
 export async function POST(request: NextRequest) {
-  const reqMeta = getRequestMeta();
   
   try {
-    logger.info("Testing authentication", { ...reqMeta });
+    logger.info("Testing authentication");
     
     const body = await request.json();
     const { email, password } = body;
@@ -18,16 +16,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email and password required" }, { status: 400 });
     }
     
-    logger.info("Testing credentials", { ...reqMeta, email, hasPassword: !!password });
+    logger.info("Testing credentials", { email, hasPassword: !!password });
     
     // Test the authorize function directly
     const credentials = authOptions.providers[0] as any;
     
-    logger.info("About to call authorize", { ...reqMeta, email, passwordLength: password.length });
+    logger.info("About to call authorize", { email, passwordLength: password.length });
     
     const result = await credentials.authorize({ email, password });
     
-    logger.info("Authorization result", { ...reqMeta, result: result ? "success" : "failed", resultDetails: result });
+    logger.info("Authorization result", { result: result ? "success" : "failed", resultDetails: result });
     
     if (result) {
       return NextResponse.json({ 
@@ -44,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
     
   } catch (error) {
-    logger.error("Authentication test failed", error as Error, { ...reqMeta });
+    logger.error("Authentication test failed", error as Error);
     return NextResponse.json({ 
       error: "Authentication test failed", 
       details: error instanceof Error ? error.message : "Unknown error" 

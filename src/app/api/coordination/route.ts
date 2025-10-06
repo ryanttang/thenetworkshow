@@ -1,10 +1,7 @@
-export const runtime = 'nodejs';
-
 import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthSession } from "@/lib/auth";
-import { SupabaseClient } from "@/lib/supabase";
+import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-import { supabaseRequest } from "@/lib/supabase-server";
 
 const createCoordinationSchema = z.object({
   eventId: z.string().min(1),
@@ -26,8 +23,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const supabase = new SupabaseClient(true);
-    const user = await supabase.findUnique("User", { email: session.user.email }) as any;
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -41,12 +39,9 @@ export async function GET(request: NextRequest) {
     // Admins and Organizers can see all coordinations, others only see their own
     const canManageAllEvents = user.role === "ADMIN" || user.role === "ORGANIZER";
 
-    let whereClause: any = {};
-    
-    if (!canManageAllEvents || owner === "me") {
-      // For non-admin users or when explicitly requesting own coordinations
-      whereClause["event.ownerId"] = user.id;
-    }
+    let whereClause: any = {
+      ...(canManageAllEvents && owner !== "me" ? {} : { event: { ownerId: user.id } }),
+    };
 
     if (eventId) {
       whereClause.eventId = eventId;
@@ -57,33 +52,38 @@ export async function GET(request: NextRequest) {
       whereClause.isArchived = false;
     }
 
-    // Get coordinations using Supabase REST API
-    const coordinations = await supabase.findMany("Coordination", {
+    const coordinations = await prisma.coordination.findMany({
       where: whereClause,
+      select: {
+        id: true,
+        eventId: true,
+        title: true,
+        description: true,
+        notes: true,
+        shareToken: true,
+        slug: true,
+        isActive: true,
+        isArchived: true,
+        createdAt: true,
+        event: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            owner: { select: { name: true, email: true } }
+          },
+        },
+        documents: {
+          orderBy: { sortOrder: "asc" },
+        },
+        _count: {
+          select: { documents: true },
+        },
+      },
       orderBy: { createdAt: "desc" },
-      select: "*, event:Event(*), documents:CoordinationDocument(*)"
-    }) as any[];
+    });
 
-    // Transform the data to match the expected format
-    const transformedCoordinations = coordinations.map(coord => ({
-      id: coord.id,
-      eventId: coord.eventId,
-      title: coord.title,
-      description: coord.description,
-      notes: coord.notes,
-      shareToken: coord.shareToken,
-      slug: coord.slug,
-      isActive: coord.isActive,
-      isArchived: coord.isArchived,
-      createdAt: coord.createdAt,
-      event: coord.event,
-      documents: coord.documents || [],
-      _count: {
-        documents: coord.documents?.length || 0
-      }
-    }));
-
-    return NextResponse.json(transformedCoordinations);
+    return NextResponse.json(coordinations);
   } catch (error) {
     console.error("Error fetching coordinations:", error);
     return NextResponse.json(
@@ -100,8 +100,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const supabase = new SupabaseClient(true);
-    const user = await supabase.findUnique("User", { email: session.user.email }) as any;
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -114,8 +115,12 @@ export async function POST(request: NextRequest) {
     const canManageAllEvents = user.role === "ADMIN" || user.role === "ORGANIZER";
 
     // Verify the event exists and user has permission to access it
-    const eventWhere = canManageAllEvents ? { id: eventId } : { id: eventId, ownerId: user.id };
-    const event = await supabase.findUnique("Event", eventWhere) as any;
+    const event = await prisma.event.findFirst({
+      where: {
+        id: eventId,
+        ...(canManageAllEvents ? {} : { ownerId: user.id }),
+      },
+    });
 
     if (!event) {
       return NextResponse.json({ error: "Event not found or permission denied" }, { status: 404 });
@@ -139,7 +144,9 @@ export async function POST(request: NextRequest) {
 
     // Ensure slug is unique by appending numbers if needed
     while (true) {
-      const existing = await supabase.findUnique("Coordination", { slug }) as any;
+      const existing = await prisma.coordination.findFirst({
+        where: { slug: slug }
+      });
       
       if (!existing) {
         break;
@@ -149,32 +156,29 @@ export async function POST(request: NextRequest) {
       counter++;
     }
 
-    const coordinationData = {
-      eventId,
-      title,
-      description,
-      notes,
-      specialMessage,
-      pointOfContacts: pointOfContacts || [],
-      slug,
-    };
-
-    // Create coordination using SupabaseRequest utility
-    const coordinationResponse = await supabaseRequest('Coordination', {
-      method: 'POST',
-      headers: {
-        'Prefer': 'return=representation'
+    const coordination = await prisma.coordination.create({
+      data: {
+        eventId,
+        title,
+        description,
+        notes,
+        specialMessage,
+        pointOfContacts: pointOfContacts || [],
+        slug,
       },
-      body: JSON.stringify(coordinationData)
-    }, true); // Use service role
+      include: {
+        event: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+          },
+        },
+        documents: true,
+      },
+    });
 
-    const coordinationArray = await coordinationResponse.json();
-    const coordination = coordinationArray[0]; // Supabase returns an array
-
-    // Get the created coordination with related data
-    const fullCoordination = await supabase.findUnique("Coordination", { id: coordination.id }) as any;
-
-    return NextResponse.json(fullCoordination, { status: 201 });
+    return NextResponse.json(coordination, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

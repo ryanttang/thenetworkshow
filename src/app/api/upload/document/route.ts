@@ -1,10 +1,10 @@
-export const runtime = 'nodejs';
-
 import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthSession } from "@/lib/auth";
-import { SupabaseClient } from "@/lib/supabase";
+import { prisma } from "@/lib/prisma";
 import { uploadBufferToS3 } from "@/lib/s3";
 import { randomUUID } from "crypto";
+
+export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   const session = await getServerAuthSession();
@@ -15,9 +15,7 @@ export async function POST(req: NextRequest) {
   
   if (!file) return NextResponse.json({ error: "Missing file" }, { status: 400 });
 
-  // Use Supabase REST API for user lookup
-  const supabase = new SupabaseClient(true);
-  const uploader = await supabase.findUnique("User", { email: session.user.email }) as any;
+  const uploader = await prisma.user.findUnique({ where: { email: session.user.email }});
   if (!uploader) return NextResponse.json({ error: "User not found" }, { status: 401 });
 
   const arrayBuf = await file.arrayBuffer();

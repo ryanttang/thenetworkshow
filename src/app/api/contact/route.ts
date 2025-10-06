@@ -1,9 +1,6 @@
-export const runtime = 'nodejs';
-
 import { NextRequest, NextResponse } from "next/server";
-import { SupabaseClient } from "@/lib/supabase";
+import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-import { supabaseRequest } from "@/lib/supabase-server";
 
 const contactSchema = z.object({
   name: z.string().min(1, "Name is required").max(100, "Name is too long"),
@@ -19,41 +16,15 @@ export async function POST(request: NextRequest) {
     // Validate the input
     const validatedData = contactSchema.parse(body);
     
-    // Create the contact message using Supabase REST API
-    const contactData = {
-      name: validatedData.name,
-      email: validatedData.email,
-      subject: validatedData.subject || null,
-      message: validatedData.message,
-    };
-
-    const contactResponse = await supabaseRequest('ContactMessage', {
-      method: 'POST',
-      headers: {
-        'Prefer': 'return=representation'
+    // Create the contact message
+    const contactMessage = await prisma.contactMessage.create({
+      data: {
+        name: validatedData.name,
+        email: validatedData.email,
+        subject: validatedData.subject || null,
+        message: validatedData.message,
       },
-      body: JSON.stringify(contactData)
-    }, true); // Use service role
-
-    if (!contactResponse.ok) {
-      const errorText = await contactResponse.text();
-      console.error("Supabase ContactMessage creation failed:", {
-        status: contactResponse.status,
-        statusText: contactResponse.statusText,
-        errorText,
-        contactData
-      });
-      return NextResponse.json(
-        { 
-          success: false, 
-          message: "Failed to send contact message" 
-        },
-        { status: 500 }
-      );
-    }
-
-    const contactArray = await contactResponse.json();
-    const contactMessage = contactArray[0]; // Supabase returns an array
+    });
 
     return NextResponse.json(
       { 

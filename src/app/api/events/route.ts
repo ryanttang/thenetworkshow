@@ -1,11 +1,9 @@
-export const runtime = 'nodejs';
-
 import { NextRequest, NextResponse } from "next/server";
-import { SupabaseClient } from "@/lib/supabase";
+import { prisma } from "@/lib/prisma";
 import { getServerAuthSession } from "@/lib/auth";
 import { createEventSchema } from "@/lib/validation";
 import { createSlug } from "@/lib/utils";
-import { supabaseRequest } from "@/lib/supabase-server";
+import type { Prisma } from "@prisma/client";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -18,9 +16,9 @@ export async function GET(req: NextRequest) {
   const to = searchParams.get("to");
   const q = searchParams.get("q");
 
-  const supabase = new SupabaseClient(true);
-  
-  let whereClause: any = { status };
+  const where: Prisma.EventWhereInput = { 
+    status: status as "DRAFT" | "PUBLISHED" | "ARCHIVED" 
+  };
   
   // If owner=me, filter by current user's events
   if (owner === "me") {
@@ -28,40 +26,32 @@ export async function GET(req: NextRequest) {
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const user = await supabase.findUnique("User", { email: session.user.email }) as any;
+    const user = await prisma.user.findUnique({ where: { email: session.user.email } });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 401 });
     }
-    whereClause.ownerId = user.id;
+    where.ownerId = user.id;
   }
   
   if (from || to) {
-    whereClause.startAt = { 
-      ...(from ? { gte: from } : {}), 
-      ...(to ? { lte: to } : {}) 
+    where.startAt = { 
+      ...(from ? { gte: new Date(from) } : {}), 
+      ...(to ? { lte: new Date(to) } : {}) 
     };
   }
-  if (q) whereClause.title = { contains: q };
+  if (q) where.title = { contains: q, mode: "insensitive" };
 
-  // Get events with pagination
-  const events = await supabase.findMany("Event", {
-    where: whereClause,
-    orderBy: { startAt: "asc" },
-    select: "*, heroImage:Image(*)"
-  }) as any[];
+  const [items, count] = await Promise.all([
+    prisma.event.findMany({
+      where,
+      orderBy: { startAt: "asc" },
+      include: { heroImage: true },
+      skip, take
+    }),
+    prisma.event.count({ where })
+  ]);
 
-  // Get total count
-  const total = await supabase.count("Event", whereClause);
-
-  // Apply pagination manually since Supabase REST API doesn't have built-in pagination
-  const paginatedEvents = events.slice(skip, skip + take);
-
-  return NextResponse.json({ 
-    items: paginatedEvents, 
-    page, 
-    pageSize: take, 
-    total 
-  });
+  return NextResponse.json({ items, page, pageSize: take, total: count });
 }
 
 export async function POST(req: NextRequest) {
@@ -72,8 +62,7 @@ export async function POST(req: NextRequest) {
   const parsed = createEventSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
-  const supabase = new SupabaseClient(true);
-  const owner = await supabase.findUnique("User", { email: session.user!.email! }) as any;
+  const owner = await prisma.user.findUnique({ where: { email: session.user!.email! }});
   if (!owner) return NextResponse.json({ error: "User not found" }, { status: 401 });
   if (!["ADMIN","ORGANIZER"].includes((owner.role as string))) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -85,7 +74,9 @@ export async function POST(req: NextRequest) {
   
   // Ensure slug is unique by appending numbers if needed
   while (true) {
-    const existing = await supabase.findUnique("Event", { slug }) as any;
+    const existing = await prisma.event.findFirst({
+      where: { slug: slug }
+    });
     
     if (!existing) {
       break;
@@ -95,13 +86,13 @@ export async function POST(req: NextRequest) {
     counter++;
   }
 
-  // Convert datetime-local format to proper ISO format
+  // Convert datetime-local format to proper ISO format for Prisma
   const eventData = {
     ...parsed.data,
     slug,
     ownerId: owner.id,
-    startAt: parsed.data.startAt ? new Date(parsed.data.startAt).toISOString() : new Date().toISOString(),
-    endAt: parsed.data.endAt ? new Date(parsed.data.endAt).toISOString() : null,
+    startAt: parsed.data.startAt ? new Date(parsed.data.startAt) : new Date(),
+    endAt: parsed.data.endAt ? new Date(parsed.data.endAt) : null,
     status: parsed.data.status || "DRAFT"
   };
 
@@ -112,35 +103,15 @@ export async function POST(req: NextRequest) {
     }
   });
 
-  // Create event using SupabaseRequest utility
-  try {
-    const eventResponse = await supabaseRequest('Event', {
-      method: 'POST',
-      headers: {
-        'Prefer': 'return=representation'
-      },
-      body: JSON.stringify(eventData)
-    }, true); // Use service role
+  const event = await prisma.event.create({
+    data: eventData
+  });
 
-    const eventArray = await eventResponse.json();
-    const event = eventArray[0]; // Supabase returns an array
-
-    // Optionally set hero image ownership if provided
-    if (parsed.data.heroImageId) {
-      await supabaseRequest(`Image?id=eq.${parsed.data.heroImageId}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ eventId: event.id })
-      }, true);
-      
-      await supabaseRequest(`Event?id=eq.${event.id}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ heroImageId: parsed.data.heroImageId })
-      }, true);
-    }
-
-    return NextResponse.json(event, { status: 201 });
-  } catch (error) {
-    console.error("Error creating event:", error);
-    return NextResponse.json({ error: "Failed to create event" }, { status: 500 });
+  // Optionally set hero image ownership if provided
+  if (parsed.data.heroImageId) {
+    await prisma.image.update({ where: { id: parsed.data.heroImageId }, data: { eventId: event.id } });
+    await prisma.event.update({ where: { id: event.id }, data: { heroImageId: parsed.data.heroImageId }});
   }
+
+  return NextResponse.json(event, { status: 201 });
 }
