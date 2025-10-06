@@ -15,7 +15,7 @@ export async function uploadBufferToS3(
   CacheControl = "public, max-age=31536000, immutable"
 ) {
   await s3.send(new PutObjectCommand({
-    Bucket: process.env.S3_BUCKET!,
+    Bucket: process.env.S3_Bucket!,
     Key,
     Body,
     ContentType,

@@ -45,11 +45,11 @@ export async function POST(req: NextRequest) {
     if (!uploader) return NextResponse.json({ error: "User not found" }, { status: 401 });
 
     // Check AWS configuration
-    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY || !process.env.S3_BUCKET) {
+    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY || !process.env.S3_Bucket) {
       console.error("AWS configuration missing:", {
         hasAccessKey: !!process.env.AWS_ACCESS_KEY_ID,
         hasSecretKey: !!process.env.AWS_SECRET_ACCESS_KEY,
-        hasBucket: !!process.env.S3_BUCKET
+        hasBucket: !!process.env.S3_Bucket
       });
       return NextResponse.json({ error: "AWS configuration missing" }, { status: 500 });
     }

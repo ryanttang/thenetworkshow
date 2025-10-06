@@ -35,8 +35,8 @@ export async function GET(
     console.log("Image API: Serving image with key:", decodedKey);
     
     // Check if required environment variables are set
-    if (!process.env.S3_BUCKET) {
-      console.error("Image API: S3_BUCKET environment variable not set");
+    if (!process.env.S3_Bucket) {
+      console.error("Image API: S3_Bucket environment variable not set");
       return NextResponse.json({ error: "S3 configuration error" }, { status: 500 });
     }
     
@@ -47,11 +47,11 @@ export async function GET(
 
     // Create a presigned URL for the S3 object
     const command = new GetObjectCommand({
-      Bucket: process.env.S3_BUCKET,
+      Bucket: process.env.S3_Bucket,
       Key: decodedKey,
     });
 
-    console.log("Image API: Creating presigned URL for bucket:", process.env.S3_BUCKET);
+    console.log("Image API: Creating presigned URL for bucket:", process.env.S3_Bucket);
     
     if (!s3Client) {
       console.error("Image API: S3 client not initialized");
