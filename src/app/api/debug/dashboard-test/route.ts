@@ -7,7 +7,7 @@ import { getRequestMeta } from "@/lib/request";
 const logger = createLogger("dashboard-test");
 
 export async function GET(request: NextRequest) {
-  const reqMeta = getRequestMeta(request);
+  const reqMeta = getRequestMeta();
   
   try {
     logger.info("Starting dashboard test", { ...reqMeta });

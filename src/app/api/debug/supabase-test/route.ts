@@ -6,7 +6,7 @@ import { getRequestMeta } from "@/lib/request";
 const logger = createLogger("supabase-test");
 
 export async function GET(request: NextRequest) {
-  const reqMeta = getRequestMeta(request);
+  const reqMeta = getRequestMeta();
   
   try {
     logger.info("Testing Supabase connection", { ...reqMeta });

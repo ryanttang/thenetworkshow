@@ -6,7 +6,7 @@ import { getRequestMeta } from "@/lib/request";
 const logger = createLogger("auth-test");
 
 export async function POST(request: NextRequest) {
-  const reqMeta = getRequestMeta(request);
+  const reqMeta = getRequestMeta();
   
   try {
     logger.info("Testing authentication", { ...reqMeta });
