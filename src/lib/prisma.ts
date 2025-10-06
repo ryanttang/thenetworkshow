@@ -21,18 +21,15 @@ const createPrismaClient = () => {
   let databaseUrl = process.env.DATABASE_URL;
   
   if (process.env.NODE_ENV === 'production' && process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    // Construct DATABASE_URL with service role key
+    // For Supabase, construct the direct database URL with service role key
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     if (supabaseUrl) {
-      // Extract the connection details from the existing DATABASE_URL
-      const url = new URL(databaseUrl || '');
-      const host = url.hostname;
-      const port = url.port || '5432';
-      const database = url.pathname.slice(1) || 'postgres';
-      const username = url.username || 'postgres';
-      
-      // Create new DATABASE_URL with service role key
-      databaseUrl = `postgresql://${username}:${process.env.SUPABASE_SERVICE_ROLE_KEY}@${host}:${port}/${database}`;
+      // Extract project reference from Supabase URL
+      const projectRef = supabaseUrl.split('//')[1]?.split('.')[0];
+      if (projectRef) {
+        // Use direct database connection (not pooler) with service role key
+        databaseUrl = `postgresql://postgres:${process.env.SUPABASE_SERVICE_ROLE_KEY}@db.${projectRef}.supabase.co:5432/postgres`;
+      }
     }
   }
   
