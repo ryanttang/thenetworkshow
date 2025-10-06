@@ -1,7 +1,6 @@
 import { getServerAuthSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import DashboardNav from "@/components/dashboard/DashboardNav";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - internal util for runtime guard
 import { isRedirectError } from "next/dist/client/components/redirect";
 

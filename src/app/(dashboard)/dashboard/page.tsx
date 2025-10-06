@@ -4,7 +4,6 @@ import { SupabaseClient } from "@/lib/supabase";
 import { getServerAuthSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 // Treat Next.js redirect errors as control flow, not failures
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - internal util is stable enough for runtime guard
 import { isRedirectError } from "next/dist/client/components/redirect";
 import EventGrid from "@/components/events/EventGrid";
