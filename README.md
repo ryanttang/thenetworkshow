@@ -68,7 +68,7 @@ Visit [http://localhost:3000](http://localhost:3000)
 
 The seed script creates two demo accounts:
 
-- **Admin**: `admin@example.com` / `admin123!`
+- **Admin**: `network_admin@example.com` / `admin123!`
 - **Organizer**: `organizer@example.com` / `organizer123!`
 
 ## Project Structure

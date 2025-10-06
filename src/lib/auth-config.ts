@@ -4,6 +4,7 @@ import { compare } from "bcryptjs";
 import type { NextAuthOptions } from "next-auth";
 
 export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     Credentials({
       name: "Credentials",
@@ -19,6 +20,12 @@ export const authOptions: NextAuthOptions = {
         // Check if DATABASE_URL is available
         if (!process.env.DATABASE_URL) {
           console.error("DATABASE_URL not configured");
+          return null;
+        }
+
+        // Check if NEXTAUTH_SECRET is available
+        if (!process.env.NEXTAUTH_SECRET) {
+          console.error("NEXTAUTH_SECRET not configured");
           return null;
         }
         

@@ -58,7 +58,7 @@ DATABASE_URL="postgresql://user:password@host:5432/eventsdb"
 ## Testing
 
 1. **Test with demo accounts:**
-   - admin@example.com / admin123!
+   - network_admin@example.com / admin123!
    - organizer@example.com / organizer123!
 
 2. **Check environment variables:**
