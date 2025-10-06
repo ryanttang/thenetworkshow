@@ -10,18 +10,40 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerAuthSession();
-  
-  if (!session?.user?.email) {
-    redirect("/signin");
-  }
+  try {
+    const session = await getServerAuthSession();
+    
+    if (!session?.user?.email) {
+      redirect("/signin");
+    }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <DashboardNav />
-      <div className="max-w-7xl mx-auto py-4 md:py-6 lg:py-8 px-4 md:px-6 lg:px-8 xl:px-12">
-        {children}
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <DashboardNav />
+        <div className="max-w-7xl mx-auto py-4 md:py-6 lg:py-8 px-4 md:px-6 lg:px-8 xl:px-12">
+          {children}
+        </div>
       </div>
-    </div>
-  );
+    );
+  } catch (error) {
+    try {
+      const digest = (error as any)?.digest;
+      const payload = {
+        message: (error as Error)?.message,
+        name: (error as Error)?.name,
+        stack: (error as Error)?.stack,
+        digest,
+        pathname: "/dashboard",
+        timestamp: new Date().toISOString(),
+        extra: { phase: "dashboard-layout-catch" }
+      };
+      const base = process.env.NEXT_PUBLIC_SITE_URL || "";
+      await fetch(`${base}/api/debug/error-report`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    } catch {}
+    throw error;
+  }
 }
