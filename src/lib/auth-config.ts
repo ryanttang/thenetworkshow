@@ -5,6 +5,7 @@ import type { NextAuthOptions } from "next-auth";
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true, // Required for production deployments
   providers: [
     Credentials({
       name: "Credentials",
@@ -100,6 +101,24 @@ export const authOptions: NextAuthOptions = {
   cookies: {
     sessionToken: {
       name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === "production"
+      }
+    },
+    csrfToken: {
+      name: `next-auth.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === "production"
+      }
+    },
+    callbackUrl: {
+      name: `next-auth.callback-url`,
       options: {
         httpOnly: true,
         sameSite: 'lax',
