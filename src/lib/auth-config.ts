@@ -98,16 +98,5 @@ export const authOptions: NextAuthOptions = {
     signIn: "/signin",
     error: "/api/auth/error"
   },
-  debug: true, // Enable debug in production for troubleshooting
-  cookies: {
-    sessionToken: {
-      name: `next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === "production"
-      }
-    }
-  }
+  debug: true // Enable debug in production for troubleshooting
 };
