@@ -151,6 +151,27 @@ export const authOptions: NextAuthOptions = {
           console.error("Error message:", error instanceof Error ? error.message : 'Unknown error');
           console.error("Error stack:", error instanceof Error ? error.stack : undefined);
           console.error("Full error object:", error);
+          
+          // Report server-side authentication errors
+          try {
+            const digest = (error as any)?.digest;
+            const payload = {
+              message: (error as Error)?.message,
+              name: (error as Error)?.name,
+              stack: (error as Error)?.stack,
+              digest,
+              pathname: "/api/auth/signin/credentials",
+              timestamp: new Date().toISOString(),
+              extra: { phase: "auth-config-catch", email: creds?.email }
+            };
+            const base = process.env.NEXT_PUBLIC_SITE_URL || "";
+            await fetch(`${base}/api/debug/error-report`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            });
+          } catch {}
+          
           return null;
         }
       }
