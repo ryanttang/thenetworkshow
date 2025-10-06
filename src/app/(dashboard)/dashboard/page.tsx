@@ -3,6 +3,10 @@ export const runtime = 'nodejs';
 import { SupabaseClient } from "@/lib/supabase";
 import { getServerAuthSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
+// Treat Next.js redirect errors as control flow, not failures
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - internal util is stable enough for runtime guard
+import { isRedirectError } from "next/dist/client/components/redirect";
 import EventGrid from "@/components/events/EventGrid";
 import { Button, HStack, Heading, Box, Text, VStack, SimpleGrid, Card, CardBody, CardHeader, Container, Badge } from "@chakra-ui/react";
 import Link from "next/link";
@@ -446,6 +450,15 @@ export default async function DashboardPage() {
     </Container>
   );
   } catch (error) {
+    // Allow framework redirects to pass through without triggering error boundary
+    try {
+      if (isRedirectError?.(error)) {
+        throw error;
+      }
+    } catch (_) {
+      // if import is unavailable, fall through to reporting
+    }
+
     logger.error("Dashboard render failed", error as Error, { ...reqMeta });
     try {
       const digest = (error as any)?.digest;
