@@ -13,41 +13,83 @@ export default async function DashboardPage() {
   const logger = createLogger("dashboard");
   const reqMeta = getRequestMeta();
   try {
-    const session = await getServerAuthSession();
-    logger.info("Rendering dashboard", { ...reqMeta, hasSession: !!session, userEmail: session?.user?.email });
-    if (!session?.user?.email) redirect("/signin");
+    logger.info("Starting dashboard render", { ...reqMeta });
     
-    // Use service role key for server-side operations
-    const supabase = new SupabaseClient(true);
-    const me = await supabase.findUnique("User", { email: session.user.email }) as any;
+    // Step 1: Get session
+    let session;
+    try {
+      session = await getServerAuthSession();
+      logger.info("Session check completed", { ...reqMeta, hasSession: !!session, userEmail: session?.user?.email });
+    } catch (error) {
+      logger.error("Session check failed", error as Error, { ...reqMeta });
+      throw error;
+    }
+    
+    if (!session?.user?.email) {
+      logger.info("No session, redirecting to signin", { ...reqMeta });
+      redirect("/signin");
+    }
+    
+    // Step 2: Initialize Supabase
+    let supabase;
+    try {
+      supabase = new SupabaseClient(true);
+      logger.info("Supabase client initialized", { ...reqMeta });
+    } catch (error) {
+      logger.error("Supabase client initialization failed", error as Error, { ...reqMeta });
+      throw error;
+    }
+    
+    // Step 3: Find user
+    let me;
+    try {
+      me = await supabase.findUnique("User", { email: session.user.email }) as any;
+      logger.info("User lookup completed", { ...reqMeta, userFound: !!me, emailTried: session.user.email });
+    } catch (error) {
+      logger.error("User lookup failed", error as Error, { ...reqMeta, emailTried: session.user.email });
+      throw error;
+    }
+    
     if (!me) {
       logger.warn("User not found for session email", { ...reqMeta, emailTried: session.user.email });
       redirect("/signin");
     }
     
-    // Admins and Organizers can see all events, others only see their own
+    // Step 4: Determine permissions
     const canManageAllEvents = me.role === "ADMIN" || me.role === "ORGANIZER";
+    logger.info("User permissions determined", { ...reqMeta, userId: me.id, role: me.role, canManageAllEvents });
     
-    // Get events with basic info first
-    const eventsWhere = canManageAllEvents ? { status: "PUBLISHED" } : { status: "PUBLISHED", ownerId: me.id };
-    const t0 = Date.now();
-    const items = await supabase.findMany("Event", {
-      where: eventsWhere,
-      orderBy: { startAt: "desc" }
-    }) as any[];
-    logger.info("Loaded events", { ...reqMeta, count: items.length, durationMs: Date.now() - t0 });
+    // Step 5: Load events
+    let items;
+    try {
+      const eventsWhere = canManageAllEvents ? { status: "PUBLISHED" } : { status: "PUBLISHED", ownerId: me.id };
+      const t0 = Date.now();
+      items = await supabase.findMany("Event", {
+        where: eventsWhere,
+        orderBy: { startAt: "desc" }
+      }) as any[];
+      logger.info("Events loaded successfully", { ...reqMeta, count: items.length, durationMs: Date.now() - t0, whereClause: eventsWhere });
+    } catch (error) {
+      logger.error("Events loading failed", error as Error, { ...reqMeta, userId: me.id, canManageAllEvents });
+      throw error;
+    }
 
-    // Get coordinations - admins and organizers can see all, others only their own
-    // Avoid PostgREST nested filters by using eventId IN (owned event IDs)
-    const coordinationsWhere = canManageAllEvents 
-      ? {}
-      : { eventId: { in: (items || []).map((e: any) => e.id).filter(Boolean) } };
-    const t1 = Date.now();
-    const coordinations = await supabase.findMany("Coordination", {
-      where: coordinationsWhere,
-      orderBy: { createdAt: "desc" }
-    }) as any[];
-    logger.info("Loaded coordinations", { ...reqMeta, count: coordinations.length, durationMs: Date.now() - t1 });
+    // Step 6: Load coordinations
+    let coordinations;
+    try {
+      const coordinationsWhere = canManageAllEvents 
+        ? {}
+        : { eventId: { in: (items || []).map((e: any) => e.id).filter(Boolean) } };
+      const t1 = Date.now();
+      coordinations = await supabase.findMany("Coordination", {
+        where: coordinationsWhere,
+        orderBy: { createdAt: "desc" }
+      }) as any[];
+      logger.info("Coordinations loaded successfully", { ...reqMeta, count: coordinations.length, durationMs: Date.now() - t1, whereClause: coordinationsWhere });
+    } catch (error) {
+      logger.error("Coordinations loading failed", error as Error, { ...reqMeta, userId: me.id, canManageAllEvents });
+      throw error;
+    }
 
   return (
     <Container maxW="full" px={0}>

@@ -58,8 +58,36 @@ export const authOptions: NextAuthOptions = {
           const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
           
           if (!supabaseUrl || !supabaseAnonKey) {
-            console.error("❌ Supabase URL or Anon Key not configured");
-            return null;
+            console.error("❌ Supabase URL or Anon Key not configured, falling back to direct database");
+            
+            // Fallback to direct database access
+            const user = await prisma.user.findUnique({
+              where: { email: creds.email.toLowerCase() }
+            });
+            
+            if (!user || !user.hashedPassword) {
+              console.log("❌ User not found or no password:", creds.email);
+              return null;
+            }
+            
+            console.log("=== PASSWORD VALIDATION (DIRECT DB) ===");
+            console.log("Comparing password...");
+            const isValidPassword = await compare(creds.password, user.hashedPassword);
+            console.log("Password validation result:", isValidPassword);
+            
+            if (!isValidPassword) {
+              console.log("❌ Invalid password for user:", creds.email);
+              return null;
+            }
+            
+            console.log("✅ User authenticated successfully (direct DB):", user.email);
+            console.log("=== AUTH SUCCESS (DIRECT DB) ===");
+            return { 
+              id: user.id, 
+              email: user.email, 
+              role: user.role, 
+              name: user.name 
+            };
           }
           
           console.log("=== USER LOOKUP VIA REST API ===");
