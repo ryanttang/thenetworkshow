@@ -12,87 +12,88 @@ import Link from "next/link";
 import { createLogger } from "@/lib/logger";
 import { getRequestMeta } from "@/lib/request";
 
-export default async function DashboardPage() {
+// Server component wrapper to catch ALL errors including JSX rendering
+async function DashboardContent() {
   const logger = createLogger("dashboard");
   const reqMeta = getRequestMeta();
+  
+  logger.info("Starting dashboard render", { ...reqMeta });
+  
+  // Step 1: Get session
+  let session;
   try {
-    logger.info("Starting dashboard render", { ...reqMeta });
-    
-    // Step 1: Get session
-    let session;
-    try {
-      session = await getServerAuthSession();
-      logger.info("Session check completed", { ...reqMeta, hasSession: !!session, userEmail: session?.user?.email });
-    } catch (error) {
-      logger.error("Session check failed", error as Error, { ...reqMeta });
-      throw error;
-    }
-    
-    if (!session?.user?.email) {
-      logger.info("No session, redirecting to signin", { ...reqMeta });
-      redirect("/signin");
-    }
-    
-    // Step 2: Initialize Supabase
-    let supabase;
-    try {
-      supabase = new SupabaseClient(true);
-      logger.info("Supabase client initialized", { ...reqMeta });
-    } catch (error) {
-      logger.error("Supabase client initialization failed", error as Error, { ...reqMeta });
-      throw error;
-    }
-    
-    // Step 3: Find user
-    let me;
-    try {
-      me = await supabase.findUnique("User", { email: session.user.email }) as any;
-      logger.info("User lookup completed", { ...reqMeta, userFound: !!me, emailTried: session.user.email });
-    } catch (error) {
-      logger.error("User lookup failed", error as Error, { ...reqMeta, emailTried: session.user.email });
-      throw error;
-    }
-    
-    if (!me) {
-      logger.warn("User not found for session email", { ...reqMeta, emailTried: session.user.email });
-      redirect("/signin");
-    }
-    
-    // Step 4: Determine permissions
-    const canManageAllEvents = me.role === "ADMIN" || me.role === "ORGANIZER";
-    logger.info("User permissions determined", { ...reqMeta, userId: me.id, role: me.role, canManageAllEvents });
-    
-    // Step 5: Load events
-    let items;
-    try {
-      const eventsWhere = canManageAllEvents ? { status: "PUBLISHED" } : { status: "PUBLISHED", ownerId: me.id };
-      const t0 = Date.now();
-      items = await supabase.findMany("Event", {
-        where: eventsWhere,
-        orderBy: { startAt: "desc" }
-      }) as any[];
-      logger.info("Events loaded successfully", { ...reqMeta, count: items.length, durationMs: Date.now() - t0, whereClause: eventsWhere });
-    } catch (error) {
-      logger.error("Events loading failed", error as Error, { ...reqMeta, userId: me.id, canManageAllEvents });
-      throw error;
-    }
+    session = await getServerAuthSession();
+    logger.info("Session check completed", { ...reqMeta, hasSession: !!session, userEmail: session?.user?.email });
+  } catch (error) {
+    logger.error("Session check failed", error as Error, { ...reqMeta });
+    throw error;
+  }
+  
+  if (!session?.user?.email) {
+    logger.info("No session, redirecting to signin", { ...reqMeta });
+    redirect("/signin");
+  }
+  
+  // Step 2: Initialize Supabase
+  let supabase;
+  try {
+    supabase = new SupabaseClient(true);
+    logger.info("Supabase client initialized", { ...reqMeta });
+  } catch (error) {
+    logger.error("Supabase client initialization failed", error as Error, { ...reqMeta });
+    throw error;
+  }
+  
+  // Step 3: Find user
+  let me;
+  try {
+    me = await supabase.findUnique("User", { email: session.user.email }) as any;
+    logger.info("User lookup completed", { ...reqMeta, userFound: !!me, emailTried: session.user.email });
+  } catch (error) {
+    logger.error("User lookup failed", error as Error, { ...reqMeta, emailTried: session.user.email });
+    throw error;
+  }
+  
+  if (!me) {
+    logger.warn("User not found for session email", { ...reqMeta, emailTried: session.user.email });
+    redirect("/signin");
+  }
+  
+  // Step 4: Determine permissions
+  const canManageAllEvents = me.role === "ADMIN" || me.role === "ORGANIZER";
+  logger.info("User permissions determined", { ...reqMeta, userId: me.id, role: me.role, canManageAllEvents });
+  
+  // Step 5: Load events
+  let items;
+  try {
+    const eventsWhere = canManageAllEvents ? { status: "PUBLISHED" } : { status: "PUBLISHED", ownerId: me.id };
+    const t0 = Date.now();
+    items = await supabase.findMany("Event", {
+      where: eventsWhere,
+      orderBy: { startAt: "desc" }
+    }) as any[];
+    logger.info("Events loaded successfully", { ...reqMeta, count: items.length, durationMs: Date.now() - t0, whereClause: eventsWhere });
+  } catch (error) {
+    logger.error("Events loading failed", error as Error, { ...reqMeta, userId: me.id, canManageAllEvents });
+    throw error;
+  }
 
-    // Step 6: Load coordinations
-    let coordinations;
-    try {
-      const coordinationsWhere = canManageAllEvents 
-        ? {}
-        : { eventId: { in: (items || []).map((e: any) => e.id).filter(Boolean) } };
-      const t1 = Date.now();
-      coordinations = await supabase.findMany("Coordination", {
-        where: coordinationsWhere,
-        orderBy: { createdAt: "desc" }
-      }) as any[];
-      logger.info("Coordinations loaded successfully", { ...reqMeta, count: coordinations.length, durationMs: Date.now() - t1, whereClause: coordinationsWhere });
-    } catch (error) {
-      logger.error("Coordinations loading failed", error as Error, { ...reqMeta, userId: me.id, canManageAllEvents });
-      throw error;
-    }
+  // Step 6: Load coordinations
+  let coordinations;
+  try {
+    const coordinationsWhere = canManageAllEvents 
+      ? {}
+      : { eventId: { in: (items || []).map((e: any) => e.id).filter(Boolean) } };
+    const t1 = Date.now();
+    coordinations = await supabase.findMany("Coordination", {
+      where: coordinationsWhere,
+      orderBy: { createdAt: "desc" }
+    }) as any[];
+    logger.info("Coordinations loaded successfully", { ...reqMeta, count: coordinations.length, durationMs: Date.now() - t1, whereClause: coordinationsWhere });
+  } catch (error) {
+    logger.error("Coordinations loading failed", error as Error, { ...reqMeta, userId: me.id, canManageAllEvents });
+    throw error;
+  }
 
   return (
     <Container maxW="full" px={0}>
@@ -448,6 +449,12 @@ export default async function DashboardPage() {
       </VStack>
     </Container>
   );
+}
+
+// Main export that catches ALL errors including JSX rendering
+export default async function DashboardPage() {
+  try {
+    return await DashboardContent();
   } catch (error) {
     // Allow framework redirects to pass through without triggering error boundary
     try {
@@ -458,7 +465,7 @@ export default async function DashboardPage() {
       // if import is unavailable, fall through to reporting
     }
 
-    logger.error("Dashboard render failed", error as Error, { ...reqMeta });
+    // Report the actual error with full stack
     try {
       const digest = (error as any)?.digest;
       const payload = {
@@ -468,7 +475,7 @@ export default async function DashboardPage() {
         digest,
         pathname: "/dashboard",
         timestamp: new Date().toISOString(),
-        extra: { ...reqMeta, phase: "dashboard-catch" }
+        extra: { phase: "dashboard-page-catch", errorType: error?.constructor?.name }
       };
       const origin = process.env.VERCEL_URL
         ? `https://${process.env.VERCEL_URL}`
@@ -479,6 +486,7 @@ export default async function DashboardPage() {
         body: JSON.stringify(payload)
       });
     } catch {}
+    
     throw error;
   }
 }
