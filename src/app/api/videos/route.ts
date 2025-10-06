@@ -1,10 +1,9 @@
 export const runtime = 'nodejs';
 
 import { NextRequest, NextResponse } from "next/server";
-import { SupabaseClient } from "@/lib/supabase";
 import { getServerAuthSession } from "@/lib/auth";
 import { z } from "zod";
-import { supabaseRequest } from "@/lib/supabase-server";
+import { prisma } from "@/lib/prisma";
 
 const createVideoSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -26,19 +25,16 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(parseInt(searchParams.get("limit") ?? "10"), 50);
 
   try {
-    const supabase = new SupabaseClient(true);
-    
-    const whereClause = isPublished ? { isPublished: true } : {};
-    const videos = await supabase.findMany("RecentEventVideo", {
-      where: whereClause,
-      orderBy: { sortOrder: "asc", createdAt: "desc" },
-      select: "*"
-    }) as any[];
+    const videos = await prisma.recentEventVideo.findMany({
+      where: isPublished ? { isPublished: true } : {},
+      orderBy: [
+        { sortOrder: "asc" },
+        { createdAt: "desc" }
+      ],
+      take: limit,
+    });
 
-    // Apply limit manually since Supabase REST API doesn't have built-in limit
-    const limitedVideos = videos.slice(0, limit);
-
-    return NextResponse.json({ videos: limitedVideos });
+    return NextResponse.json({ videos });
   } catch (error) {
     console.error("Error fetching videos:", error);
     return NextResponse.json(
@@ -55,8 +51,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const supabase = new SupabaseClient(true);
-  const user = await supabase.findUnique("User", { email: session.user.email }) as any;
+  const user = await prisma.user.findUnique({ where: { email: session.user.email } });
 
   if (!user || user.role !== "ADMIN") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -69,29 +64,7 @@ export async function POST(req: NextRequest) {
     const validatedData = createVideoSchema.parse(body);
     console.log("Validated data:", validatedData);
 
-    // Create video using Supabase REST API
-    const videoResponse = await supabaseRequest('RecentEventVideo', {
-      method: 'POST',
-      headers: {
-        'Prefer': 'return=representation'
-      },
-      body: JSON.stringify(validatedData)
-    }, true); // Use service role
-
-    if (!videoResponse.ok) {
-      const errorText = await videoResponse.text();
-      console.error("Supabase Video creation failed:", {
-        status: videoResponse.status,
-        statusText: videoResponse.statusText,
-        errorText,
-        validatedData
-      });
-      return NextResponse.json({ error: "Failed to create video" }, { status: 500 });
-    }
-
-    const videoArray = await videoResponse.json();
-    const video = videoArray[0]; // Supabase returns an array
-
+    const video = await prisma.recentEventVideo.create({ data: validatedData as any });
     return NextResponse.json({ video }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {

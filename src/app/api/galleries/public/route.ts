@@ -1,21 +1,21 @@
 export const runtime = 'nodejs';
 
 import { NextResponse } from "next/server";
-import { SupabaseClient } from "@/lib/supabase";
+import { prisma } from "@/lib/prisma";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    // Use Supabase REST API to get all public galleries with their images
-    const supabase = new SupabaseClient(true);
-    
-    const galleries = await supabase.findMany("Gallery", {
+    const galleries = await prisma.gallery.findMany({
       where: { isPublic: true },
       orderBy: { createdAt: "desc" },
-      select: "*, event:Event(*), images:GalleryImage(*)"
-    }) as any[];
+      include: {
+        event: true,
+        images: true,
+      }
+    });
 
     // Flatten all images from all galleries
     const allImages = galleries.flatMap((gallery: any) => 
