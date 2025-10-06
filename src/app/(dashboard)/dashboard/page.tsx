@@ -6,33 +6,45 @@ import { redirect } from "next/navigation";
 import EventGrid from "@/components/events/EventGrid";
 import { Button, HStack, Heading, Box, Text, VStack, SimpleGrid, Card, CardBody, CardHeader, Container, Badge } from "@chakra-ui/react";
 import Link from "next/link";
+import { createLogger } from "@/lib/logger";
+import { getRequestMeta } from "@/lib/request";
 
 export default async function DashboardPage() {
+  const logger = createLogger("dashboard");
+  const reqMeta = getRequestMeta();
   try {
     const session = await getServerAuthSession();
+    logger.info("Rendering dashboard", { ...reqMeta, hasSession: !!session, userEmail: session?.user?.email });
     if (!session?.user?.email) redirect("/signin");
     
     // Use service role key for server-side operations
     const supabase = new SupabaseClient(true);
     const me = await supabase.findUnique("User", { email: session.user.email }) as any;
-    if (!me) redirect("/signin");
+    if (!me) {
+      logger.warn("User not found for session email", { ...reqMeta, emailTried: session.user.email });
+      redirect("/signin");
+    }
     
     // Admins and Organizers can see all events, others only see their own
     const canManageAllEvents = me.role === "ADMIN" || me.role === "ORGANIZER";
     
     // Get events with basic info first
     const eventsWhere = canManageAllEvents ? { status: "PUBLISHED" } : { status: "PUBLISHED", ownerId: me.id };
+    const t0 = Date.now();
     const items = await supabase.findMany("Event", {
       where: eventsWhere,
       orderBy: { startAt: "desc" }
     }) as any[];
+    logger.info("Loaded events", { ...reqMeta, count: items.length, durationMs: Date.now() - t0 });
 
     // Get coordinations - admins and organizers can see all, others only their own
     const coordinationsWhere = canManageAllEvents ? {} : { "event.ownerId": me.id };
+    const t1 = Date.now();
     const coordinations = await supabase.findMany("Coordination", {
       where: coordinationsWhere,
       orderBy: { createdAt: "desc" }
     }) as any[];
+    logger.info("Loaded coordinations", { ...reqMeta, count: coordinations.length, durationMs: Date.now() - t1 });
 
   return (
     <Container maxW="full" px={0}>
@@ -389,7 +401,7 @@ export default async function DashboardPage() {
     </Container>
   );
   } catch (error) {
-    console.error("Dashboard error:", error);
+    logger.error("Dashboard render failed", error as Error, { ...reqMeta });
     throw error;
   }
 }
