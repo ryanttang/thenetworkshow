@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { SupabaseClient } from "@/lib/supabase";
 import { getServerAuthSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import EventGrid from "@/components/events/EventGrid";
@@ -10,34 +10,27 @@ export default async function DashboardPage() {
     const session = await getServerAuthSession();
     if (!session?.user?.email) redirect("/signin");
     
-    const me = await prisma.user.findUnique({ where: { email: session.user.email }});
+    // Use service role key for server-side operations
+    const supabase = new SupabaseClient(true);
+    const me = await supabase.findUnique("User", { email: session.user.email }) as any;
     if (!me) redirect("/signin");
     
     // Admins and Organizers can see all events, others only see their own
     const canManageAllEvents = me.role === "ADMIN" || me.role === "ORGANIZER";
     
-    const items = await prisma.event.findMany({ 
-      where: { 
-        ...(canManageAllEvents ? {} : { ownerId: me.id }),
-        status: "PUBLISHED"
-
-      }, 
-      include: { heroImage: true, owner: { select: { name: true, email: true } } }, 
+    // Get events with basic info first
+    const eventsWhere = canManageAllEvents ? { status: "PUBLISHED" } : { status: "PUBLISHED", ownerId: me.id };
+    const items = await supabase.findMany("Event", {
+      where: eventsWhere,
       orderBy: { startAt: "desc" }
-    });
-
+    }) as any[];
 
     // Get coordinations - admins and organizers can see all, others only their own
-    const coordinations = await prisma.coordination.findMany({
-      where: { 
-        ...(canManageAllEvents ? {} : { event: { ownerId: me.id } })
-      },
-      include: { 
-        _count: { select: { documents: true } },
-        event: { select: { ownerId: true, title: true } }
-      },
+    const coordinationsWhere = canManageAllEvents ? {} : { "event.ownerId": me.id };
+    const coordinations = await supabase.findMany("Coordination", {
+      where: coordinationsWhere,
       orderBy: { createdAt: "desc" }
-    });
+    }) as any[];
 
   return (
     <Container maxW="full" px={0}>

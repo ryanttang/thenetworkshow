@@ -1,61 +1,40 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { Gallery, GalleryImage, Image, Event } from "@prisma/client";
+import { SupabaseClient } from "@/lib/supabase";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    // Get all public galleries with their images
-    const galleries = await prisma.gallery.findMany({
-      where: {
-        isPublic: true
-      },
-      include: {
-        event: {
-          select: {
-            id: true,
-            title: true,
-            slug: true,
-          }
-        },
-        images: {
-          include: {
-            image: true
-          },
-          orderBy: { sortOrder: 'asc' }
-        }
-      },
-      orderBy: { createdAt: 'desc' }
-    });
+    // Use Supabase REST API to get all public galleries with their images
+    const supabase = new SupabaseClient(true);
+    
+    const galleries = await supabase.findMany("Gallery", {
+      where: { isPublic: true },
+      orderBy: { createdAt: "desc" },
+      select: "*, event:Event(*), images:GalleryImage(*)"
+    }) as any[];
 
     // Flatten all images from all galleries
-    const allImages = galleries.flatMap((gallery: Gallery & { 
-      event: Pick<Event, 'id' | 'title' | 'slug'> | null; 
-      images: (GalleryImage & { image: Image })[] 
-    }) => 
-      gallery.images.map((img: GalleryImage & { image: Image }) => ({
+    const allImages = galleries.flatMap((gallery: any) => 
+      gallery.images?.map((img: any) => ({
         ...img,
         galleryName: gallery.name,
         galleryId: gallery.id,
         eventTitle: gallery.event?.title,
-        createdAt: img.createdAt.toISOString()
-      }))
+        createdAt: img.createdAt
+      })) || []
     );
 
     // Transform galleries to match the expected interface
-    const transformedGalleries = galleries.map((gallery: Gallery & { 
-      event: Pick<Event, 'id' | 'title' | 'slug'> | null; 
-      images: (GalleryImage & { image: Image })[] 
-    }) => ({
+    const transformedGalleries = galleries.map((gallery: any) => ({
       ...gallery,
       description: gallery.description || undefined,
-      createdAt: gallery.createdAt.toISOString(),
-      images: gallery.images.map((img: GalleryImage & { image: Image }) => ({
+      createdAt: gallery.createdAt,
+      images: gallery.images?.map((img: any) => ({
         ...img,
-        createdAt: img.createdAt.toISOString()
-      }))
+        createdAt: img.createdAt
+      })) || []
     }));
 
     return NextResponse.json({ 

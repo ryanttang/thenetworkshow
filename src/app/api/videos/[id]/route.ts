@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { SupabaseClient } from "@/lib/supabase";
 import { getServerAuthSession } from "@/lib/auth";
 import { z } from "zod";
 
@@ -22,9 +22,8 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const video = await prisma.recentEventVideo.findUnique({
-      where: { id: params.id },
-    });
+    const supabase = new SupabaseClient(true);
+    const video = await supabase.findUnique("RecentEventVideo", { id: params.id }) as any;
 
     if (!video) {
       return NextResponse.json({ error: "Video not found" }, { status: 404 });
@@ -50,9 +49,8 @@ export async function PUT(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const user = await prisma.user.findUnique({ 
-    where: { email: session.user.email } 
-  });
+  const supabase = new SupabaseClient(true);
+  const user = await supabase.findUnique("User", { email: session.user.email }) as any;
 
   if (!user || user.role !== "ADMIN") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -62,10 +60,31 @@ export async function PUT(
     const body = await req.json();
     const validatedData = updateVideoSchema.parse(body);
 
-    const video = await prisma.recentEventVideo.update({
-      where: { id: params.id },
-      data: validatedData,
+    // Update video using Supabase REST API
+    const updateResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/RecentEventVideo?id=eq.${params.id}`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(validatedData)
     });
+
+    if (!updateResponse.ok) {
+      const errorText = await updateResponse.text();
+      console.error("Supabase Video update failed:", {
+        status: updateResponse.status,
+        statusText: updateResponse.statusText,
+        errorText,
+        validatedData
+      });
+      return NextResponse.json({ error: "Failed to update video" }, { status: 500 });
+    }
+
+    const videoArray = await updateResponse.json();
+    const video = videoArray[0]; // Supabase returns an array
 
     return NextResponse.json({ video });
   } catch (error) {
@@ -74,10 +93,6 @@ export async function PUT(
         { error: "Validation error", details: error.errors },
         { status: 400 }
       );
-    }
-
-    if ((error as any).code === "P2025") {
-      return NextResponse.json({ error: "Video not found" }, { status: 404 });
     }
 
     console.error("Error updating video:", error);
@@ -98,25 +113,36 @@ export async function DELETE(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const user = await prisma.user.findUnique({ 
-    where: { email: session.user.email } 
-  });
+  const supabase = new SupabaseClient(true);
+  const user = await supabase.findUnique("User", { email: session.user.email }) as any;
 
   if (!user || user.role !== "ADMIN") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   try {
-    await prisma.recentEventVideo.delete({
-      where: { id: params.id },
+    // Delete video using Supabase REST API
+    const deleteResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/RecentEventVideo?id=eq.${params.id}`, {
+      method: 'DELETE',
+      headers: {
+        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
+        'Content-Type': 'application/json'
+      }
     });
+
+    if (!deleteResponse.ok) {
+      const errorText = await deleteResponse.text();
+      console.error("Supabase Video deletion failed:", {
+        status: deleteResponse.status,
+        statusText: deleteResponse.statusText,
+        errorText
+      });
+      return NextResponse.json({ error: "Failed to delete video" }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    if ((error as any).code === "P2025") {
-      return NextResponse.json({ error: "Video not found" }, { status: 404 });
-    }
-
     console.error("Error deleting video:", error);
     return NextResponse.json(
       { error: "Failed to delete video" },

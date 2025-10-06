@@ -50,31 +50,49 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          console.log("=== DATABASE CONNECTION TEST ===");
-          console.log("Attempting to connect to database...");
+          console.log("=== SUPABASE REST API AUTHENTICATION ===");
+          console.log("Using Supabase REST API instead of direct database connection...");
           
-          // Test basic connection first
-          const userCount = await prisma.user.count();
-          console.log("✅ Database connected! User count:", userCount);
+          // Use Supabase REST API to authenticate
+          const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+          const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
           
-          console.log("=== USER LOOKUP ===");
+          if (!supabaseUrl || !supabaseAnonKey) {
+            console.error("❌ Supabase URL or Anon Key not configured");
+            return null;
+          }
+          
+          console.log("=== USER LOOKUP VIA REST API ===");
           console.log("Looking for user:", creds.email.toLowerCase());
-          const user = await prisma.user.findUnique({ 
-            where: { email: creds.email.toLowerCase() }
+          
+          // Query user via Supabase REST API
+          const response = await fetch(`${supabaseUrl}/rest/v1/User?email=eq.${encodeURIComponent(creds.email.toLowerCase())}&select=*`, {
+            headers: {
+              'apikey': supabaseAnonKey,
+              'Authorization': `Bearer ${supabaseAnonKey}`,
+              'Content-Type': 'application/json'
+            }
           });
           
-          console.log("User lookup result:", user ? {
-            id: user.id,
-            email: user.email,
-            hasPassword: !!user.hashedPassword,
-            role: user.role,
-            createdAt: user.createdAt
+          if (!response.ok) {
+            console.error("❌ Supabase REST API error:", response.status, response.statusText);
+            return null;
+          }
+          
+          const users = await response.json();
+          console.log("User lookup result:", users.length > 0 ? {
+            id: users[0].id,
+            email: users[0].email,
+            hasPassword: !!users[0].hashedPassword,
+            role: users[0].role
           } : "❌ User not found");
           
-          if (!user) {
+          if (!users || users.length === 0) {
             console.log("❌ User not found:", creds.email);
             return null;
           }
+          
+          const user = users[0];
           
           if (!user.hashedPassword) {
             console.log("❌ User has no password:", creds.email);
@@ -100,7 +118,7 @@ export const authOptions: NextAuthOptions = {
             name: user.name 
           };
         } catch (error) {
-          console.error("=== DATABASE ERROR ===");
+          console.error("=== AUTHENTICATION ERROR ===");
           console.error("Error type:", error?.constructor?.name);
           console.error("Error message:", error instanceof Error ? error.message : 'Unknown error');
           console.error("Error stack:", error instanceof Error ? error.stack : undefined);

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { SupabaseClient } from "@/lib/supabase";
 
 export async function GET(
   request: NextRequest,
@@ -12,19 +12,9 @@ export async function GET(
       return NextResponse.json({ error: "Image ID is required" }, { status: 400 });
     }
 
-    const image = await prisma.image.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        originalKey: true,
-        format: true,
-        width: true,
-        height: true,
-        variants: true,
-        createdAt: true,
-        updatedAt: true
-      }
-    });
+    // Use Supabase REST API to fetch image metadata
+    const supabase = new SupabaseClient(true);
+    const image = await supabase.findUnique("Image", { id }) as any;
 
     if (!image) {
       return NextResponse.json({ error: "Image not found" }, { status: 404 });

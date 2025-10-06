@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthSession } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { SupabaseClient } from "@/lib/supabase";
 import { z } from "zod";
 
 const updateCoordinationSchema = z.object({
@@ -29,34 +29,18 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-    });
+    const supabase = new SupabaseClient(true);
+    const user = await supabase.findUnique("User", { email: session.user.email }) as any;
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const coordination = await prisma.coordination.findFirst({
-      where: {
-        id: params.id,
-        event: {
-          ownerId: user.id,
-        },
-      },
-      include: {
-        event: {
-          select: {
-            id: true,
-            title: true,
-            slug: true,
-          },
-        },
-        documents: {
-          orderBy: { sortOrder: "asc" },
-        },
-      },
-    });
+    // Get coordination with event relationship
+    const coordination = await supabase.findUnique("Coordination", { 
+      id: params.id,
+      "event.ownerId": user.id
+    }) as any;
 
     if (!coordination) {
       return NextResponse.json({ error: "Coordination not found" }, { status: 404 });
@@ -82,9 +66,8 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-    });
+    const supabase = new SupabaseClient(true);
+    const user = await supabase.findUnique("User", { email: session.user.email }) as any;
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -94,14 +77,10 @@ export async function PUT(
     const updateData = updateCoordinationSchema.parse(body);
 
     // Verify the coordination belongs to the user
-    const existingCoordination = await prisma.coordination.findFirst({
-      where: {
-        id: params.id,
-        event: {
-          ownerId: user.id,
-        },
-      },
-    });
+    const existingCoordination = await supabase.findUnique("Coordination", { 
+      id: params.id,
+      "event.ownerId": user.id
+    }) as any;
 
     if (!existingCoordination) {
       return NextResponse.json({ error: "Coordination not found" }, { status: 404 });
@@ -113,12 +92,8 @@ export async function PUT(
     if (updateData.eventId && updateData.eventId !== existingCoordination.eventId) {
       const canManageAllEvents = user.role === "ADMIN" || user.role === "ORGANIZER";
       
-      newEvent = await prisma.event.findFirst({
-        where: {
-          id: updateData.eventId,
-          ...(canManageAllEvents ? {} : { ownerId: user.id }),
-        },
-      });
+      const eventWhere = canManageAllEvents ? { id: updateData.eventId } : { id: updateData.eventId, ownerId: user.id };
+      newEvent = await supabase.findUnique("Event", eventWhere) as any;
 
       if (!newEvent) {
         return NextResponse.json({ error: "Event not found or permission denied" }, { status: 404 });
@@ -138,9 +113,9 @@ export async function PUT(
       };
 
       // Get the event (either updated or existing)
-      const eventForSlug = newEvent || await prisma.event.findUnique({
-        where: { id: newEvent?.id || existingCoordination.eventId }
-      });
+      const eventForSlug = newEvent || await supabase.findUnique("Event", { 
+        id: newEvent?.id || existingCoordination.eventId 
+      }) as any;
       
       if (!eventForSlug) {
         return NextResponse.json({ error: "Event not found" }, { status: 404 });
@@ -157,14 +132,9 @@ export async function PUT(
 
       // Ensure slug is unique by appending numbers if needed
       while (true) {
-        const existing = await prisma.coordination.findFirst({
-          where: { 
-            slug: slug,
-            id: { not: params.id } // Exclude current coordination
-          }
-        });
+        const existing = await supabase.findUnique("Coordination", { slug }) as any;
         
-        if (!existing) {
+        if (!existing || existing.id === params.id) {
           break;
         }
         
@@ -176,22 +146,31 @@ export async function PUT(
       updateData.slug = slug;
     }
 
-    const coordination = await prisma.coordination.update({
-      where: { id: params.id },
-      data: updateData,
-      include: {
-        event: {
-          select: {
-            id: true,
-            title: true,
-            slug: true,
-          },
-        },
-        documents: {
-          orderBy: { sortOrder: "asc" },
-        },
+    // Update coordination using Supabase REST API
+    const updateResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Coordination?id=eq.${params.id}`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
       },
+      body: JSON.stringify(updateData)
     });
+
+    if (!updateResponse.ok) {
+      const errorText = await updateResponse.text();
+      console.error("Supabase Coordination update failed:", {
+        status: updateResponse.status,
+        statusText: updateResponse.statusText,
+        errorText,
+        updateData
+      });
+      return NextResponse.json({ error: "Failed to update coordination" }, { status: 500 });
+    }
+
+    const coordinationArray = await updateResponse.json();
+    const coordination = coordinationArray[0]; // Supabase returns an array
 
     return NextResponse.json(coordination);
   } catch (error) {
@@ -220,31 +199,42 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-    });
+    const supabase = new SupabaseClient(true);
+    const user = await supabase.findUnique("User", { email: session.user.email }) as any;
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Verify the coordination belongs to the user
-    const existingCoordination = await prisma.coordination.findFirst({
-      where: {
-        id: params.id,
-        event: {
-          ownerId: user.id,
-        },
-      },
-    });
+    const existingCoordination = await supabase.findUnique("Coordination", { 
+      id: params.id,
+      "event.ownerId": user.id
+    }) as any;
 
     if (!existingCoordination) {
       return NextResponse.json({ error: "Coordination not found" }, { status: 404 });
     }
 
-    await prisma.coordination.delete({
-      where: { id: params.id },
+    // Delete coordination using Supabase REST API
+    const deleteResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Coordination?id=eq.${params.id}`, {
+      method: 'DELETE',
+      headers: {
+        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
+        'Content-Type': 'application/json'
+      }
     });
+
+    if (!deleteResponse.ok) {
+      const errorText = await deleteResponse.text();
+      console.error("Supabase Coordination deletion failed:", {
+        status: deleteResponse.status,
+        statusText: deleteResponse.statusText,
+        errorText
+      });
+      return NextResponse.json({ error: "Failed to delete coordination" }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

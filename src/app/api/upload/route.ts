@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthSession } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { SupabaseClient } from "@/lib/supabase";
 import { uploadBufferToS3 } from "@/lib/s3";
 import { VARIANTS, makeVariant, normalizeBuffer } from "@/lib/images";
 import { randomUUID } from "crypto";
@@ -39,7 +39,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unsupported file type" }, { status: 400 });
     }
 
-    const uploader = await prisma.user.findUnique({ where: { email: session.user.email }});
+    // Use Supabase REST API for user lookup
+    const supabase = new SupabaseClient(true);
+    const uploader = await supabase.findUnique("User", { email: session.user.email }) as any;
     if (!uploader) return NextResponse.json({ error: "User not found" }, { status: 401 });
 
     // Check AWS configuration
@@ -75,23 +77,51 @@ export async function POST(req: NextRequest) {
     const origWebpUrl = await uploadBufferToS3(origWebpKey, hero.webp, "image/webp");
     const origJpgUrl  = await uploadBufferToS3(origJpgKey, hero.jpeg, "image/jpeg");
 
-    const image = await prisma.image.create({
-      data: {
-        eventId: eventId ?? null,
-        uploaderId: uploader.id,
-        originalKey: origWebpKey,
-        format: "webp",
-        width: hero.width,
-        height: hero.height,
-        variants: {
-          tiny: variants.tiny!,
-          thumb: variants.thumb!,
-          card: variants.card!,
-          hero: variants.hero!,
-          original: { webpKey: origWebpKey, jpgKey: origJpgKey, webpUrl: origWebpUrl, jpgUrl: origJpgUrl, width: hero.width, height: hero.height }
-        } as any // Type assertion for Prisma JSON field
-      }
+    // Create image record using Supabase REST API
+    const imageId = randomUUID();
+    const now = new Date().toISOString();
+    const imageData = {
+      id: imageId,
+      eventId: eventId ?? null,
+      uploaderId: uploader.id,
+      originalKey: origWebpKey,
+      format: "webp",
+      width: hero.width,
+      height: hero.height,
+      variants: {
+        tiny: variants.tiny!,
+        thumb: variants.thumb!,
+        card: variants.card!,
+        hero: variants.hero!,
+        original: { webpKey: origWebpKey, jpgKey: origJpgKey, webpUrl: origWebpUrl, jpgUrl: origJpgUrl, width: hero.width, height: hero.height }
+      },
+      updatedAt: now
+    };
+
+    const imageResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Image`, {
+      method: 'POST',
+      headers: {
+        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(imageData)
     });
+
+    if (!imageResponse.ok) {
+      const errorText = await imageResponse.text();
+      console.error("Supabase Image creation failed:", {
+        status: imageResponse.status,
+        statusText: imageResponse.statusText,
+        errorText,
+        imageData
+      });
+      throw new Error(`Failed to create image record: ${imageResponse.statusText} - ${errorText}`);
+    }
+
+    const imageArray = await imageResponse.json();
+    const image = imageArray[0]; // Supabase returns an array
 
     return NextResponse.json({ imageId: image.id, variants: image.variants });
   } catch (error) {

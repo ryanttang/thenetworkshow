@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { SupabaseClient } from "@/lib/supabase";
 import { getServerAuthSession } from "@/lib/auth";
 import { updateEventSchema } from "@/lib/validation";
 import { canEditEvent } from "@/lib/rbac";
@@ -16,11 +16,9 @@ export async function GET(
       return NextResponse.json({ error: "Event ID is required" }, { status: 400 });
     }
 
-    // Look up by ID (for authenticated users)
-    const event = await prisma.event.findUnique({
-      where: { id: id },
-      include: { heroImage: true, images: true, owner: true }
-    });
+    // Use Supabase REST API to fetch event
+    const supabase = new SupabaseClient(true);
+    const event = await supabase.findUnique("Event", { id }) as any;
     
     if (!event) {
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
@@ -38,10 +36,11 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     const session = await getServerAuthSession();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const event = await prisma.event.findUnique({ where: { id: params.id } });
+    const supabase = new SupabaseClient(true);
+    const event = await supabase.findUnique("Event", { id: params.id }) as any;
     if (!event) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-    const user = await prisma.user.findUnique({ where: { email: session.user!.email! }});
+    const user = await supabase.findUnique("User", { email: session.user!.email! }) as any;
     if (!user || !canEditEvent(event, user.id, user.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -69,14 +68,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       
       // Ensure slug is unique by appending numbers if needed
       while (true) {
-        const existing = await prisma.event.findFirst({
-          where: { 
-            slug: slug,
-            id: { not: params.id } // Exclude current event
-          }
-        });
+        const existing = await supabase.findUnique("Event", { slug }) as any;
         
-        if (!existing) {
+        if (!existing || existing.id === params.id) {
           break;
         }
         
@@ -88,36 +82,70 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       parsed.data.slug = slug;
     }
 
-    // Convert datetime-local format to proper ISO format for Prisma
+    // Convert datetime-local format to proper ISO format
     const updateData: any = { ...parsed.data };
     if (updateData.startAt) {
-      updateData.startAt = new Date(updateData.startAt);
+      updateData.startAt = new Date(updateData.startAt).toISOString();
     }
     if (updateData.endAt) {
-      updateData.endAt = new Date(updateData.endAt);
+      updateData.endAt = new Date(updateData.endAt).toISOString();
     }
 
-    const updated = await prisma.event.update({ where: { id: params.id }, data: updateData });
+    // Update event using Supabase REST API
+    const updateResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Event?id=eq.${params.id}`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(updateData)
+    });
+
+    if (!updateResponse.ok) {
+      const errorText = await updateResponse.text();
+      console.error("Supabase Event update failed:", {
+        status: updateResponse.status,
+        statusText: updateResponse.statusText,
+        errorText,
+        updateData
+      });
+      return NextResponse.json({ error: "Failed to update event" }, { status: 500 });
+    }
+
+    const updatedArray = await updateResponse.json();
+    const updated = updatedArray[0]; // Supabase returns an array
     
     // Handle hero image assignment/removal
     if (parsed.data.heroImageId !== undefined) {
       if (parsed.data.heroImageId) {
         // Assign new hero image
-        await prisma.image.update({ where: { id: parsed.data.heroImageId }, data: { eventId: params.id } });
+        await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Image?id=eq.${parsed.data.heroImageId}`, {
+          method: 'PATCH',
+          headers: {
+            'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ eventId: params.id })
+        });
       } else {
         // Remove hero image (heroImageId is empty string)
-        await prisma.event.update({ 
-          where: { id: params.id }, 
-          data: { heroImageId: null } 
+        await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Event?id=eq.${params.id}`, {
+          method: 'PATCH',
+          headers: {
+            'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ heroImageId: null })
         });
       }
     }
     
-    // Return the updated event with hero image included
-    const eventWithHero = await prisma.event.findUnique({
-      where: { id: params.id },
-      include: { heroImage: true }
-    });
+    // Return the updated event
+    const eventWithHero = await supabase.findUnique("Event", { id: params.id }) as any;
     
     return NextResponse.json(eventWithHero);
   } catch (error) {
@@ -133,14 +161,34 @@ export async function DELETE(_: NextRequest, { params }: { params: { id: string 
   const session = await getServerAuthSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const event = await prisma.event.findUnique({ where: { id: params.id } });
+  const supabase = new SupabaseClient(true);
+  const event = await supabase.findUnique("Event", { id: params.id }) as any;
   if (!event) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const user = await prisma.user.findUnique({ where: { email: session.user!.email! }});
+  const user = await supabase.findUnique("User", { email: session.user!.email! }) as any;
   if (!user || !canEditEvent(event, user.id, user.role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  await prisma.event.delete({ where: { id: params.id } });
+  // Delete event using Supabase REST API
+  const deleteResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Event?id=eq.${params.id}`, {
+    method: 'DELETE',
+    headers: {
+      'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
+      'Content-Type': 'application/json'
+    }
+  });
+
+  if (!deleteResponse.ok) {
+    const errorText = await deleteResponse.text();
+    console.error("Supabase Event deletion failed:", {
+      status: deleteResponse.status,
+      statusText: deleteResponse.statusText,
+      errorText
+    });
+    return NextResponse.json({ error: "Failed to delete event" }, { status: 500 });
+  }
+
   return NextResponse.json({ ok: true });
 }

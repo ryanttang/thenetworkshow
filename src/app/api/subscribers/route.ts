@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { SupabaseClient } from "@/lib/supabase";
 import { z } from "zod";
 
 const subscribeSchema = z.object({
@@ -11,10 +11,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email } = subscribeSchema.parse(body);
 
+    const supabase = new SupabaseClient(true);
+
     // Check if email already exists
-    const existingSubscriber = await prisma.subscriber.findUnique({
-      where: { email },
-    });
+    const existingSubscriber = await supabase.findUnique("Subscriber", { email }) as any;
 
     if (existingSubscriber) {
       if (existingSubscriber.isActive) {
@@ -23,11 +23,25 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       } else {
-        // Reactivate the subscriber
-        await prisma.subscriber.update({
-          where: { email },
-          data: { isActive: true, updatedAt: new Date() },
+        // Reactivate the subscriber using Supabase REST API
+        const updateResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Subscriber?email=eq.${encodeURIComponent(email)}`, {
+          method: 'PATCH',
+          headers: {
+            'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ isActive: true, updatedAt: new Date().toISOString() })
         });
+
+        if (!updateResponse.ok) {
+          console.error("Failed to reactivate subscriber:", await updateResponse.text());
+          return NextResponse.json(
+            { error: "Failed to resubscribe. Please try again." },
+            { status: 500 }
+          );
+        }
+
         return NextResponse.json(
           { message: "Successfully resubscribed to event invites!" },
           { status: 200 }
@@ -35,10 +49,32 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create new subscriber
-    await prisma.subscriber.create({
-      data: { email },
+    // Create new subscriber using Supabase REST API
+    const subscriberData = { email };
+    const createResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Subscriber`, {
+      method: 'POST',
+      headers: {
+        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(subscriberData)
     });
+
+    if (!createResponse.ok) {
+      const errorText = await createResponse.text();
+      console.error("Supabase Subscriber creation failed:", {
+        status: createResponse.status,
+        statusText: createResponse.statusText,
+        errorText,
+        subscriberData
+      });
+      return NextResponse.json(
+        { error: "Failed to subscribe. Please try again." },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json(
       { message: "Successfully subscribed to event invites!" },
@@ -71,32 +107,34 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit;
 
+    const supabase = new SupabaseClient(true);
+
     // Build where clause
-    const where: any = {};
+    let whereClause: any = {};
     
     if (activeOnly) {
-      where.isActive = true;
+      whereClause.isActive = true;
     }
     
     if (search) {
-      where.email = {
-        contains: search,
-        mode: "insensitive",
-      };
+      whereClause.email = { contains: search };
     }
 
-    const [subscribers, total] = await Promise.all([
-      prisma.subscriber.findMany({
-        where,
-        orderBy: { createdAt: "desc" },
-        skip,
-        take: limit,
-      }),
-      prisma.subscriber.count({ where }),
-    ]);
+    // Get subscribers
+    const subscribers = await supabase.findMany("Subscriber", {
+      where: whereClause,
+      orderBy: { createdAt: "desc" },
+      select: "*"
+    }) as any[];
+
+    // Get total count
+    const total = await supabase.count("Subscriber", whereClause);
+
+    // Apply pagination manually
+    const paginatedSubscribers = subscribers.slice(skip, skip + limit);
 
     return NextResponse.json({
-      subscribers,
+      subscribers: paginatedSubscribers,
       pagination: {
         page,
         limit,
