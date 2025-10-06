@@ -116,7 +116,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public folder
      */
-    // Temporarily disable middleware to debug dashboard issue
-    // '/((?!_next/static|_next/image|favicon.ico|public/).*)',
+    '/((?!_next/static|_next/image|favicon.ico|public/).*)',
   ],
 };

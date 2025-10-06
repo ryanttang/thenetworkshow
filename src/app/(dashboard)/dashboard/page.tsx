@@ -38,7 +38,10 @@ export default async function DashboardPage() {
     logger.info("Loaded events", { ...reqMeta, count: items.length, durationMs: Date.now() - t0 });
 
     // Get coordinations - admins and organizers can see all, others only their own
-    const coordinationsWhere = canManageAllEvents ? {} : { "event.ownerId": me.id };
+    // Avoid PostgREST nested filters by using eventId IN (owned event IDs)
+    const coordinationsWhere = canManageAllEvents 
+      ? {}
+      : { eventId: { in: (items || []).map((e: any) => e.id).filter(Boolean) } };
     const t1 = Date.now();
     const coordinations = await supabase.findMany("Coordination", {
       where: coordinationsWhere,

@@ -3,19 +3,22 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  throw new Error('Missing Supabase environment variables');
-}
-
 export class SupabaseClient {
   private baseUrl: string;
   private headers: Record<string, string>;
 
   constructor(useServiceRole = false) {
+    if (!SUPABASE_URL) {
+      throw new Error('Supabase URL not configured. Set NEXT_PUBLIC_SUPABASE_URL');
+    }
+    if (!SUPABASE_ANON_KEY) {
+      throw new Error('Supabase Anon Key not configured. Set NEXT_PUBLIC_SUPABASE_ANON_KEY');
+    }
+
     this.baseUrl = `${SUPABASE_URL}/rest/v1`;
     
     // Use service role key for server-side operations, anon key for client-side
-    const key = useServiceRole && SUPABASE_SERVICE_ROLE_KEY ? SUPABASE_SERVICE_ROLE_KEY : SUPABASE_ANON_KEY!;
+    const key = useServiceRole && SUPABASE_SERVICE_ROLE_KEY ? SUPABASE_SERVICE_ROLE_KEY : SUPABASE_ANON_KEY;
     
     this.headers = {
       'apikey': key,
@@ -139,5 +142,3 @@ export class SupabaseClient {
     return 0;
   }
 }
-
-export const supabase = new SupabaseClient();
