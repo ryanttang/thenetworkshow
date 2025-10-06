@@ -17,10 +17,24 @@ const createPrismaClient = () => {
     } as any;
   }
   
+  // In production, use service role key to bypass RLS
+  let databaseUrl = process.env.DATABASE_URL;
+  
+  if (process.env.NODE_ENV === 'production' && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    // Replace the anon key with service role key in the DATABASE_URL
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (supabaseUrl && databaseUrl?.includes(supabaseUrl)) {
+      databaseUrl = databaseUrl.replace(
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+        process.env.SUPABASE_SERVICE_ROLE_KEY
+      );
+    }
+  }
+  
   return new PrismaClient({
     datasources: {
       db: {
-        url: process.env.DATABASE_URL,
+        url: databaseUrl,
       },
     },
     log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
