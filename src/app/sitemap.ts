@@ -1,6 +1,4 @@
 import { MetadataRoute } from 'next'
-import { prisma } from '@/lib/prisma'
-import { Event, Gallery } from '@prisma/client'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://thenetworkshow.com'
@@ -45,57 +43,42 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  // Dynamic event pages
+  // Dynamic event pages (via REST to avoid DB at build time)
   let eventPages: MetadataRoute.Sitemap = []
-  
   try {
-    const events = await prisma.event.findMany({
-      where: {
-        status: 'PUBLISHED',
-      },
-      select: {
-        slug: true,
-        updatedAt: true,
-        startAt: true,
-      },
-      orderBy: {
-        startAt: 'desc',
-      },
+    const res = await fetch(`${baseUrl}/api/events?status=PUBLISHED&limit=200`, {
+      next: { revalidate: 300 },
     })
-
-    eventPages = events.map((event: Pick<Event, 'slug' | 'updatedAt' | 'startAt'>) => ({
-      url: `${baseUrl}/events/${event.slug}`,
-      lastModified: event.updatedAt,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    }))
+    if (res.ok) {
+      const data = await res.json()
+      const items: Array<{ slug: string; updatedAt?: string | Date; startAt?: string | Date }> = data.items || []
+      eventPages = items.map((event) => ({
+        url: `${baseUrl}/events/${event.slug}`,
+        lastModified: event.updatedAt ? new Date(event.updatedAt) : new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      }))
+    }
   } catch (error) {
     console.log('Error fetching events for sitemap:', error)
   }
 
-  // Dynamic gallery pages
+  // Dynamic gallery pages (via REST)
   let galleryPages: MetadataRoute.Sitemap = []
-  
   try {
-    const galleries = await prisma.gallery.findMany({
-      where: {
-        isPublic: true,
-      },
-      select: {
-        id: true,
-        updatedAt: true,
-      },
-      orderBy: {
-        updatedAt: 'desc',
-      },
+    const res = await fetch(`${baseUrl}/api/galleries/public`, {
+      next: { revalidate: 300 },
     })
-
-    galleryPages = galleries.map((gallery: Pick<Gallery, 'id' | 'updatedAt'>) => ({
-      url: `${baseUrl}/gallery/${gallery.id}`,
-      lastModified: gallery.updatedAt,
-      changeFrequency: 'monthly' as const,
-      priority: 0.6,
-    }))
+    if (res.ok) {
+      const data = await res.json()
+      const items: Array<{ id: string; updatedAt?: string | Date }> = data.items || data.galleries || []
+      galleryPages = items.map((gallery) => ({
+        url: `${baseUrl}/gallery/${gallery.id}`,
+        lastModified: gallery.updatedAt ? new Date(gallery.updatedAt) : new Date(),
+        changeFrequency: 'monthly' as const,
+        priority: 0.6,
+      }))
+    }
   } catch (error) {
     console.log('Error fetching galleries for sitemap:', error)
   }
