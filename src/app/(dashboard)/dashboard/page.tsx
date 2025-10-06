@@ -458,8 +458,10 @@ export default async function DashboardPage() {
         timestamp: new Date().toISOString(),
         extra: { ...reqMeta, phase: "dashboard-catch" }
       };
-      const base = process.env.NEXT_PUBLIC_SITE_URL || "";
-      await fetch(`${base}/api/debug/error-report`, {
+      const origin = process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : (process.env.NEXT_PUBLIC_SITE_URL || "https://thenetworkshow.vercel.app");
+      await fetch(`${origin}/api/debug/error-report`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
