@@ -29,19 +29,30 @@ export default function HeroImageUploader({
 
   // Load initial image if provided, or clear if undefined
   useEffect(() => {
+    console.log("HeroImageUploader: useEffect triggered", { initialImageId });
+    
     if (initialImageId) {
+      console.log("HeroImageUploader: Loading initial image with ID:", initialImageId);
       fetch(`/api/images/metadata/${initialImageId}`)
-        .then(res => res.json())
+        .then(res => {
+          console.log("HeroImageUploader: Metadata API response status:", res.status);
+          return res.json();
+        })
         .then(data => {
+          console.log("HeroImageUploader: Metadata API response data:", data);
           if (data.id) {
+            console.log("HeroImageUploader: Setting current image:", data);
             setCurrentImage(data);
             onUploaded(data.id, data.variants);
+          } else {
+            console.error("HeroImageUploader: No image ID in response:", data);
           }
         })
         .catch(error => {
-          console.error("Failed to load initial image:", error);
+          console.error("HeroImageUploader: Failed to load initial image:", error);
         });
     } else {
+      console.log("HeroImageUploader: No initialImageId provided, clearing current image");
       // Clear current image if initialImageId is undefined/null
       setCurrentImage(null);
     }
@@ -68,15 +79,22 @@ export default function HeroImageUploader({
     setBusy(true);
     
     try {
+      console.log("HeroImageUploader: Starting upload for file:", file.name);
       const result = await uploadFile(file);
+      console.log("HeroImageUploader: Upload result:", result);
+      
       const newImage = { 
         id: result.imageId, 
         variants: result.variants, 
         fileName: file.name 
       };
+      console.log("HeroImageUploader: Setting new image:", newImage);
+      
       setLastUploadedImage(newImage);
       setCurrentImage(newImage);
       onUploaded(result.imageId, result.variants);
+      
+      console.log("HeroImageUploader: Upload completed successfully");
       
       toast({
         title: "Hero image uploaded successfully",
@@ -85,7 +103,7 @@ export default function HeroImageUploader({
         duration: 3000,
       });
     } catch (error) {
-      console.error(`Failed to upload ${file.name}:`, error);
+      console.error(`HeroImageUploader: Failed to upload ${file.name}:`, error);
       toast({
         title: `Failed to upload ${file.name}`,
         description: error instanceof Error ? error.message : "Unknown error",
@@ -141,32 +159,45 @@ export default function HeroImageUploader({
   };
 
   const getImageUrl = (image: any) => {
+    console.log("HeroImageUploader: getImageUrl called with image:", image);
+    
     // Use direct S3 URLs instead of going through our API
     if (image.variants?.thumb?.webpUrl) {
+      console.log("HeroImageUploader: Using thumb webpUrl:", image.variants.thumb.webpUrl);
       return image.variants.thumb.webpUrl;
     }
     if (image.variants?.thumb?.jpgUrl) {
+      console.log("HeroImageUploader: Using thumb jpgUrl:", image.variants.thumb.jpgUrl);
       return image.variants.thumb.jpgUrl;
     }
     if (image.variants?.card?.webpUrl) {
+      console.log("HeroImageUploader: Using card webpUrl:", image.variants.card.webpUrl);
       return image.variants.card.webpUrl;
     }
     if (image.variants?.card?.jpgUrl) {
+      console.log("HeroImageUploader: Using card jpgUrl:", image.variants.card.jpgUrl);
       return image.variants.card.jpgUrl;
     }
     if (image.variants?.hero?.webpUrl) {
+      console.log("HeroImageUploader: Using hero webpUrl:", image.variants.hero.webpUrl);
       return image.variants.hero.webpUrl;
     }
     if (image.variants?.hero?.jpgUrl) {
+      console.log("HeroImageUploader: Using hero jpgUrl:", image.variants.hero.jpgUrl);
       return image.variants.hero.jpgUrl;
     }
     // Fallback to our API route if no direct URLs
     if (image.variants?.thumb?.webpKey) {
-      return `/api/images/${encodeURIComponent(image.variants.thumb.webpKey)}`;
+      const apiUrl = `/api/images/${encodeURIComponent(image.variants.thumb.webpKey)}`;
+      console.log("HeroImageUploader: Using API route for webpKey:", apiUrl);
+      return apiUrl;
     }
     if (image.variants?.thumb?.jpgKey) {
-      return `/api/images/${encodeURIComponent(image.variants.thumb.jpgKey)}`;
+      const apiUrl = `/api/images/${encodeURIComponent(image.variants.thumb.jpgKey)}`;
+      console.log("HeroImageUploader: Using API route for jpgKey:", apiUrl);
+      return apiUrl;
     }
+    console.log("HeroImageUploader: No valid image URLs found, using placeholder");
     return "/placeholder-image.svg";
   };
 

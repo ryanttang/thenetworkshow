@@ -180,8 +180,12 @@ export default function EventForm({ initial, mode = "create", eventId, existingI
         {/* Hero Image Section */}
         <Box>
           <FormLabel fontSize="sm" fontWeight="semibold">Hero Image (Main Flyer)</FormLabel>
+          {console.log("EventForm: Rendering HeroImageUploader with initialImageId:", heroImageId)}
           <HeroImageUploader 
-            onUploaded={(id) => setHeroImageId(id)} 
+            onUploaded={(id) => {
+              console.log("EventForm: HeroImageUploader onUploaded called with ID:", id);
+              setHeroImageId(id);
+            }} 
             initialImageId={heroImageId}
             eventId={eventId}
           />

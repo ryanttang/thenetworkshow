@@ -98,6 +98,13 @@ export async function POST(req: NextRequest) {
       updatedAt: now
     };
 
+    console.log("Upload API: Creating image record with data:", {
+      imageId,
+      eventId: eventId ?? null,
+      uploaderId: uploader.id,
+      variants: Object.keys(imageData.variants)
+    });
+
     const imageResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Image`, {
       method: 'POST',
       headers: {
@@ -108,6 +115,8 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify(imageData)
     });
+
+    console.log("Upload API: Image creation response status:", imageResponse.status);
 
     if (!imageResponse.ok) {
       const errorText = await imageResponse.text();
@@ -123,7 +132,16 @@ export async function POST(req: NextRequest) {
     const imageArray = await imageResponse.json();
     const image = imageArray[0]; // Supabase returns an array
 
-    return NextResponse.json({ imageId: image.id, variants: image.variants });
+    console.log("Upload API: Final image record:", {
+      id: image.id,
+      hasVariants: !!image.variants,
+      variantKeys: image.variants ? Object.keys(image.variants) : []
+    });
+
+    const response = { imageId: image.id, variants: image.variants };
+    console.log("Upload API: Returning response:", response);
+    
+    return NextResponse.json(response);
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json({ 
